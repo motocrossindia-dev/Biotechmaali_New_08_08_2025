@@ -1,0 +1,10 @@
+export 'product_details_screen.dart';
+export 'product_details_provider.dart';
+export 'widgets/product_details_rating_widget.dart';
+export 'widgets/caroucel_product_widget.dart';
+export 'widgets/product_size_widget.dart';
+export 'widgets/planter_widget.dart';
+export 'widgets/color_container_widget.dart';
+export 'widgets/product_description.dart';
+export '/src/module/product_detail/rating_and_review/rating_and_review.dart';
+export '/src/module/product_detail/product_rating/product_rating.dart';

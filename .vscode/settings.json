@@ -1,0 +1,11 @@
+{
+  "dart.flutterSdkPath": ".fvm/versions/3.24.4"
+
+  // "github.copilot.enable": {
+  //   "*": false,
+  //   "plaintext": false,
+  //   "markdown": false
+  // },
+  // "editor.inlineSuggest.enabled": false
+
+}
