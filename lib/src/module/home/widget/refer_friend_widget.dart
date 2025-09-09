@@ -33,12 +33,19 @@ class ReferFriendWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              const Center(
-                child: CommonTextWidget(
-                  title: 'Refer & Earn with BiotechMaali Rewards',
-                  // 'Join our Plant Parent Rewards Club',
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
+              Padding(
+                padding: EdgeInsets.symmetric(
+                    horizontal: width * 0.04), // ~16px for 400px width
+                child: const Center(
+                  child: CommonTextWidget(
+                    title: 'Refer & Earn with BiotechMaali Rewards',
+                    // 'Join our Plant Parent Rewards Club',
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.visible,
+                  ),
                 ),
               ),
               Padding(

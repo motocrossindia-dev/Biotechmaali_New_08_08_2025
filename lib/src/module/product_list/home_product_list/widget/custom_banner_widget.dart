@@ -1,5 +1,5 @@
 import 'package:biotech_maali/import.dart';
-import 'package:biotech_maali/src/module/product_list/product_list/product_list_screen.dart';
+import 'package:biotech_maali/src/module/product_list/product_list/widgets/offer_product_list_widget.dart';
 
 class CustomBannerWidget extends StatelessWidget {
   const CustomBannerWidget({super.key});
@@ -15,12 +15,13 @@ class CustomBannerWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-                height: 50,
-                width: 70,
-                child: Image.asset(
-                  'assets/png/images/product_list_banner.png',
-                  fit: BoxFit.fill,
-                )),
+              height: 50,
+              width: 70,
+              child: Image.asset(
+                'assets/png/images/product_list_banner.png',
+                fit: BoxFit.fill,
+              ),
+            ),
             Flexible(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -45,23 +46,22 @@ class CustomBannerWidget extends StatelessWidget {
                       title: 'Shop Now',
                       fontSize: 8,
                       event: () {
-                        context
-                            .read<HomeProvider>()
-                            .maincategories
-                            .forEach((element) {
-                          if (element.name.toLowerCase() == 'offers') {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ProductListScreen(
-                                  isCategory: true,
-                                  title: "OFFERS",
-                                  id: element.id.toString(),
+                        context.read<HomeProvider>().maincategories.forEach(
+                          (element) {
+                            if (element.name.toLowerCase() == 'offers') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => OfferProductListWidget(
+                                    isCategory: true,
+                                    title: "OFFERS",
+                                    id: element.id.toString(),
+                                  ),
                                 ),
-                              ),
-                            );
-                          }
-                        });
+                              );
+                            }
+                          },
+                        );
                       },
                     ),
                   )

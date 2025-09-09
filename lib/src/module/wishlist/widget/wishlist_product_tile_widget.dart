@@ -2,7 +2,6 @@ import 'package:biotech_maali/core/settings_provider/settings_provider.dart';
 import 'package:biotech_maali/src/module/cart/cart_provider.dart';
 import 'package:biotech_maali/src/module/wishlist/whishlist_provider.dart';
 import 'package:biotech_maali/src/widgets/login_prompt_dialog.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../../import.dart';
 

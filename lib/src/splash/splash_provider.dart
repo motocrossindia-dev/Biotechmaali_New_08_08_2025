@@ -3,7 +3,6 @@ import 'package:biotech_maali/import.dart';
 import 'package:biotech_maali/src/module/location_popup/location_pincode_provider.dart';
 import 'package:biotech_maali/src/permission_handle/premission_handle_provider.dart';
 import 'package:biotech_maali/src/permission_handle/premission_handle_screen.dart';
-import 'package:biotech_maali/src/splash/coming_soon/coming_soon.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:biotech_maali/src/splash/token_repository.dart';
 
@@ -63,13 +62,13 @@ class SplashProvider extends ChangeNotifier {
       return;
     }
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const ComingSoonScreen(),
-      ),
-    );
-    return;
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => const ComingSoonScreen(),
+    //   ),
+    // );
+    // return;
     await context.read<PermissionHandleProvider>().checkAllPermissions();
     await loadData(context);
     bool permissionGranted = prefs.getBool("permissionGranted") ?? false;

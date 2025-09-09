@@ -395,46 +395,46 @@ class FranchiseScreen extends StatelessWidget {
         .toList();
   }
 
-  List<Widget> _buildStoreCards() {
-    return [
-      _buildStoreCard('Bangalore', 'ELECTRONICS CITY Ph Gate'),
-      _buildStoreCard('Bangalore', 'ELECTRONICS CITY Ph Gate'),
-    ];
-  }
+  // List<Widget> _buildStoreCards() {
+  //   return [
+  //     _buildStoreCard('Bangalore', 'ELECTRONICS CITY Ph Gate'),
+  //     _buildStoreCard('Bangalore', 'ELECTRONICS CITY Ph Gate'),
+  //   ];
+  // }
 
-  Widget _buildStoreCard(String city, String location) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFF8BC34A)),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  city,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Icon(Icons.location_on_outlined,
-                    color: Color(0xFF8BC34A)),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(location),
-            const Text('Contact Number: 9999999999'),
-            const Text('Time: 9am to 9pm'),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _buildStoreCard(String city, String location) {
+  //   return Container(
+  //     margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+  //     decoration: BoxDecoration(
+  //       border: Border.all(color: const Color(0xFF8BC34A)),
+  //       borderRadius: BorderRadius.circular(8),
+  //     ),
+  //     child: Padding(
+  //       padding: const EdgeInsets.all(16.0),
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Row(
+  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //             children: [
+  //               Text(
+  //                 city,
+  //                 style: const TextStyle(
+  //                   fontSize: 18,
+  //                   fontWeight: FontWeight.bold,
+  //                 ),
+  //               ),
+  //               const Icon(Icons.location_on_outlined,
+  //                   color: Color(0xFF8BC34A)),
+  //             ],
+  //           ),
+  //           const SizedBox(height: 8),
+  //           Text(location),
+  //           const Text('Contact Number: 9999999999'),
+  //           const Text('Time: 9am to 9pm'),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 }

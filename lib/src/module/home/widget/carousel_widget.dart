@@ -1,8 +1,6 @@
 import 'dart:developer';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:shimmer/shimmer.dart';
 import '../../../../import.dart';
 
 class CarouselWidget extends StatelessWidget {

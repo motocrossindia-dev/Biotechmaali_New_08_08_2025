@@ -2,8 +2,6 @@ import 'package:biotech_maali/src/module/location_popup/location_pincode_provide
 import 'package:biotech_maali/src/payment_and_order/change_address/model/address_model.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-import 'package:shimmer/shimmer.dart';
-
 import '../../../import.dart';
 
 class LocationPincodePopup extends StatefulWidget {
@@ -27,6 +25,11 @@ class _LocationPincodePopupState extends State<LocationPincodePopup> {
     final popupProvider = context.read<LocationPincodeProvider>();
 
     popupProvider.checkUserLoginStatus();
+
+    // Load current saved address and pincode
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await popupProvider.loadCurrentLocation();
+    });
   }
 
   @override
@@ -121,19 +124,32 @@ class _LocationPincodePopupState extends State<LocationPincodePopup> {
                         width: MediaQuery.of(context).size.width *
                             0.25, // Responsive width
                         child: ElevatedButton(
-                          onPressed: () async {
-                            SharedPreferences prefs =
-                                await SharedPreferences.getInstance();
-                            prefs.setString("user_pincode",
-                                provider.pincodeController.text);
-                            await context
-                                .read<HomeProvider>()
-                                .getLocationPincode();
-                            Fluttertoast.showToast(
-                                msg: "Location updated successfully",
-                                backgroundColor: cButtonGreen);
-                            Navigator.pop(context);
-                          },
+                          onPressed: provider.isPincodeValidating
+                              ? null
+                              : () async {
+                                  String pincode =
+                                      provider.pincodeController.text.trim();
+                                  if (pincode.isEmpty) {
+                                    Fluttertoast.showToast(
+                                      msg: "Please enter a pincode",
+                                      backgroundColor: Colors.red,
+                                    );
+                                    return;
+                                  }
+
+                                  bool isValid = await provider
+                                      .validateAndFetchAddressFromPincode(
+                                          pincode, context);
+                                  if (isValid) {
+                                    await context
+                                        .read<HomeProvider>()
+                                        .getLocationPincode();
+                                    Fluttertoast.showToast(
+                                        msg: "Location updated successfully",
+                                        backgroundColor: cButtonGreen);
+                                    Navigator.pop(context);
+                                  }
+                                },
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(2),
@@ -142,11 +158,65 @@ class _LocationPincodePopupState extends State<LocationPincodePopup> {
                             backgroundColor: Colors.white,
                             foregroundColor: cBottomNav,
                           ),
-                          child: const Text('Change'),
+                          child: provider.isPincodeValidating
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : const Text('Change'),
                         ),
                       ),
                     ],
                   ),
+
+                  const SizedBox(height: 10),
+
+                  // Show current address if available
+                  if (provider.addressController.text.isNotEmpty)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.green.shade200),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.location_on,
+                                color: Colors.green.shade600,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 4),
+                              const Text(
+                                'Current Location:',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.green,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            provider.addressController.text,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: Colors.black87,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
 
                   const SizedBox(height: 20),
 

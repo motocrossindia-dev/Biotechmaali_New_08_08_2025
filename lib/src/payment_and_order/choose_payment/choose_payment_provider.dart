@@ -99,7 +99,7 @@ class ChoosePaymentProvider extends ChangeNotifier {
       if (actualWalletBalance! >= totalAmount) {
         // Wallet has enough balance - process payment with wallet only
         initiateWalletOnlyPayment(context, orderSummaryResponse);
-      } else if (actualWalletBalance! > 0) {
+      } else if (actualWalletBalance! >= 0) {
         // Wallet has partial balance - use wallet + razorpay for remaining
         initiatePartialWalletPayment(context, orderSummaryResponse);
       } else {

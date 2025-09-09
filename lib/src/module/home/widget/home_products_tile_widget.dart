@@ -26,16 +26,16 @@ class HomeProductsTileWidget extends StatelessWidget {
               ),
               Consumer<HomeProvider>(
                 builder: (context, provider, child) {
-                  List<HomeProductModel> products = [];
-                  if (title == "Featured") {
-                    products = provider.featuredProducts;
-                  } else if (title == "Latest") {
-                    products = provider.trendingProducts;
-                  } else if (title == "Bestseller") {
-                    products = provider.bestSellerProducts;
-                  } else if (title == "Seasonal Collection") {
-                    products = provider.seasonalProducts;
-                  }
+                  // List<HomeProductModel> products = [];
+                  // if (title == "Featured") {
+                  //   products = provider.featuredProducts;
+                  // } else if (title == "Latest") {
+                  //   products = provider.trendingProducts;
+                  // } else if (title == "Bestseller") {
+                  //   products = provider.bestSellerProducts;
+                  // } else if (title == "Seasonal Collection") {
+                  //   products = provider.seasonalProducts;
+                  // }
 
                   return CustomizableButton(
                     title: 'View All',
@@ -160,9 +160,15 @@ class HomeProductsTileWidget extends StatelessWidget {
                                   productImage: productDetails.image,
                                   tempImage:
                                       'assets/png/products/sample_product.png',
-                                  discountAmount:
-                                      productDetails.sellingPrice.toString(),
-                                  actualAmount: productDetails.mrp.toString(),
+                                  discountAmount: productDetails.sellingPrice
+                                              .toString() ==
+                                          "null"
+                                      ? "0.00"
+                                      : productDetails.sellingPrice.toString(),
+                                  actualAmount:
+                                      productDetails.mrp.toString() == "null"
+                                          ? "0.00"
+                                          : productDetails.mrp.toString(),
                                   rating:
                                       productDetails.productRating.avgRating,
                                   home: false,

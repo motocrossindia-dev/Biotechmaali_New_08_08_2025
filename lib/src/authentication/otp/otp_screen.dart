@@ -1,5 +1,3 @@
-import 'package:shimmer/shimmer.dart';
-
 import '../../../import.dart';
 
 class OtpScreen extends StatelessWidget {

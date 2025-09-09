@@ -9,15 +9,15 @@ import 'package:biotech_maali/src/widgets/login_prompt_dialog.dart';
 import 'package:biotech_maali/src/module/product_list/product_list_shimmer.dart';
 import 'package:biotech_maali/src/widgets/shimmer/product_tile_shimmer.dart';
 
-import '../../../../import.dart';
+import '../../../../../import.dart';
 
-class ProductListScreen extends StatefulWidget {
+class OfferProductListWidget extends StatefulWidget {
   final bool isCategory;
   final String title;
   final String id;
   final String? categoryName;
 
-  const ProductListScreen(
+  const OfferProductListWidget(
       {required this.isCategory,
       required this.title,
       required this.id,
@@ -25,10 +25,10 @@ class ProductListScreen extends StatefulWidget {
       super.key});
 
   @override
-  State<ProductListScreen> createState() => _ProductListScreenState();
+  State<OfferProductListWidget> createState() => _OfferProductListWidgetState();
 }
 
-class _ProductListScreenState extends State<ProductListScreen> {
+class _OfferProductListWidgetState extends State<OfferProductListWidget> {
   String _selectedOption = 'Default';
   final ScrollController _scrollController = ScrollController();
   bool _isFiltered = false;
@@ -135,7 +135,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
               return const ProductListShimmer();
             }
 
-            List<Product> products = provider.allProducts;
+            List<Product> products = provider.offerProducts;
             log("Building product list with ${products.length} products"); // Add this log
 
             if (products.isEmpty) {
@@ -214,7 +214,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                   .addOrRemoveWhishlistMainProduct(
                                       product.id, context);
                               if (result) {
-                                provider.updateWishList(
+                                provider.updateOfferWishList(
                                     product.isWishlist, product.id);
                               } else {
                                 return;
@@ -257,7 +257,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                         );
 
                                     if (result) {
-                                      provider.updateCart(
+                                      provider.updateOfferCart(
                                         product.isCart,
                                         product.id,
                                         context,

@@ -1,7 +1,6 @@
 import 'package:biotech_maali/src/module/product_list/product_list/product_list_screen.dart';
 import 'package:biotech_maali/src/module/explore/model/subcategory_model.dart';
 import 'package:biotech_maali/src/widgets/error_message_widget.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../../import.dart';
 

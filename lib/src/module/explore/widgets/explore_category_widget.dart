@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:biotech_maali/src/module/home/model/category_model.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../../import.dart';
 

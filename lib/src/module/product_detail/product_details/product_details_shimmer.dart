@@ -1,4 +1,3 @@
-import 'package:shimmer/shimmer.dart';
 import '../../../../import.dart';
 
 class ProductDetailsShimmer extends StatelessWidget {
@@ -44,7 +43,7 @@ class ProductDetailsShimmer extends StatelessWidget {
                     ],
                   ),
                   sizedBoxHeight15,
-                  
+
                   // Price row shimmer
                   Row(
                     children: [

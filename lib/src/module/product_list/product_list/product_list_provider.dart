@@ -10,6 +10,11 @@ class ProductListProdvider extends ChangeNotifier {
 
   List<Product> _allProducts = [];
   List<Product> _originalProducts = [];
+
+  List<Product> _offerProducts = [];
+  List<Product> _originalOfferProducts = [];
+  List<Product> get offerProducts => _offerProducts;
+  List<Product> get originalOfferProducts => _originalOfferProducts;
   bool _isLoading = false;
   String _currentSortOption = 'Default';
 
@@ -47,6 +52,23 @@ class ProductListProdvider extends ChangeNotifier {
     }
   }
 
+  void updateOfferWishList(bool isWishlist, int productId) {
+    final productIndex =
+        _offerProducts.indexWhere((product) => product.id == productId);
+    if (productIndex != -1) {
+      _offerProducts[productIndex].isWishlist = !isWishlist;
+
+      // Also update in original list
+      final originalIndex = _originalOfferProducts
+          .indexWhere((product) => product.id == productId);
+      if (originalIndex != -1) {
+        _originalOfferProducts[originalIndex].isWishlist = !isWishlist;
+      }
+
+      notifyListeners();
+    }
+  }
+
   Future<void> updateCart(
       bool isCart, int productId, BuildContext context) async {
     final cartProvider = context.read<CartProvider>();
@@ -62,6 +84,27 @@ class ProductListProdvider extends ChangeNotifier {
           _originalProducts.indexWhere((product) => product.id == productId);
       if (originalIndex != -1) {
         _originalProducts[originalIndex].isCart = !isCart;
+      }
+
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateOfferCart(
+      bool isCart, int productId, BuildContext context) async {
+    final cartProvider = context.read<CartProvider>();
+    await cartProvider.fetchCartItems();
+
+    final productIndex =
+        _offerProducts.indexWhere((product) => product.id == productId);
+    if (productIndex != -1) {
+      _offerProducts[productIndex].isCart = !isCart;
+
+      // Also update in original list
+      final originalIndex = _originalOfferProducts
+          .indexWhere((product) => product.id == productId);
+      if (originalIndex != -1) {
+        _originalOfferProducts[originalIndex].isCart = !isCart;
       }
 
       notifyListeners();
@@ -151,7 +194,7 @@ class ProductListProdvider extends ChangeNotifier {
     } else {
       _isLoading = true;
       _nextPageUrl = null;
-      _allProducts = [];
+      // _allProducts = [];
     }
 
     try {
@@ -160,11 +203,11 @@ class ProductListProdvider extends ChangeNotifier {
       );
 
       if (loadMore) {
-        _allProducts.addAll(result.products);
-        _originalProducts.addAll(result.products);
+        _offerProducts.addAll(result.products);
+        _originalOfferProducts.addAll(result.products);
       } else {
-        _allProducts = result.products;
-        _originalProducts = List.from(result.products);
+        _offerProducts = result.products;
+        _originalOfferProducts = List.from(result.products);
       }
 
       _nextPageUrl = result.nextPage;
