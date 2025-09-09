@@ -64,6 +64,7 @@ class ChoosePaymentProvider extends ChangeNotifier {
 
   void handleWalletCheckbox(bool value, double? walletBalence) {
     isWalletCheckbox = value;
+
     if (walletBalence != null) {
       _walletBalence = walletBalence;
     } else {

@@ -4,6 +4,7 @@ import 'package:biotech_maali/src/module/account/refer_friend/refer_friend_provi
 import 'package:biotech_maali/src/module/account/refer_friend/refer_friend_screen.dart';
 import 'package:biotech_maali/src/module/account/track_order/track_order_screen.dart';
 import 'package:biotech_maali/src/module/account/wallet/wallet_provider.dart';
+import 'package:biotech_maali/import.dart';
 import 'package:biotech_maali/src/module/account/wallet/wallet_screen.dart';
 import 'package:biotech_maali/src/module/account/widgets/subtitle_widget.dart';
 import 'package:biotech_maali/src/other_modules/carrers/carriers_screen.dart';
@@ -13,8 +14,6 @@ import 'package:biotech_maali/src/other_modules/our_store/our_store_screen.dart'
 import 'package:biotech_maali/src/other_modules/out_works/our_work_screen.dart';
 import 'package:biotech_maali/src/other_modules/services/services_screen.dart';
 import 'package:biotech_maali/src/payment_and_order/order_history/order_history_screen.dart';
-
-import '../../../import.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
@@ -916,21 +915,48 @@ void bottmomSheetLogout(BuildContext context) {
                 ElevatedButton(
                   onPressed: () async {
                     Navigator.pop(context); // Close bottom sheet
-                    SharedPreferences prefs =
-                        await SharedPreferences.getInstance();
-                    await prefs.remove('access_token');
-                    await prefs.remove('refresh_token');
-                    await prefs.remove('userName');
-                    await prefs.clear();
-                    final navProvider = context.read<BottomNavProvider>();
-                    navProvider.updateIndex(0);
 
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const MobileNumberScreen(),
+                    // Show loading indicator
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) => const Center(
+                        child: CircularProgressIndicator(),
                       ),
                     );
+
+                    // Clear all user session data using DataManager
+                    bool dataCleared = await DataManager.clearUserSession();
+
+                    // Also clear any remaining cache
+                    await DataManager.clearCacheDirectory();
+
+                    // Hide loading indicator
+                    Navigator.pop(context);
+
+                    if (dataCleared) {
+                      // Reset bottom navigation
+                      final navProvider = context.read<BottomNavProvider>();
+                      navProvider.updateIndex(0);
+
+                      // Navigate to login screen
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const MobileNumberScreen(),
+                        ),
+                        (route) => false,
+                      );
+                    } else {
+                      // Show error if data clearing failed
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content:
+                              Text('Error during logout. Please try again.'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,

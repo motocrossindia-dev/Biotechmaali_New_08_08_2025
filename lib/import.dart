@@ -1,6 +1,8 @@
 export '/main.dart';
 export '/biotech_app.dart';
 export 'core/config/config.dart';
+export 'core/services/data_manager.dart';
+export 'core/services/app_lifecycle_handler.dart';
 export '/src/src.dart';
 export '/core/core.dart';
 

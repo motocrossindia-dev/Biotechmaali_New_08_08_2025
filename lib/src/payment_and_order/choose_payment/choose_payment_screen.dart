@@ -2,6 +2,7 @@ import 'package:biotech_maali/src/module/account/wallet/wallet_provider.dart';
 import 'package:biotech_maali/src/payment_and_order/choose_payment/choose_payment_provider.dart';
 import 'package:biotech_maali/src/payment_and_order/choose_payment/widgets/gst_update_popup.dart';
 import 'package:biotech_maali/src/payment_and_order/order_summary/model/order_summary_response.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../../import.dart';
 
@@ -171,6 +172,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             isCheckbox: true,
                             onWalletChanged: (value) {
                               if (value == true) {
+                                if (walletProvider.balance == 0.0) {
+                                  Fluttertoast.showToast(
+                                      msg: "Insufficient wallet balance",
+                                      backgroundColor: Colors.red);
+                                  return;
+                                }
+
                                 // Calculate wallet balance after deduction for display
                                 double actualWalletBalance =
                                     walletProvider.balance -

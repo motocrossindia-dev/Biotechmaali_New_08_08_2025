@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'package:biotech_maali/import.dart';
-import 'package:biotech_maali/src/module/location_popup/location_pincode_provider.dart';
 import 'package:biotech_maali/src/permission_handle/premission_handle_provider.dart';
 import 'package:biotech_maali/src/permission_handle/premission_handle_screen.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -87,19 +86,16 @@ class SplashProvider extends ChangeNotifier {
       );
       return;
     }
-    Navigator.pushAndRemoveUntil(
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (context) => const BottomNavWidget(),
       ),
-      (route) => false,
     );
   }
 
   Future<void> loadData(BuildContext context) async {
     // context.read<LocationPincodeProvider>().getCurrentLocation(context);
-    // await context.read<PermissionHandleProvider>().checkAllPermissions();
-    context.read<LocationPincodeProvider>().getCurrentLocation(context);
     await context.read<HomeProvider>().refreshAll();
   }
 
