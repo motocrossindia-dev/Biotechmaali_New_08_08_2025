@@ -33,7 +33,8 @@ class SubCategories extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () {
                     provider.fetchMainCategories();
-                    provider.fetchSubcategory(provider.selectedCategoryId ?? 0);
+                    provider.fetchSubcategory(provider.selectedCategoryId ?? 0,
+                        context: context);
                   },
                   child: const Text('Retry'),
                 ),

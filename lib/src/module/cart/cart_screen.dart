@@ -87,120 +87,65 @@ class _CartScreenState extends State<CartScreen> {
               //   return const CartShimmer();
               // }
 
-              if (cartProvider.error.isNotEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(cartProvider.error),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () => cartProvider.fetchCartItems(),
-                        child: const Text('Retry'),
-                      ),
-                    ],
-                  ),
-                );
-              }
-
-              if (cartProvider.cartItems.isEmpty) {
-                return const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.shopping_cart_outlined, size: 64),
-                      SizedBox(height: 16),
-                      Text('Your cart is empty'),
-                    ],
-                  ),
-                );
-              }
-
-              return SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              return AbsorbPointer(
+                absorbing: cartProvider.isDeletingItem,
+                child: Stack(
                   children: [
-                    ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: cartProvider.cartItems.length,
-                      separatorBuilder: (context, index) => Container(
-                        height: 8,
-                        color: cAppBackround,
-                      ),
-                      itemBuilder: (context, index) {
-                        final item = cartProvider.cartItems[index];
-                        return CartProductTile(
-                          key: ValueKey(item.id),
-                          productId: item.productId,
-                          cartId: item.id,
-                          productTitle: item.name,
-                          productImage: item.image,
-                          sellingPrice:
-                              double.parse(item.sellingPrice.toString()),
-                          mrp: double.parse(item.mrp.toString()),
-                          quantity: item.quantity,
-                          stockStatus: item.stockStatus,
-                          onQuantityChanged: (newQuantity) async {
-                            await cartProvider.updateCartItemQuantity(
-                                item.id, newQuantity);
-                          },
-                          onDelete: () async {
-                            await cartProvider.deleteCartItem(item.id, context);
-                          },
-                        );
-                      },
-                    ),
-                    Container(
-                      height: 8,
-                      color: cAppBackround,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const CommonTextWidget(
-                            title: 'Price Details',
-                            fontSize: 20,
-                            fontWeight: FontWeight.w400,
-                          ),
-                          const Divider(),
-                          const SizedBox(height: 16),
-                          PriceDetailRow(
-                            title:
-                                'Price (${cartProvider.cartItems.length} Items)',
-                            amount: cartProvider.totalAmount,
-                          ),
-                          const SizedBox(height: 16),
-                          PriceDetailRow(
-                            title: 'Discount',
-                            amount: cartProvider.totalDiscount,
-                            color: Colors.green,
-                          ),
-                          // const SizedBox(height: 16),
-                          // const DeliveryChargesRow(),
-                          const SizedBox(height: 16),
-                          PriceDetailRow(
-                            title: 'Total Amount',
-                            amount: cartProvider.totalAmount -
-                                cartProvider.totalDiscount,
-                            isBold: true,
-                          ),
-                          const SizedBox(height: 16),
-                          Center(
-                            child: CommonTextWidget(
-                              title:
-                                  'You will save ₹${(cartProvider.totalDiscount).toStringAsFixed(2)} on this order',
-                              color: Colors.green,
-                              fontWeight: FontWeight.w400,
-                              fontSize: 16,
+                    // Main content
+                    _buildMainContent(cartProvider),
+                    // Loading overlay
+                    if (cartProvider.isDeletingItem) _buildLoadingOverlay(),
+
+                    // Full-screen loading overlay for delete operation
+                    if (cartProvider.isDeletingItem)
+                      Container(
+                        color: Colors.black.withOpacity(0.7),
+                        child: Center(
+                          child: Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.3),
+                                  blurRadius: 10,
+                                  spreadRadius: 2,
+                                ),
+                              ],
+                            ),
+                            child: const Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Color(
+                                        0xFF749F09), // cButtonGreen theme color
+                                  ),
+                                  strokeWidth: 3,
+                                ),
+                                SizedBox(height: 16),
+                                Text(
+                                  'Removing item...',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  'Please wait',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 80),
                   ],
                 ),
               );
@@ -248,6 +193,171 @@ class _CartScreenState extends State<CartScreen> {
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMainContent(CartProvider cartProvider) {
+    if (cartProvider.error.isNotEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(cartProvider.error),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => cartProvider.fetchCartItems(),
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (cartProvider.cartItems.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.shopping_cart_outlined, size: 64),
+            SizedBox(height: 16),
+            Text('Your cart is empty'),
+          ],
+        ),
+      );
+    }
+
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: cartProvider.cartItems.length,
+            separatorBuilder: (context, index) => Container(
+              height: 8,
+              color: cAppBackround,
+            ),
+            itemBuilder: (context, index) {
+              final item = cartProvider.cartItems[index];
+              return CartProductTile(
+                key: ValueKey(item.id),
+                productId: item.productId,
+                cartId: item.id,
+                productTitle: item.name,
+                productImage: item.image,
+                sellingPrice: double.parse(item.sellingPrice.toString()),
+                mrp: double.parse(item.mrp.toString()),
+                quantity: item.quantity,
+                stockStatus: item.stockStatus,
+                onQuantityChanged: (newQuantity) async {
+                  await cartProvider.updateCartItemQuantity(
+                      item.id, newQuantity);
+                },
+                onDelete: () async {
+                  await cartProvider.deleteCartItem(item.id, context);
+                },
+              );
+            },
+          ),
+          Container(
+            height: 8,
+            color: cAppBackround,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const CommonTextWidget(
+                  title: 'Price Details',
+                  fontSize: 20,
+                  fontWeight: FontWeight.w400,
+                ),
+                const Divider(),
+                const SizedBox(height: 16),
+                PriceDetailRow(
+                  title: 'Price (${cartProvider.cartItems.length} Items)',
+                  amount: cartProvider.totalAmount,
+                ),
+                const SizedBox(height: 16),
+                PriceDetailRow(
+                  title: 'Discount',
+                  amount: cartProvider.totalDiscount,
+                  color: Colors.green,
+                ),
+                const SizedBox(height: 16),
+                PriceDetailRow(
+                  title: 'Total Amount',
+                  amount: cartProvider.totalAmount - cartProvider.totalDiscount,
+                  isBold: true,
+                ),
+                const SizedBox(height: 16),
+                Center(
+                  child: CommonTextWidget(
+                    title:
+                        'You will save ₹${(cartProvider.totalDiscount).toStringAsFixed(2)} on this order',
+                    color: Colors.green,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 80),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingOverlay() {
+    return Container(
+      color: Colors.black.withOpacity(0.7),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                blurRadius: 10,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          child: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  Color(0xFF749F09), // cButtonGreen theme color
+                ),
+                strokeWidth: 3,
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Removing item...',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Please wait',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey,
+                ),
+              ),
+            ],
           ),
         ),
       ),

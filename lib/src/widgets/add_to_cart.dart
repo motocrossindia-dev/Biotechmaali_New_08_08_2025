@@ -81,8 +81,8 @@ void showCartMessage(BuildContext context, bool isAdded) {
         vertical: 8,
       ),
 
-      // Duration and Action
-      duration: const Duration(seconds: 1),
+      // Duration and Action - Extended duration for better UX
+      duration: const Duration(seconds: 3),
       action: SnackBarAction(
         label: 'VIEW CART',
         textColor: Colors.white,

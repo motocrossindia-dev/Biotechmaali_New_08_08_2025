@@ -37,12 +37,13 @@ class ExploreProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchSubcategory(int categoryId) async {
+  Future<void> fetchSubcategory(int categoryId, {BuildContext? context}) async {
     try {
       _isLoading = true;
       _error = null;
       notifyListeners();
 
+      // context!.read<FiltersProvider>().resetAllFilters();
       final response = await exploreRepository.getSubcategories(categoryId);
 
       if (response == null) {
@@ -50,6 +51,7 @@ class ExploreProvider extends ChangeNotifier {
       }
 
       _subcategories = response.data.subCategories;
+
       notifyListeners();
     } catch (e) {
       log("error: ${e.toString()}");

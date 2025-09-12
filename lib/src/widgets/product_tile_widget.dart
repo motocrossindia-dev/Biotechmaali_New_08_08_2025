@@ -239,7 +239,7 @@ class ProductTileWidget extends StatelessWidget {
                             color: cButtonGreen,
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(borderRadius),
-                              bottomRight: Radius.circular(8),
+                              bottomRight: const Radius.circular(8),
                             ),
                             boxShadow: [
                               BoxShadow(

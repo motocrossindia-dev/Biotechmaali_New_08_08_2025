@@ -15,10 +15,14 @@ class CartProvider extends ChangeNotifier {
   final Map<int, bool> _deleteLoadingStates = {};
   String _error = '';
   bool _isPlacingOrder = false;
+  bool _isDeletingItem = false;
+  bool _isShowingCartMessage = false;
 
   bool get isPlacingOrder => _isPlacingOrder;
+  bool get isDeletingItem => _isDeletingItem;
   List<CartItemModel> get cartItems => _cartItems;
   bool get isLoading => _isLoading;
+  bool get isShowingCartMessage => _isShowingCartMessage;
 
   String get error => _error;
 
@@ -87,6 +91,7 @@ class CartProvider extends ChangeNotifier {
 
   Future<bool> deleteCartItem(int cartId, BuildContext context) async {
     try {
+      _isDeletingItem = true;
       _deleteLoadingStates[cartId] = true;
       notifyListeners();
 
@@ -95,11 +100,15 @@ class CartProvider extends ChangeNotifier {
       if (success == true) {
         _cartItems.removeWhere((item) => item.id == cartId);
         refreshAllProducts(context);
-        Fluttertoast.showToast(
-          msg: "Item removed from cart",
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-        );
+
+        // Show success message after a short delay to ensure UI updates
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        // Fluttertoast.showToast(
+        //   msg: "Item removed from cart successfully",
+        //   backgroundColor: Colors.green,
+        //   textColor: Colors.white,
+        // );
       } else {
         Fluttertoast.showToast(
           msg: "Failed to remove item",
@@ -118,6 +127,7 @@ class CartProvider extends ChangeNotifier {
       );
       return false;
     } finally {
+      _isDeletingItem = false;
       _deleteLoadingStates[cartId] = false;
       notifyListeners();
     }
@@ -133,9 +143,9 @@ class CartProvider extends ChangeNotifier {
 
       if (success) {
         await fetchCartItems(); // Refresh cart items after successful addition
-        showCartMessage(context, true);
+        await _showCartMessageSafely(context, true);
       } else {
-        showCartMessage(context, false);
+        await _showCartMessageSafely(context, false);
       }
 
       return success;
@@ -163,10 +173,10 @@ class CartProvider extends ChangeNotifier {
 
       if (success) {
         await fetchCartItems(); // Refresh cart items after successful addition
-        showCartMessage(context, true);
+        await _showCartMessageSafely(context, true);
         return true;
       } else {
-        showCartMessage(context, false);
+        await _showCartMessageSafely(context, false);
         return true;
       }
     } catch (e) {
@@ -262,5 +272,27 @@ class CartProvider extends ChangeNotifier {
     final homeProvider = context.read<HomeProvider>();
     // final productListProdvider = context.read<ProductListProdvider>();
     homeProvider.fetchHomeProducts();
+  }
+
+  // Method to safely show cart message without overlapping
+  Future<void> _showCartMessageSafely(
+      BuildContext context, bool isAdded) async {
+    if (_isShowingCartMessage) {
+      // If already showing a message, just dismiss the current one and show the new one
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      await Future.delayed(const Duration(
+          milliseconds: 100)); // Small delay for smooth transition
+    }
+
+    _isShowingCartMessage = true;
+    notifyListeners();
+
+    showCartMessage(context, isAdded);
+
+    // Automatically reset the flag after the snackbar duration
+    Future.delayed(const Duration(seconds: 3)).then((_) {
+      _isShowingCartMessage = false;
+      notifyListeners();
+    });
   }
 }
