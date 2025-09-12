@@ -2,12 +2,14 @@ class ProductListModel {
   final String message;
   final List<Product> products;
   final String? nextPage;
+  final String? previousPage;
   final int count;
 
   ProductListModel({
     required this.message,
     required this.products,
     this.nextPage,
+    this.previousPage,
     required this.count,
   });
 
@@ -21,6 +23,7 @@ class ProductListModel {
           .map((productJson) => Product.fromJson(productJson))
           .toList(),
       nextPage: json['next']?.toString(),
+      previousPage: json['previous']?.toString(),
       count: json['count'] ?? 0,
     );
   }
@@ -30,6 +33,7 @@ class ProductListModel {
       'message': message,
       'products': products.map((product) => product.toJson()).toList(),
       'next': nextPage,
+      'previous': previousPage,
       'count': count,
     };
   }
@@ -37,6 +41,7 @@ class ProductListModel {
 
 class Product {
   final int id;
+  final int prodId;
   final String name;
   bool isCart;
   bool isWishlist;
@@ -47,6 +52,7 @@ class Product {
 
   Product({
     required this.id,
+    required this.prodId,
     required this.name,
     required this.isCart,
     required this.isWishlist,
@@ -59,6 +65,7 @@ class Product {
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
       id: _parseId(json['id']),
+      prodId: _parseId(json['prod_id']),
       name: json['name']?.toString() ?? '',
       isCart: json['is_cart'] ?? false,
       isWishlist: json['is_wishlist'] ?? false,
@@ -86,6 +93,7 @@ class Product {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'prod_id': prodId,
       'name': name,
       'is_cart': isCart,
       'is_wishlist': isWishlist,

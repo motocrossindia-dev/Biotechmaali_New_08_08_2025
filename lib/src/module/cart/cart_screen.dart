@@ -67,178 +67,187 @@ class _CartScreenState extends State<CartScreen> {
           }
         }
       },
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          elevation: 4,
-          shadowColor: Colors.black,
-          backgroundColor: Colors.white,
-          surfaceTintColor: Colors.transparent,
-          title: const CommonTextWidget(
-            title: 'Shopping Cart',
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
+      child: SafeArea(
+        child: Scaffold(
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            elevation: 4,
+            shadowColor: Colors.black,
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.transparent,
+            title: const CommonTextWidget(
+              title: 'Shopping Cart',
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+            ),
           ),
-        ),
-        body: Consumer<CartProvider>(
-          builder: (context, cartProvider, child) {
-            // if (cartProvider.isLoading || cartProvider.isPlacingOrder) {
-            //   return const CartShimmer();
-            // }
+          body: Consumer<CartProvider>(
+            builder: (context, cartProvider, child) {
+              // if (cartProvider.isLoading || cartProvider.isPlacingOrder) {
+              //   return const CartShimmer();
+              // }
 
-            if (cartProvider.error.isNotEmpty) {
-              return Center(
+              if (cartProvider.error.isNotEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(cartProvider.error),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () => cartProvider.fetchCartItems(),
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              if (cartProvider.cartItems.isEmpty) {
+                return const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.shopping_cart_outlined, size: 64),
+                      SizedBox(height: 16),
+                      Text('Your cart is empty'),
+                    ],
+                  ),
+                );
+              }
+
+              return SingleChildScrollView(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(cartProvider.error),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () => cartProvider.fetchCartItems(),
-                      child: const Text('Retry'),
+                    ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: cartProvider.cartItems.length,
+                      separatorBuilder: (context, index) => Container(
+                        height: 8,
+                        color: cAppBackround,
+                      ),
+                      itemBuilder: (context, index) {
+                        final item = cartProvider.cartItems[index];
+                        return CartProductTile(
+                          key: ValueKey(item.id),
+                          productId: item.productId,
+                          cartId: item.id,
+                          productTitle: item.name,
+                          productImage: item.image,
+                          sellingPrice:
+                              double.parse(item.sellingPrice.toString()),
+                          mrp: double.parse(item.mrp.toString()),
+                          quantity: item.quantity,
+                          stockStatus: item.stockStatus,
+                          onQuantityChanged: (newQuantity) async {
+                            await cartProvider.updateCartItemQuantity(
+                                item.id, newQuantity);
+                          },
+                          onDelete: () async {
+                            await cartProvider.deleteCartItem(item.id, context);
+                          },
+                        );
+                      },
                     ),
-                  ],
-                ),
-              );
-            }
-
-            if (cartProvider.cartItems.isEmpty) {
-              return const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.shopping_cart_outlined, size: 64),
-                    SizedBox(height: 16),
-                    Text('Your cart is empty'),
-                  ],
-                ),
-              );
-            }
-
-            return SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: cartProvider.cartItems.length,
-                    separatorBuilder: (context, index) => Container(
+                    Container(
                       height: 8,
                       color: cAppBackround,
                     ),
-                    itemBuilder: (context, index) {
-                      final item = cartProvider.cartItems[index];
-                      return CartProductTile(
-                        key: ValueKey(item.id),
-                        productId: item.productId,
-                        cartId: item.id,
-                        productTitle: item.name,
-                        productImage: item.image,
-                        sellingPrice:
-                            double.parse(item.sellingPrice.toString()),
-                        mrp: double.parse(item.mrp.toString()),
-                        quantity: item.quantity,
-                        stockStatus: item.stockStatus,
-                        onQuantityChanged: (newQuantity) async {
-                          await cartProvider.updateCartItemQuantity(
-                              item.id, newQuantity);
-                        },
-                        onDelete: () async {
-                          await cartProvider.deleteCartItem(item.id, context);
-                        },
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const CommonTextWidget(
+                            title: 'Price Details',
+                            fontSize: 20,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          const Divider(),
+                          const SizedBox(height: 16),
+                          PriceDetailRow(
+                            title:
+                                'Price (${cartProvider.cartItems.length} Items)',
+                            amount: cartProvider.totalAmount,
+                          ),
+                          const SizedBox(height: 16),
+                          PriceDetailRow(
+                            title: 'Discount',
+                            amount: cartProvider.totalDiscount,
+                            color: Colors.green,
+                          ),
+                          // const SizedBox(height: 16),
+                          // const DeliveryChargesRow(),
+                          const SizedBox(height: 16),
+                          PriceDetailRow(
+                            title: 'Total Amount',
+                            amount: cartProvider.totalAmount -
+                                cartProvider.totalDiscount,
+                            isBold: true,
+                          ),
+                          const SizedBox(height: 16),
+                          Center(
+                            child: CommonTextWidget(
+                              title:
+                                  'You will save ₹${(cartProvider.totalDiscount).toStringAsFixed(2)} on this order',
+                              color: Colors.green,
+                              fontWeight: FontWeight.w400,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 80),
+                  ],
+                ),
+              );
+            },
+          ),
+          bottomNavigationBar: Container(
+            width: double.infinity,
+            height: 60,
+            color: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SizedBox(
+                  width: 160,
+                  height: 48,
+                  child: CustomizableBorderColoredButton(
+                    title: 'CANCEL',
+                    event: () {
+                      context.read<BottomNavProvider>().updateIndex(0);
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const BottomNavWidget(),
+                        ),
+                        (route) => false,
                       );
                     },
                   ),
-                  Container(
-                    height: 8,
-                    color: cAppBackround,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const CommonTextWidget(
-                          title: 'Price Details',
-                          fontSize: 20,
-                          fontWeight: FontWeight.w400,
-                        ),
-                        const Divider(),
-                        const SizedBox(height: 16),
-                        PriceDetailRow(
-                          title:
-                              'Price (${cartProvider.cartItems.length} Items)',
-                          amount: cartProvider.totalAmount,
-                        ),
-                        const SizedBox(height: 16),
-                        PriceDetailRow(
-                          title: 'Discount',
-                          amount: cartProvider.totalDiscount,
-                          color: Colors.green,
-                        ),
-                        // const SizedBox(height: 16),
-                        // const DeliveryChargesRow(),
-                        const SizedBox(height: 16),
-                        PriceDetailRow(
-                          title: 'Total Amount',
-                          amount: cartProvider.totalAmount -
-                              cartProvider.totalDiscount,
-                          isBold: true,
-                        ),
-                        const SizedBox(height: 16),
-                        Center(
-                          child: CommonTextWidget(
-                            title:
-                                'You will save ₹${(cartProvider.totalDiscount).toStringAsFixed(2)} on this order',
-                            color: Colors.green,
-                            fontWeight: FontWeight.w400,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 80),
-                ],
-              ),
-            );
-          },
-        ),
-        bottomNavigationBar: Container(
-          width: double.infinity,
-          height: 60,
-          color: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(
-                width: 160,
-                height: 48,
-                child: CustomizableBorderColoredButton(
-                  title: 'CANCEL',
-                  event: () {
-                    context.read<BottomNavProvider>().updateIndex(0);
+                ),
+                Consumer<CartProvider>(
+                  builder: (context, provider, child) {
+                    return SizedBox(
+                      width: 160,
+                      height: 48,
+                      child: provider.isPlacingOrder
+                          ? const ButtonShimmer() // Use ButtonShimmer instead of CartShimmer
+                          : CustomizableButton(
+                              title: 'PLACE ORDER',
+                              event: () {
+                                provider.placeOrder(context);
+                              }),
+                    );
                   },
                 ),
-              ),
-              Consumer<CartProvider>(
-                builder: (context, provider, child) {
-                  return SizedBox(
-                    width: 160,
-                    height: 48,
-                    child: provider.isPlacingOrder
-                        ? const ButtonShimmer() // Use ButtonShimmer instead of CartShimmer
-                        : CustomizableButton(
-                            title: 'PLACE ORDER',
-                            event: () {
-                              provider.placeOrder(context);
-                            }),
-                  );
-                },
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

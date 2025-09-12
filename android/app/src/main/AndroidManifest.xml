@@ -3,9 +3,8 @@
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 <uses-permission android:name="android.permission.INTERNET"/>
-<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28"/>
-<uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
 <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <application
         android:label="Biotech Maali"
@@ -13,6 +12,13 @@
         android:icon="@mipmap/app_icon"
         android:allowBackup="false"
         android:fullBackupContent="false">
+        <!-- Declare support for 16KB memory page sizes -->
+        <meta-data
+            android:name="android.max_aspect"
+            android:value="2.4" />
+        <meta-data
+            android:name="android.app.lib_name"
+            android:value="flutter" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -43,6 +49,10 @@
         <meta-data
          android:name="com.google.android.geo.API_KEY"
          android:value="AIzaSyAA32oS0jQj_nEzWhGWeQP9ZaIW0KO5R_8"/>
+        <!-- Explicit 16KB page size support declaration -->
+        <property
+            android:name="android.app.16kb_pages_enabled"
+            android:value="true" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

@@ -37,13 +37,13 @@ class ProductListProdvider extends ChangeNotifier {
 
   void updateWishList(bool isWishlist, int productId) {
     final productIndex =
-        _allProducts.indexWhere((product) => product.id == productId);
+        _allProducts.indexWhere((product) => product.prodId == productId);
     if (productIndex != -1) {
       _allProducts[productIndex].isWishlist = !isWishlist;
 
       // Also update in original list
-      final originalIndex =
-          _originalProducts.indexWhere((product) => product.id == productId);
+      final originalIndex = _originalProducts
+          .indexWhere((product) => product.prodId == productId);
       if (originalIndex != -1) {
         _originalProducts[originalIndex].isWishlist = !isWishlist;
       }
@@ -54,13 +54,13 @@ class ProductListProdvider extends ChangeNotifier {
 
   void updateOfferWishList(bool isWishlist, int productId) {
     final productIndex =
-        _offerProducts.indexWhere((product) => product.id == productId);
+        _offerProducts.indexWhere((product) => product.prodId == productId);
     if (productIndex != -1) {
       _offerProducts[productIndex].isWishlist = !isWishlist;
 
       // Also update in original list
       final originalIndex = _originalOfferProducts
-          .indexWhere((product) => product.id == productId);
+          .indexWhere((product) => product.prodId == productId);
       if (originalIndex != -1) {
         _originalOfferProducts[originalIndex].isWishlist = !isWishlist;
       }
@@ -75,13 +75,13 @@ class ProductListProdvider extends ChangeNotifier {
     await cartProvider.fetchCartItems();
 
     final productIndex =
-        _allProducts.indexWhere((product) => product.id == productId);
+        _allProducts.indexWhere((product) => product.prodId == productId);
     if (productIndex != -1) {
       _allProducts[productIndex].isCart = !isCart;
 
       // Also update in original list
-      final originalIndex =
-          _originalProducts.indexWhere((product) => product.id == productId);
+      final originalIndex = _originalProducts
+          .indexWhere((product) => product.prodId == productId);
       if (originalIndex != -1) {
         _originalProducts[originalIndex].isCart = !isCart;
       }
@@ -96,13 +96,13 @@ class ProductListProdvider extends ChangeNotifier {
     await cartProvider.fetchCartItems();
 
     final productIndex =
-        _offerProducts.indexWhere((product) => product.id == productId);
+        _offerProducts.indexWhere((product) => product.prodId == productId);
     if (productIndex != -1) {
       _offerProducts[productIndex].isCart = !isCart;
 
       // Also update in original list
       final originalIndex = _originalOfferProducts
-          .indexWhere((product) => product.id == productId);
+          .indexWhere((product) => product.prodId == productId);
       if (originalIndex != -1) {
         _originalOfferProducts[originalIndex].isCart = !isCart;
       }

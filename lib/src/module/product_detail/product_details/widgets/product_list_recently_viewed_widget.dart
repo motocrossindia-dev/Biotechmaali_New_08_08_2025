@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:biotech_maali/core/settings_provider/settings_provider.dart';
 import 'package:biotech_maali/src/module/cart/cart_provider.dart';
 import 'package:biotech_maali/src/module/product_detail/product_details/model/recently_viewed_model.dart';
+import 'package:biotech_maali/src/module/product_detail/product_details/widgets/recently_viewed_product_tile.dart';
 import 'package:biotech_maali/src/module/wishlist/whishlist_provider.dart';
 import 'package:biotech_maali/src/widgets/login_prompt_dialog.dart';
 import 'dart:math' as math;
@@ -14,6 +17,15 @@ class ProductListRecentlyViewedWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth > 600;
+
+    // Calculate responsive height - optimized for the new compact tile
+    double containerHeight = screenHeight * (isTablet ? 0.35 : 0.30);
+    // Reduced height bounds since we have a more compact tile design
+    containerHeight = containerHeight.clamp(250.0, 320.0);
+
     return Consumer<ProductDetailsProvider>(
       builder: (context, provider, child) {
         List<RecentlyViewedProduct> recentlyViewedProducts =
@@ -25,8 +37,8 @@ class ProductListRecentlyViewedWidget extends StatelessWidget {
         }
 
         return Padding(
-          padding: const EdgeInsets.only(
-              left: 12, right: 12), // Add padding for better layout
+          padding: EdgeInsets.symmetric(
+              horizontal: screenWidth * 0.03), // Responsive padding
           child: Column(
             children: [
               Row(
@@ -36,14 +48,16 @@ class ProductListRecentlyViewedWidget extends StatelessWidget {
                   CommonTextWidget(
                     title: title,
                     color: cHomeProductText,
-                    fontSize: 20,
+                    fontSize: isTablet ? 22 : 20,
                     fontWeight: FontWeight.w500,
                   ),
                 ],
               ),
-              sizedBoxHeight40,
               SizedBox(
-                height: 360,
+                  height: screenHeight *
+                      0.015), // Reduced spacing to minimize blank space
+              SizedBox(
+                height: containerHeight,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: math.min(
@@ -53,97 +67,90 @@ class ProductListRecentlyViewedWidget extends StatelessWidget {
                   itemBuilder: (context, index) {
                     RecentlyViewedProduct productData =
                         recentlyViewedProducts[index];
-                    return Row(
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            context
-                                .read<ProductDetailsProvider>()
-                                .fetchProductDetails(productData.id);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ProductDetailsScreen(
-                                    productId: productData.id),
-                              ),
-                            );
-                          },
-                          child: ProductTileWidget(
-                            mainProdId: productData.id,
-                            productTitle: productData.name,
-                            productImage: productData.image,
-                            tempImage: 'assets/png/products/sample_product.png',
-                            discountAmount: productData.mrp.toString(),
-                            actualAmount: productData.price.toString(),
-                            rating: productData.productRating.avgRating,
-                            home: true,
-                            isWishlist: productData.isWishlist,
-                            isCart: productData.isCart,
-                            addToFavouriteEvent: () async {
-                              final settingsProvider =
-                                  context.read<SettingsProvider>();
-                              bool isAuth = await settingsProvider
-                                  .checkAccessTokenValidity(context);
 
-                              if (!isAuth) {
-                                _showLoginDialog(context);
-                                return;
-                              }
-                              final wishlistProvider =
-                                  context.read<WishlistProvider>();
-                              bool result = await wishlistProvider
-                                  .addOrRemoveWhishlistMainProduct(
-                                      productData.id, context);
-                              if (result) {
-                                provider.updateWishList(
-                                    productData.isWishlist, productData.id);
-                              } else {
-                                return;
-                              }
-                            },
-                            addToCartEvent: productData.isCart
-                                ? () {
-                                    // context
-                                    //     .read<BottomNavProvider>()
-                                    //     .updateIndex(2);
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const CartScreen(),
-                                      ),
-                                      // (route) => false,
-                                    );
-                                  }
-                                : () async {
-                                    final settingsProvider =
-                                        context.read<SettingsProvider>();
-                                    bool isAuth = await settingsProvider
-                                        .checkAccessTokenValidity(context);
-                                    if (!isAuth) {
-                                      _showLoginDialog(context);
-                                      return;
-                                    }
-                                    bool result = await context
-                                        .read<CartProvider>()
-                                        .addToCartMainProduct(
-                                          productData.id,
-                                          productData.isCart,
-                                          context,
-                                        );
-
-                                    if (result) {
-                                      provider.updateCart(
-                                        productData.isCart,
-                                        productData.id,
-                                        context,
-                                      );
-                                    }
-                                  },
+                    log('Recently Viewed Product Data: ${productData.sellingPrice.toString()}');
+                    return InkWell(
+                      onTap: () {
+                        context
+                            .read<ProductDetailsProvider>()
+                            .fetchProductDetails(productData.id);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ProductDetailsScreen(productId: productData.id),
                           ),
-                        ),
-                        sizedBoxWidth15
-                      ],
+                        );
+                      },
+                      child: RecentlyViewedProductTile(
+                        mainProdId: productData.id,
+                        productTitle: productData.name,
+                        productImage: productData.image,
+                        tempImage: 'assets/png/products/sample_product.png',
+                        discountAmount: productData.sellingPrice
+                            .toString(), // Selling price (lower price)
+                        actualAmount:
+                            productData.mrp.toString(), // MRP (higher price)
+                        rating: productData.productRating.avgRating,
+                        isWishlist: productData.isWishlist,
+                        isCart: productData.isCart,
+                        addToFavouriteEvent: () async {
+                          final settingsProvider =
+                              context.read<SettingsProvider>();
+                          bool isAuth = await settingsProvider
+                              .checkAccessTokenValidity(context);
+
+                          if (!isAuth) {
+                            _showLoginDialog(context);
+                            return;
+                          }
+                          final wishlistProvider =
+                              context.read<WishlistProvider>();
+                          bool result = await wishlistProvider
+                              .addOrRemoveWhishlistMainProduct(
+                                  productData.id, context);
+                          if (result) {
+                            provider.updateWishList(
+                                productData.isWishlist, productData.id);
+                          } else {
+                            return;
+                          }
+                        },
+                        addToCartEvent: productData.isCart
+                            ? () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const CartScreen(),
+                                  ),
+                                );
+                              }
+                            : () async {
+                                final settingsProvider =
+                                    context.read<SettingsProvider>();
+                                bool isAuth = await settingsProvider
+                                    .checkAccessTokenValidity(context);
+                                if (!isAuth) {
+                                  _showLoginDialog(context);
+                                  return;
+                                }
+                                bool result = await context
+                                    .read<CartProvider>()
+                                    .addToCartMainProduct(
+                                      productData.id,
+                                      productData.isCart,
+                                      context,
+                                    );
+
+                                if (result) {
+                                  provider.updateCart(
+                                    productData.isCart,
+                                    productData.id,
+                                    context,
+                                  );
+                                }
+                              },
+                      ),
                     );
                   },
                 ),

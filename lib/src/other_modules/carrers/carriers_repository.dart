@@ -12,9 +12,11 @@ class CarriersRepository {
     try {
       final response = await _dio.get('$baseUrl/carrier/publicCarrier/');
       if (response.data['message'] == 'success') {
+        log("carriers : ${response.data['data']['carrier'].toString()}");
         final carriers = (response.data['data']['carrier'] as List)
             .map((json) => CarrierModel.fromJson(json))
             .toList();
+
         return carriers;
       }
       throw Exception('Failed to load carriers');

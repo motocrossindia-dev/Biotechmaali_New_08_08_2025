@@ -27,8 +27,8 @@ class EndUrl {
   static String addContactUs = "${baseUrl}promotion/contactUs/";
   static String addFranchiseEnquiryUrl = "${baseUrl}franchise/add_franchise/";
   static String accountRegister = "${baseUrl}account/register/";
-  static String getWhishListIdUrl =
-      "${baseUrl}order/wishlist/?main_product_id_list=true";
+  // static String getWhishListIdUrl =
+  //     "${baseUrl}order/wishlist/?main_product_id_list=true";
   static String addOrRemoveWishListUrl = "${baseUrl}order/wishlist/";
   static String filterProductUrl = "${baseUrl}product/filterProduct/";
   static String getOrUpdateProfileUrl = "${baseUrl}account/profile/";

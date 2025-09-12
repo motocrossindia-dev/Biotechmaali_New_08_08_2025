@@ -184,6 +184,15 @@ class CartProvider extends ChangeNotifier {
   }
 
   Future<void> placeOrder(BuildContext context) async {
+    if (_cartItems.isEmpty) {
+      Fluttertoast.showToast(
+        msg: "Your cart is empty",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+      return;
+    }
+
     try {
       _isPlacingOrder = true;
       notifyListeners();

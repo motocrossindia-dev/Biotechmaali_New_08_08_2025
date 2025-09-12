@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import '../../../import.dart';
 import 'carriers_repository.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class JobListing {
   final int id;
@@ -10,6 +11,7 @@ class JobListing {
   final String location;
   final String experience;
   final List<String> requirements;
+  final String? googleForm;
 
   JobListing({
     required this.id,
@@ -18,6 +20,7 @@ class JobListing {
     required this.location,
     required this.experience,
     required this.requirements,
+    this.googleForm,
   });
 }
 
@@ -53,6 +56,7 @@ class CarrersProvider with ChangeNotifier {
                     .where((r) => r.trim().isNotEmpty)
                     .map((r) => r.trim())
                     .toList(),
+                googleForm: c.googleForm,
               ))
           .toList();
 
@@ -69,6 +73,7 @@ class CarrersProvider with ChangeNotifier {
                     .where((r) => r.trim().isNotEmpty)
                     .map((r) => r.trim())
                     .toList(),
+                googleForm: c.googleForm,
               ))
           .toList();
 
@@ -96,6 +101,35 @@ class CarrersProvider with ChangeNotifier {
     } finally {
       _isApplying = false;
       notifyListeners();
+    }
+  }
+
+  Future<bool> openGoogleForm(String? googleFormUrl) async {
+    try {
+      if (googleFormUrl == null ||
+          googleFormUrl.isEmpty ||
+          googleFormUrl == 'null') {
+        return false;
+      }
+
+      // Validate URL format
+      final Uri uri = Uri.parse(googleFormUrl);
+      if (uri.host.isEmpty) {
+        log('Invalid URL format: $googleFormUrl');
+        return false;
+      }
+
+      // Launch the URL in external browser
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+        return true;
+      } else {
+        log('Could not launch $googleFormUrl');
+        return false;
+      }
+    } catch (e) {
+      log('Error opening Google Form: $e');
+      return false;
     }
   }
 }

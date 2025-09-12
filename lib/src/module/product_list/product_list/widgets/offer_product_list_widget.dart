@@ -215,7 +215,7 @@ class _OfferProductListWidgetState extends State<OfferProductListWidget> {
                                       product.id, context);
                               if (result) {
                                 provider.updateOfferWishList(
-                                    product.isWishlist, product.id);
+                                    product.isWishlist, product.prodId);
                               } else {
                                 return;
                               }
@@ -259,7 +259,7 @@ class _OfferProductListWidgetState extends State<OfferProductListWidget> {
                                     if (result) {
                                       provider.updateOfferCart(
                                         product.isCart,
-                                        product.id,
+                                        product.prodId,
                                         context,
                                       );
                                     }

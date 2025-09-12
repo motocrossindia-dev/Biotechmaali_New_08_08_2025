@@ -28,6 +28,9 @@ class FiltersRepository {
     String result =
         type.isNotEmpty ? type.toLowerCase().substring(0, type.length - 1) : '';
 
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+
     try {
       final queryParams = {
         'type': result.toString(),
@@ -39,10 +42,25 @@ class FiltersRepository {
       log("Filter query URL: $url");
       log("Filter query params: $queryParams");
 
-      final response = await _dio.get(
-        nextPageUrl ?? url,
-        queryParameters: nextPageUrl != null ? null : queryParams,
-      );
+      Response? response;
+
+      if (token != null) {
+        response = await _dio.get(
+          nextPageUrl ?? url,
+          queryParameters: nextPageUrl != null ? null : queryParams,
+          options: Options(
+            headers: {
+              "Authorization": "Bearer $token",
+              "Content-Type": "Application/json"
+            },
+          ),
+        );
+      } else {
+        response = await _dio.get(
+          nextPageUrl ?? url,
+          queryParameters: nextPageUrl != null ? null : queryParams,
+        );
+      }
 
       if (response.statusCode == 200) {
         log("Filter applied response: ${response.data}");

@@ -54,6 +54,7 @@ class SplashProvider extends ChangeNotifier {
   }
 
   navigateToHomeScreen(BuildContext context) async {
+    await Future.delayed(const Duration(seconds: 4));
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     bool isInternetOn = await _checkInternetConnection(context);

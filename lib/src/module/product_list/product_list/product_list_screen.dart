@@ -211,11 +211,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
                               final wishlistProvider =
                                   context.read<WishlistProvider>();
                               bool result = await wishlistProvider
-                                  .addOrRemoveWhishlistMainProduct(
-                                      product.id, context);
+                                  .addOrRemoveWhishlistCompinationProduct(
+                                      product.prodId, context);
                               if (result) {
                                 provider.updateWishList(
-                                    product.isWishlist, product.id);
+                                    product.isWishlist, product.prodId);
                               } else {
                                 return;
                               }
@@ -250,16 +250,16 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                     }
                                     bool result = await context
                                         .read<CartProvider>()
-                                        .addToCartMainProduct(
-                                          product.id,
-                                          product.isCart,
+                                        .addToCart(
+                                          product.prodId,
+                                          1,
                                           context,
                                         );
 
                                     if (result) {
                                       provider.updateCart(
                                         product.isCart,
-                                        product.id,
+                                        product.prodId,
                                         context,
                                       );
                                     }

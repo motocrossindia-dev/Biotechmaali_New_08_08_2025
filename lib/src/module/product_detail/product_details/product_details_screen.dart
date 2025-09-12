@@ -8,6 +8,7 @@ import 'package:biotech_maali/src/module/product_detail/product_details/widgets/
 import 'package:biotech_maali/src/module/product_detail/product_details/widgets/product_list_addon_widget.dart';
 import 'package:biotech_maali/src/module/product_detail/product_details/widgets/product_list_recently_viewed_widget.dart';
 import 'package:biotech_maali/src/module/product_detail/product_details/widgets/seed_weight_widget.dart';
+import 'package:biotech_maali/src/widgets/add_to_cart.dart';
 import 'package:biotech_maali/src/widgets/login_prompt_dialog.dart';
 import 'package:flutter/services.dart';
 import '../../../../import.dart';
@@ -741,7 +742,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           ],
 
                           // Product Description
-                          ProductDescription(provider: provider),
+                          Container(
+                            width: double.infinity,
+                            alignment: Alignment.center,
+                            child: ProductDescription(provider: provider),
+                          ),
 
                           const SizedBox(height: 20),
 
@@ -754,6 +759,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         ],
                       ),
                     ),
+                    sizedBoxHeight15
                   ],
                 ),
               ),
@@ -816,24 +822,44 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           child: SizedBox(
                             height: isTablet ? 52 : 48,
                             child: CustomizableButton(
-                              title: 'ADD TO CART',
-                              event: () async {
-                                bool? isAuthenticated = await context
-                                    .read<SettingsProvider>()
-                                    .checkAccessTokenValidity(context);
-                                if (isAuthenticated) {
-                                  final productDetailProvider =
-                                      context.read<ProductDetailsProvider>();
-                                  context.read<CartProvider>().addToCart(
-                                      product.data.product.id,
-                                      productDetailProvider.quantity,
-                                      context);
-                                } else {
-                                  _showLoginDialog(
-                                      context, productDetail.product.id);
-                                  return;
-                                }
-                              },
+                              title: productDetail.product.isCart
+                                  ? "ITEM IN CART"
+                                  : 'ADD TO CART',
+                              event: productDetail.product.isCart
+                                  ? () {
+                                      // Fluttertoast.showToast(
+                                      //   msg: "Item already in cart",
+                                      //   backgroundColor: Colors.black87,
+                                      //   textColor: Colors.white,
+                                      // );
+
+                                      showCartMessage(context, false);
+                                    }
+                                  : () async {
+                                      bool? isAuthenticated = await context
+                                          .read<SettingsProvider>()
+                                          .checkAccessTokenValidity(context);
+                                      if (isAuthenticated) {
+                                        final productDetailProvider = context
+                                            .read<ProductDetailsProvider>();
+                                        bool result = await context
+                                            .read<CartProvider>()
+                                            .addToCart(
+                                                product.data.product.id,
+                                                productDetailProvider.quantity,
+                                                context);
+                                        if (result) {
+                                          productDetail.product.isCart = true;
+                                          setState(() {
+                                            // Update UI to reflect item added to cart
+                                          });
+                                        }
+                                      } else {
+                                        _showLoginDialog(
+                                            context, productDetail.product.id);
+                                        return;
+                                      }
+                                    },
                             ),
                           ),
                         ),

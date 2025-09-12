@@ -5,6 +5,7 @@ class CarrierModel {
   final String jobSummary;
   final String responsibilities;
   final String desiredSkills;
+  final String? googleForm;
 
   CarrierModel({
     required this.id,
@@ -13,6 +14,7 @@ class CarrierModel {
     required this.jobSummary,
     required this.responsibilities,
     required this.desiredSkills,
+    this.googleForm,
   });
 
   // sample
@@ -25,6 +27,19 @@ class CarrierModel {
       jobSummary: json['job_summary'] ?? '',
       responsibilities: json['responsibilities'] ?? '',
       desiredSkills: json['desired_skills'] ?? '',
+      googleForm: json['google_form']?.toString(),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'categories': categories,
+      'position_name': positionName,
+      'job_summary': jobSummary,
+      'responsibilities': responsibilities,
+      'desired_skills': desiredSkills,
+      'google_form': googleForm,
+    };
   }
 }

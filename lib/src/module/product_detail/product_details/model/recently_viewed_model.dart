@@ -37,7 +37,7 @@ class RecentlyViewedProduct {
   bool isCart;
   bool isWishlist;
   final double mrp;
-  final double price;
+  final double sellingPrice;
   final String image;
   final ProductRating productRating;
 
@@ -47,7 +47,7 @@ class RecentlyViewedProduct {
     required this.isCart,
     required this.isWishlist,
     required this.mrp,
-    required this.price,
+    required this.sellingPrice,
     required this.image,
     required this.productRating,
   });
@@ -59,7 +59,7 @@ class RecentlyViewedProduct {
       isCart: json['is_cart'] ?? false,
       isWishlist: json['is_wishlist'] ?? false,
       mrp: (json['mrp'] as num?)?.toDouble() ?? 0.0,
-      price: (json['price'] as num?)?.toDouble() ?? 0.0,
+      sellingPrice: (json['selling_price'] as num?)?.toDouble() ?? 0.0,
       image: json['image'] ?? '',
       productRating: ProductRating.fromJson(json['product_rating'] ?? {}),
     );

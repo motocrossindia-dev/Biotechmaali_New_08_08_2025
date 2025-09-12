@@ -112,10 +112,12 @@ class _ProductDescriptionState extends State<ProductDescription> {
       );
 
       if (mounted) {
-        setState(() {
-          _errorMessage = null;
-          _isInitialized = true;
-        });
+        setState(
+          () {
+            _errorMessage = null;
+            _isInitialized = true;
+          },
+        );
       }
     } catch (error) {
       log("Error initializing video: $error");
@@ -153,6 +155,15 @@ class _ProductDescriptionState extends State<ProductDescription> {
   }
 
   Widget _buildVideoSection() {
+    // Check if video URL is empty or null first
+    final provider =
+        Provider.of<ProductDetailsProvider>(context, listen: false);
+    final videoUrl = provider.productVideo;
+
+    if (videoUrl == null || videoUrl.isEmpty) {
+      return _buildNoVideoAvailable();
+    }
+
     if (_errorMessage != null) {
       return Center(
           child:
@@ -212,110 +223,241 @@ class _ProductDescriptionState extends State<ProductDescription> {
     );
   }
 
+  Widget _buildNoVideoAvailable() {
+    return TweenAnimationBuilder<double>(
+      duration: const Duration(milliseconds: 800),
+      tween: Tween<double>(begin: 0.0, end: 1.0),
+      builder: (context, value, child) {
+        return Transform.scale(
+          scale: 0.8 + (0.2 * value),
+          child: Opacity(
+            opacity: value,
+            child: Container(
+              height: 200,
+              width: double.infinity,
+              margin: const EdgeInsets.symmetric(vertical: 20),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey[300]!, width: 1),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Animated video icon with pulse effect
+                    TweenAnimationBuilder<double>(
+                      duration: const Duration(seconds: 2),
+                      tween: Tween<double>(begin: 0.8, end: 1.2),
+                      builder: (context, scale, child) {
+                        return Transform.scale(
+                          scale: scale,
+                          child: Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.videocam_off,
+                              size: 40,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        );
+                      },
+                      onEnd: () {
+                        // Create a continuous pulse animation
+                        if (mounted) {
+                          setState(() {});
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    CommonTextWidget(
+                      title: 'No Video Available',
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[700]!,
+                    ),
+                    const SizedBox(height: 8),
+                    CommonTextWidget(
+                      title: 'Product video is not available at the moment',
+                      fontSize: 14,
+                      color: Colors.grey[500]!,
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ProductDetailsProvider>(context);
     final product = provider.productDetails?.data.product;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth > 600;
 
-    return Padding(
-      padding: const EdgeInsets.only(right: 15.0),
+    return SizedBox(
+      width: double.infinity,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                GestureDetector(
-                  onTap: () => provider.setSelectedTab(0),
-                  child: Container(
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: provider.selectedTab == 0
-                          ? cButtonGreen
-                          : Colors.white,
-                      borderRadius:
-                          const BorderRadius.only(topLeft: Radius.circular(5)),
-                      border: Border.all(color: cButtonGreen),
-                    ),
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: CommonTextWidget(
-                          title: 'About Product',
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
+          // Centered and responsive tab row
+          Container(
+            width: double.infinity,
+            alignment: Alignment.center,
+            child: Container(
+              constraints: BoxConstraints(
+                maxWidth: isTablet ? screenWidth * 0.7 : screenWidth * 0.9,
+              ),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // About Product Tab
+                    GestureDetector(
+                      onTap: () => provider.setSelectedTab(0),
+                      child: Container(
+                        height: 38,
+                        constraints: BoxConstraints(
+                          minWidth: screenWidth * 0.28,
+                        ),
+                        decoration: BoxDecoration(
                           color: provider.selectedTab == 0
-                              ? Colors.white
-                              : cButtonGreen,
+                              ? cButtonGreen
+                              : Colors.white,
+                          borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(8),
+                              bottomLeft: Radius.circular(8)),
+                          border: Border.all(color: cButtonGreen),
+                        ),
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12.0, vertical: 8.0),
+                            child: CommonTextWidget(
+                              title: 'About Product',
+                              fontSize: isTablet ? 15 : 13,
+                              fontWeight: FontWeight.w500,
+                              color: provider.selectedTab == 0
+                                  ? Colors.white
+                                  : cButtonGreen,
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => provider.setSelectedTab(1),
-                  child: Container(
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: provider.selectedTab == 1
-                          ? cButtonGreen
-                          : Colors.white,
-                      border: Border.all(color: cButtonGreen),
-                    ),
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: CommonTextWidget(
-                          title: "What's in box",
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
+
+                    // What's in box Tab
+                    GestureDetector(
+                      onTap: () => provider.setSelectedTab(1),
+                      child: Container(
+                        height: 38,
+                        constraints: BoxConstraints(
+                          minWidth: screenWidth * 0.28,
+                        ),
+                        decoration: BoxDecoration(
                           color: provider.selectedTab == 1
-                              ? Colors.white
-                              : cButtonGreen,
+                              ? cButtonGreen
+                              : Colors.white,
+                          border: Border.all(color: cButtonGreen),
+                        ),
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12.0, vertical: 8.0),
+                            child: CommonTextWidget(
+                              title: "What's in box",
+                              fontSize: isTablet ? 15 : 13,
+                              fontWeight: FontWeight.w500,
+                              color: provider.selectedTab == 1
+                                  ? Colors.white
+                                  : cButtonGreen,
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => provider.setSelectedTab(2),
-                  child: Container(
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: provider.selectedTab == 2
-                          ? cButtonGreen
-                          : Colors.white,
-                      border: Border.all(color: cButtonGreen),
-                    ),
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: CommonTextWidget(
-                          title: "Video",
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
+
+                    // Video Tab
+                    GestureDetector(
+                      onTap: () => provider.setSelectedTab(2),
+                      child: Container(
+                        height: 38,
+                        constraints: BoxConstraints(
+                          minWidth: screenWidth * 0.28,
+                        ),
+                        decoration: BoxDecoration(
                           color: provider.selectedTab == 2
-                              ? Colors.white
-                              : cButtonGreen,
+                              ? cButtonGreen
+                              : Colors.white,
+                          borderRadius: const BorderRadius.only(
+                              topRight: Radius.circular(8),
+                              bottomRight: Radius.circular(8)),
+                          border: Border.all(color: cButtonGreen),
+                        ),
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12.0, vertical: 8.0),
+                            child: CommonTextWidget(
+                              title: "Video",
+                              fontSize: isTablet ? 15 : 13,
+                              fontWeight: FontWeight.w500,
+                              color: provider.selectedTab == 2
+                                  ? Colors.white
+                                  : cButtonGreen,
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-          Padding(
+
+          // Content section
+          Container(
+            width: double.infinity,
             padding: const EdgeInsets.all(12.0),
+            alignment: Alignment.center,
             child: provider.selectedTab == 2
                 ? _buildVideoSection()
-                : CommonTextWidget(
-                    title: provider.selectedTab == 0
-                        ? product?.shortDescription ?? ''
-                        : provider.selectedTab == 1
-                            ? provider.whatsIncluded ?? ''
-                            : "",
-                    textAlign: TextAlign.justify,
+                : Container(
+                    alignment: Alignment.center,
+                    constraints: BoxConstraints(
+                      maxWidth:
+                          isTablet ? screenWidth * 0.8 : screenWidth * 0.95,
+                    ),
+                    child: CommonTextWidget(
+                      title: provider.selectedTab == 0
+                          ? product?.shortDescription ?? ''
+                          : provider.selectedTab == 1
+                              ? provider.whatsIncluded ?? ''
+                              : "",
+                      textAlign: TextAlign.justify,
+                    ),
                   ),
           ),
         ],

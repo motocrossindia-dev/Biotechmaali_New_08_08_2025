@@ -117,4 +117,33 @@ class WishlistProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<bool> addOrRemoveWhishlistCompinationProduct(
+      int productId, BuildContext context) async {
+    // Add productId to loading set
+
+    notifyListeners();
+
+    try {
+      bool result = await _wishlistRepository
+          .addOrRemoveWhishlistCompinationProduct(productId);
+      if (result) {
+        await fetchWishlist();
+        showWishlistMessage(context, true);
+
+        return true;
+      } else {
+        showWishlistMessage(context, false);
+        return true;
+      }
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    } finally {
+      // Remove productId from loading set
+
+      notifyListeners();
+    }
+  }
 }
