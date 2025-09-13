@@ -41,235 +41,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     super.dispose();
   }
 
-  Widget _buildPincodeChecker() {
-    final provider = context.watch<ProductDetailsProvider>();
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    return Padding(
-      padding: EdgeInsets.symmetric(
-          horizontal: screenWidth * 0.04), // Responsive padding
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-        decoration: BoxDecoration(
-          color: Colors.grey[50],
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey[200]!),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Check Delivery Availability',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 48,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        bottomLeft: Radius.circular(10),
-                      ),
-                    ),
-                    child: TextField(
-                      controller: _pincodeController,
-                      decoration: InputDecoration(
-                        hintText: 'Enter 6-digit pincode',
-                        hintStyle:
-                            TextStyle(color: Colors.grey[400], fontSize: 14),
-                        prefixIcon: Icon(Icons.location_on_outlined,
-                            color: Colors.grey[600], size: 20),
-                        border: const OutlineInputBorder(
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(10),
-                            bottomLeft: Radius.circular(10),
-                          ),
-                          borderSide: BorderSide.none,
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(10),
-                            bottomLeft: Radius.circular(10),
-                          ),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(10),
-                            bottomLeft: Radius.circular(10),
-                          ),
-                          borderSide:
-                              BorderSide(color: cButtonGreen, width: 1.5),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 14),
-                        counterText: "",
-                      ),
-                      textAlignVertical: TextAlignVertical.center,
-                      keyboardType: TextInputType.number,
-                      maxLength: 6,
-                      style: const TextStyle(fontSize: 15),
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    ),
-                  ),
-                ),
-                Container(
-                  height: 48,
-                  constraints: BoxConstraints(
-                    minWidth: screenWidth * 0.2, // Responsive button width
-                    maxWidth: screenWidth * 0.25,
-                  ),
-                  decoration: BoxDecoration(
-                    color: cButtonGreen,
-                    borderRadius: const BorderRadius.only(
-                      topRight: Radius.circular(10),
-                      bottomRight: Radius.circular(10),
-                    ),
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: const BorderRadius.only(
-                        topRight: Radius.circular(10),
-                        bottomRight: Radius.circular(10),
-                      ),
-                      onTap: provider.isCheckingPincode
-                          ? null
-                          : () {
-                              if (_pincodeController.text.length == 6) {
-                                provider.checkDeliveryPincode(
-                                    _pincodeController.text);
-                                FocusScope.of(context).unfocus();
-                              }
-                            },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        alignment: Alignment.center,
-                        child: provider.isCheckingPincode
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Text(
-                                'Check',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                              ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            if (provider.isDeliveryAvailable != null)
-              Container(
-                width: double.infinity,
-                padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
-                decoration: BoxDecoration(
-                  color: provider.isDeliveryAvailable!
-                      ? Colors.green.withOpacity(0.1)
-                      : Colors.red.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: provider.isDeliveryAvailable!
-                        ? Colors.green.withOpacity(0.3)
-                        : Colors.red.withOpacity(0.3),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      provider.isDeliveryAvailable!
-                          ? Icons.check_circle
-                          : Icons.cancel,
-                      color: provider.isDeliveryAvailable!
-                          ? Colors.green
-                          : Colors.red,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        provider.isDeliveryAvailable!
-                            ? 'Delivery available to ${provider.deliveryState}'
-                            : 'Delivery not available to this location',
-                        style: TextStyle(
-                          color: provider.isDeliveryAvailable!
-                              ? Colors.green.shade800
-                              : Colors.red.shade800,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            else if (provider.pincodeError != null)
-              Container(
-                width: double.infinity,
-                padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
-                decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.red.withOpacity(0.3)),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.error_outline,
-                        color: Colors.red, size: 20),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        provider.pincodeError!,
-                        style: TextStyle(
-                          color: Colors.red.shade800,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  String _calculateDiscountPercentage(double sellingPrice, double mrp) {
-    if (mrp <= 0 || sellingPrice <= 0 || sellingPrice >= mrp) {
-      return '0% OFF';
-    }
-
-    final percentage = (100 - (sellingPrice / mrp * 100));
-
-    if (percentage.isNaN || percentage.isInfinite || percentage <= 0) {
-      return '0% OFF';
-    }
-
-    return '${percentage.toInt()}% OFF';
-  }
-
   @override
   Widget build(BuildContext context) {
     final productDetailsProvider = context.watch<ProductDetailsProvider>();
@@ -873,6 +644,235 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         },
       ),
     );
+  }
+
+  Widget _buildPincodeChecker() {
+    final provider = context.watch<ProductDetailsProvider>();
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(
+          horizontal: screenWidth * 0.04), // Responsive padding
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        decoration: BoxDecoration(
+          color: Colors.grey[50],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey[200]!),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Check Delivery Availability',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 48,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        bottomLeft: Radius.circular(10),
+                      ),
+                    ),
+                    child: TextField(
+                      controller: _pincodeController,
+                      decoration: InputDecoration(
+                        hintText: 'Enter 6-digit pincode',
+                        hintStyle:
+                            TextStyle(color: Colors.grey[400], fontSize: 14),
+                        prefixIcon: Icon(Icons.location_on_outlined,
+                            color: Colors.grey[600], size: 20),
+                        border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            bottomLeft: Radius.circular(10),
+                          ),
+                          borderSide: BorderSide.none,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            bottomLeft: Radius.circular(10),
+                          ),
+                          borderSide: BorderSide(color: Colors.grey[300]!),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            bottomLeft: Radius.circular(10),
+                          ),
+                          borderSide:
+                              BorderSide(color: cButtonGreen, width: 1.5),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 14),
+                        counterText: "",
+                      ),
+                      textAlignVertical: TextAlignVertical.center,
+                      keyboardType: TextInputType.number,
+                      maxLength: 6,
+                      style: const TextStyle(fontSize: 15),
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    ),
+                  ),
+                ),
+                Container(
+                  height: 48,
+                  constraints: BoxConstraints(
+                    minWidth: screenWidth * 0.2, // Responsive button width
+                    maxWidth: screenWidth * 0.25,
+                  ),
+                  decoration: BoxDecoration(
+                    color: cButtonGreen,
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(10),
+                      bottomRight: Radius.circular(10),
+                    ),
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(10),
+                        bottomRight: Radius.circular(10),
+                      ),
+                      onTap: provider.isCheckingPincode
+                          ? null
+                          : () {
+                              if (_pincodeController.text.length == 6) {
+                                provider.checkDeliveryPincode(
+                                    _pincodeController.text);
+                                FocusScope.of(context).unfocus();
+                              }
+                            },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        alignment: Alignment.center,
+                        child: provider.isCheckingPincode
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text(
+                                'Check',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            if (provider.isDeliveryAvailable != null)
+              Container(
+                width: double.infinity,
+                padding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+                decoration: BoxDecoration(
+                  color: provider.isDeliveryAvailable!
+                      ? Colors.green.withOpacity(0.1)
+                      : Colors.red.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: provider.isDeliveryAvailable!
+                        ? Colors.green.withOpacity(0.3)
+                        : Colors.red.withOpacity(0.3),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      provider.isDeliveryAvailable!
+                          ? Icons.check_circle
+                          : Icons.cancel,
+                      color: provider.isDeliveryAvailable!
+                          ? Colors.green
+                          : Colors.red,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        provider.isDeliveryAvailable!
+                            ? 'Delivery available to ${provider.deliveryState}'
+                            : 'Delivery not available to this location',
+                        style: TextStyle(
+                          color: provider.isDeliveryAvailable!
+                              ? Colors.green.shade800
+                              : Colors.red.shade800,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else if (provider.pincodeError != null)
+              Container(
+                width: double.infinity,
+                padding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red.withOpacity(0.3)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.error_outline,
+                        color: Colors.red, size: 20),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        provider.pincodeError!,
+                        style: TextStyle(
+                          color: Colors.red.shade800,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _calculateDiscountPercentage(double sellingPrice, double mrp) {
+    if (mrp <= 0 || sellingPrice <= 0 || sellingPrice >= mrp) {
+      return '0% OFF';
+    }
+
+    final percentage = (100 - (sellingPrice / mrp * 100));
+
+    if (percentage.isNaN || percentage.isInfinite || percentage <= 0) {
+      return '0% OFF';
+    }
+
+    return '${percentage.toInt()}% OFF';
   }
 }
 

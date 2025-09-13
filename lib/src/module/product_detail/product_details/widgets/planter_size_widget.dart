@@ -19,9 +19,12 @@ class PlanterSizeWidget extends StatelessWidget {
             builder: (context, provider, child) {
               return Container(
                 decoration: BoxDecoration(
+                    color: provider.selectedPlanterSizeId == id
+                        ? cButtonGreen
+                        : Colors.white,
                     border: Border.all(
                         color: provider.selectedPlanterSizeId == id
-                            ? Colors.green
+                            ? cButtonGreen
                             : Colors.grey.shade200),
                     borderRadius: BorderRadius.circular(6)),
                 child: Padding(
@@ -31,6 +34,9 @@ class PlanterSizeWidget extends StatelessWidget {
                     title: name,
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
+                    color: provider.selectedPlanterSizeId == id
+                        ? Colors.white
+                        : Colors.black,
                   ),
                 ),
               );

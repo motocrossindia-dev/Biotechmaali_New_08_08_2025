@@ -15,12 +15,12 @@ if (localPropertiesFile.exists()) {
 
 def flutterVersionCode = localProperties.getProperty("flutter.versionCode")
 if (flutterVersionCode == null) {
-    flutterVersionCode = "51"
+    flutterVersionCode = "55"
 }
 
 def flutterVersionName = localProperties.getProperty("flutter.versionName")
 if (flutterVersionName == null) {
-    flutterVersionName = "1.0.51"
+    flutterVersionName = "1.0.55"
 }
 
 def keystoreProperties = new Properties()
@@ -52,6 +52,11 @@ android {
         targetSdk = 35  // Target SDK 35 as required by Google Play
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
+        
+        // Enable native debug symbols
+        ndk {
+            debugSymbolLevel 'SYMBOL_TABLE'
+        }
     }
 
    signingConfigs {
@@ -70,12 +75,18 @@ android {
             // signingConfig = signingConfigs.debug
             signingConfig = signingConfigs.release
             
-            // Enable optimizations for 16KB page size support
-            minifyEnabled false
-            shrinkResources false
+            // Enable R8 obfuscation and resource shrinking
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             
             // Enable splits for release builds only
             splits.abi.enable = true
+            
+            // Enable debug symbols generation for native code
+            ndk {
+                debugSymbolLevel 'SYMBOL_TABLE'
+            }
         }
         
         debug {

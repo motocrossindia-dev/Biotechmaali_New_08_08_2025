@@ -3,7 +3,7 @@ import 'package:biotech_maali/src/payment_and_order/order_history/model.dart/ord
 import 'package:biotech_maali/src/payment_and_order/order_history/order_history_provider.dart';
 import 'package:biotech_maali/src/payment_and_order/order_history/widgets/invoice_download_popup.dart';
 import 'package:biotech_maali/src/payment_and_order/order_history_detail/order_history_detail_shimmer.dart';
-import 'package:biotech_maali/src/pdf_viewer/pdf_viewer.dart';
+import 'package:biotech_maali/src/permission_handle/pdf_viewer/pdf_viewer.dart';
 import 'order_history_detail_provider.dart';
 import 'model/order_history_detail_model.dart';
 

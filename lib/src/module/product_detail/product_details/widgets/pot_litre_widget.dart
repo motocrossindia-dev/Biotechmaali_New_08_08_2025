@@ -19,9 +19,12 @@ class PotLitreWidget extends StatelessWidget {
             builder: (context, provider, child) {
               return Container(
                 decoration: BoxDecoration(
+                    color: provider.selectedLitreId == id
+                        ? cButtonGreen
+                        : Colors.white,
                     border: Border.all(
                         color: provider.selectedLitreId == id
-                            ? Colors.green
+                            ? cButtonGreen
                             : Colors.grey.shade200),
                     borderRadius: BorderRadius.circular(6)),
                 child: Padding(
@@ -31,6 +34,9 @@ class PotLitreWidget extends StatelessWidget {
                     title: name,
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
+                    color: provider.selectedLitreId == id
+                        ? Colors.white
+                        : Colors.black,
                   ),
                 ),
               );

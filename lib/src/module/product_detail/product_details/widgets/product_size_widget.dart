@@ -24,9 +24,12 @@ class ProductSizeWidget extends StatelessWidget {
               log("provider selected product sieze id : ${provider.selectedSizeId}");
               return Container(
                 decoration: BoxDecoration(
+                    color: provider.selectedSizeId == id
+                        ? cButtonGreen
+                        : Colors.white,
                     border: Border.all(
                         color: provider.selectedSizeId == id
-                            ? Colors.green
+                            ? cButtonGreen
                             : Colors.grey.shade200),
                     borderRadius: BorderRadius.circular(6)),
                 child: Padding(
@@ -36,6 +39,9 @@ class ProductSizeWidget extends StatelessWidget {
                     title: name,
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
+                    color: provider.selectedSizeId == id
+                        ? Colors.white
+                        : Colors.black,
                   ),
                 ),
               );

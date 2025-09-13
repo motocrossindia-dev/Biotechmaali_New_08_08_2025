@@ -19,18 +19,25 @@ class SeedWeightWidget extends StatelessWidget {
             builder: (context, provider, child) {
               return Container(
                 decoration: BoxDecoration(
-                    border: Border.all(
-                        color: provider.selectedWeightId == id
-                            ? Colors.green
-                            : Colors.grey.shade200),
-                    borderRadius: BorderRadius.circular(6)),
+                  color: provider.selectedWeightId == id
+                      ? cButtonGreen
+                      : Colors.white,
+                  border: Border.all(
+                      color: provider.selectedWeightId == id
+                          ? cButtonGreen
+                          : Colors.grey.shade200),
+                  borderRadius: BorderRadius.circular(6),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.only(
-                      left: 10.0, right: 10, top: 10, bottom: 10),
+                      left: 5.0, right: 5, top: 5, bottom: 5),
                   child: CommonTextWidget(
                     title: name,
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
+                    color: provider.selectedWeightId == id
+                        ? Colors.white
+                        : Colors.black,
                   ),
                 ),
               );

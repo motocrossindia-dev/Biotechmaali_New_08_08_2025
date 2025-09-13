@@ -5,13 +5,21 @@
 # For more details, see
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
-# Flutter wrapper
+# Flutter wrapper and engine classes
 -keep class io.flutter.app.** { *; }
 -keep class io.flutter.plugin.**  { *; }
 -keep class io.flutter.util.**  { *; }
 -keep class io.flutter.view.**  { *; }
 -keep class io.flutter.**  { *; }
 -keep class io.flutter.plugins.**  { *; }
+-keep class io.flutter.embedding.** { *; }
+-dontwarn io.flutter.**
+
+# Keep Flutter plugin registrant
+-keep class io.flutter.plugins.GeneratedPluginRegistrant { *; }
+
+# Keep model classes for your app (replace with your actual package name)
+-keep class com.biotechmaali.app.** { *; }
 
 # 16KB page size support
 -keep class * extends java.lang.annotation.Annotation { *; }
@@ -49,4 +57,68 @@
 -keep class **.R
 -keep class **.R$* {
     <fields>;
+}
+
+# Plugin-specific rules for your app
+# Razorpay payment gateway
+-keep class com.razorpay.** { *; }
+-dontwarn com.razorpay.**
+
+# Google Maps
+-keep class com.google.android.gms.maps.** { *; }
+-keep interface com.google.android.gms.maps.** { *; }
+
+# OkHttp (used by Dio)
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-keep class okhttp3.** { *; }
+-keep interface okhttp3.** { *; }
+
+# Video player and ExoPlayer
+-keep class com.google.android.exoplayer2.** { *; }
+-dontwarn com.google.android.exoplayer2.**
+
+# Image loading libraries
+-keep class com.bumptech.glide.** { *; }
+-dontwarn com.bumptech.glide.**
+
+# Permission handler
+-keep class com.baseflow.permissionhandler.** { *; }
+-dontwarn com.baseflow.permissionhandler.**
+
+# Device info plus
+-keep class dev.fluttercommunity.plus.device_info.** { *; }
+-dontwarn dev.fluttercommunity.plus.device_info.**
+
+# Connectivity plus
+-keep class dev.fluttercommunity.plus.connectivity.** { *; }
+-dontwarn dev.fluttercommunity.plus.connectivity.**
+
+# Geolocator and Geocoding
+-keep class com.baseflow.geolocator.** { *; }
+-dontwarn com.baseflow.geolocator.**
+-keep class com.baseflow.geocoding.** { *; }
+-dontwarn com.baseflow.geocoding.**
+
+# Mobile scanner
+-keep class dev.steenbakker.mobile_scanner.** { *; }
+-dontwarn dev.steenbakker.mobile_scanner.**
+
+# Speech to text
+-keep class com.csdcorp.speech_to_text.** { *; }
+-dontwarn com.csdcorp.speech_to_text.**
+
+# Image picker
+-keep class io.flutter.plugins.imagepicker.** { *; }
+-dontwarn io.flutter.plugins.imagepicker.**
+
+# Keep enumeration classes
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+# Keep Parcelable implementations
+-keep class * implements android.os.Parcelable {
+    public static final android.os.Parcelable$Creator *;
 }
