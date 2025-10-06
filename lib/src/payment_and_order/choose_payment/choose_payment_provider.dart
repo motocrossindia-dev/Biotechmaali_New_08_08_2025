@@ -45,7 +45,7 @@ class ChoosePaymentProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  setIsGst() {
+  void setIsGst() {
     _isGst = !isGst;
     notifyListeners();
   }

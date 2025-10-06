@@ -1,9 +1,11 @@
 import 'dart:developer';
+import 'dart:io';
 import 'package:biotech_maali/import.dart';
 import 'package:biotech_maali/src/permission_handle/premission_handle_provider.dart';
 import 'package:biotech_maali/src/permission_handle/premission_handle_screen.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:biotech_maali/src/splash/token_repository.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class SplashProvider extends ChangeNotifier {
   SplashProvider({required BuildContext context});
@@ -53,7 +55,7 @@ class SplashProvider extends ChangeNotifier {
     }
   }
 
-  navigateToHomeScreen(BuildContext context) async {
+  Future<void> navigateToHomeScreen(BuildContext context) async {
     await Future.delayed(const Duration(seconds: 4));
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -62,42 +64,123 @@ class SplashProvider extends ChangeNotifier {
       return;
     }
 
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => const ComingSoonScreen(),
-    //   ),
-    // );
-    // return;
-    await context.read<PermissionHandleProvider>().checkAllPermissions();
-    await loadData(context);
-    bool permissionGranted = prefs.getBool("permissionGranted") ?? false;
-    // await Future.delayed(const Duration(seconds: 3));
+    log("Platform: ${Platform.operatingSystem}");
+    log("Starting permission check and navigation flow...");
 
-    //for getting user data
-    context.read<EditProfileProvider>().fetchProfileData();
+    try {
+      // Check if we should request permissions (not permanently denied)
+      bool shouldRequest = await shouldRequestPermissions();
+      log("Should request permissions: $shouldRequest");
 
-    if (!permissionGranted) {
-      Navigator.pushAndRemoveUntil(
+      if (shouldRequest) {
+        // Check and request permissions
+        await context.read<PermissionHandleProvider>().checkAllPermissions();
+      } else {
+        log("All permissions are permanently denied, skipping permission requests");
+        // Set permission as granted to allow user to continue with limited functionality
+        await prefs.setBool("permissionGranted", true);
+      }
+
+      // Load other data
+      await loadData(context);
+
+      // Get user profile data
+      context.read<EditProfileProvider>().fetchProfileData();
+
+      // Check if permissions were granted
+      bool permissionGranted = prefs.getBool("permissionGranted") ?? false;
+      log("Permission granted status from SharedPreferences: $permissionGranted");
+
+      if (!permissionGranted && shouldRequest) {
+        log("Navigating to permission screen");
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const PermissionHandleScreen(),
+          ),
+          (route) => false,
+        );
+        return;
+      }
+
+      log("Navigating to home screen");
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const PermissionHandleScreen(),
+          builder: (context) => const BottomNavWidget(),
         ),
-        (route) => false,
       );
-      return;
+    } catch (e) {
+      log("Error in navigateToHomeScreen: $e");
+      // Handle error - maybe show error screen or retry
+      _showErrorDialog(
+          context, "Permission Error", "Failed to check permissions: $e");
     }
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const BottomNavWidget(),
-      ),
-    );
+  }
+
+  // Add this method to check if we should show permission requests
+  Future<bool> shouldRequestPermissions() async {
+    try {
+      // If all permissions are permanently denied, don't try to request
+      bool allPermanentlyDenied = true;
+
+      if (Platform.isIOS) {
+        bool locationDenied =
+            await Permission.locationWhenInUse.isPermanentlyDenied;
+        bool cameraDenied = await Permission.camera.isPermanentlyDenied;
+        bool microphoneDenied = await Permission.microphone.isPermanentlyDenied;
+        bool photosDenied = await Permission.photos.isPermanentlyDenied;
+
+        allPermanentlyDenied =
+            locationDenied && cameraDenied && microphoneDenied && photosDenied;
+
+        log("iOS Permission Status - Location: $locationDenied, Camera: $cameraDenied, Microphone: $microphoneDenied, Photos: $photosDenied");
+      } else {
+        bool locationDenied = await Permission.location.isPermanentlyDenied;
+        bool cameraDenied = await Permission.camera.isPermanentlyDenied;
+        bool microphoneDenied = await Permission.microphone.isPermanentlyDenied;
+
+        allPermanentlyDenied =
+            locationDenied && cameraDenied && microphoneDenied;
+
+        log("Android Permission Status - Location: $locationDenied, Camera: $cameraDenied, Microphone: $microphoneDenied");
+      }
+
+      log("All permissions permanently denied: $allPermanentlyDenied");
+      return !allPermanentlyDenied;
+    } catch (e) {
+      log("Error checking permission status: $e");
+      return true; // If error, try to request permissions
+    }
+  }
+
+  // Method to allow user to skip permissions and continue with limited functionality
+  Future<void> skipPermissions(BuildContext context) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setBool("permissionGranted", true);
+      log("Permissions skipped by user");
+
+      // Navigate to home screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const BottomNavWidget(),
+        ),
+      );
+    } catch (e) {
+      log("Error skipping permissions: $e");
+    }
   }
 
   Future<void> loadData(BuildContext context) async {
-    // context.read<LocationPincodeProvider>().getCurrentLocation(context);
-    await context.read<HomeProvider>().refreshAll();
+    try {
+      log("Loading app data...");
+      await context.read<HomeProvider>().refreshAll();
+      log("App data loaded successfully");
+    } catch (e) {
+      log("Error loading app data: $e");
+    }
   }
 
   Future<bool> _checkInternetConnection(BuildContext context) async {
@@ -127,6 +210,60 @@ class SplashProvider extends ChangeNotifier {
               child: const Text("OK"),
               onPressed: () {
                 Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Show error dialog
+  void _showErrorDialog(BuildContext context, String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Show permissions permanently denied dialog
+  void showPermissionsDeniedDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Permissions Required"),
+          content: const Text(
+              "Some permissions are permanently denied. You can either:\n\n"
+              "1. Continue with limited functionality\n"
+              "2. Go to Settings to enable permissions manually"),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("Continue with Limited Features"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                skipPermissions(context);
+              },
+            ),
+            TextButton(
+              child: const Text("Go to Settings"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                openAppSettings();
               },
             ),
           ],

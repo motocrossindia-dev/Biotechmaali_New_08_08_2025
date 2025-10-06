@@ -11,17 +11,17 @@ class DeleteAccountProvider extends ChangeNotifier {
   bool _pastOrdersChecked = false;
   bool get pastOrdersChecked => _pastOrdersChecked;
 
-  setTermsAndConditionsChecked(bool value) {
+  void setTermsAndConditionsChecked(bool value) {
     _termsAndConditionsChecked = value;
     notifyListeners();
   }
 
-  setGiftCardBalanceChecked(bool value) {
+  void setGiftCardBalanceChecked(bool value) {
     _giftCardBalanceChecked = value;
     notifyListeners();
   }
 
-  setPastOrdersChecked(bool value) {
+  void setPastOrdersChecked(bool value) {
     _pastOrdersChecked = value;
     notifyListeners();
   }

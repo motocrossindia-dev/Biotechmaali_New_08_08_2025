@@ -34,7 +34,7 @@ class AddEditAddressProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  setEditData(AddressModel address) {
+  void setEditData(AddressModel address) {
     _firstNameController.text = address.firstName;
     _lastNameController.text = address.lastName;
     _addressController.text = address.address;
@@ -45,7 +45,7 @@ class AddEditAddressProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  clearAllFields() {
+  void clearAllFields() {
     _firstNameController.clear();
     _lastNameController.clear();
     _addressController.clear();

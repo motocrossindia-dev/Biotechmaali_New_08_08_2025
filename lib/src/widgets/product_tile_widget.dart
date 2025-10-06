@@ -36,7 +36,9 @@ class ProductTileWidget extends StatelessWidget {
   String _calculateDiscountPercentage() {
     if (discountAmount == null ||
         actualAmount.isEmpty ||
-        discountAmount!.isEmpty) return '0';
+        discountAmount!.isEmpty) {
+      return '0';
+    }
     final actual = double.tryParse(actualAmount) ?? 0;
     final discount = double.tryParse(discountAmount!) ?? 0;
     if (actual == 0) return '0';

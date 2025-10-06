@@ -102,7 +102,7 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  setLocationPincode(String pincode) async {
+  Future<void> setLocationPincode(String pincode) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('user_pincode', pincode);
     log("Pincode set: $pincode");
@@ -110,7 +110,7 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  updateFullAddress(String address) async {
+  Future<void> updateFullAddress(String address) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('user_current_address', address);
     fullAddress = address;

@@ -1,0 +1,75 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Flutter Debug (Android)",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main.dart",
+            "deviceId": "emulator-5554",
+            "console": "debugConsole",
+            "args": ["--debug"]
+        },
+        {
+            "name": "Flutter Debug (iOS Simulator)",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main.dart",
+            "console": "debugConsole",
+            "args": ["--debug"],
+            "preLaunchTask": "Boot iOS Simulator",
+            "env": {
+                "FLUTTER_BUILD_MODE": "debug"
+            }
+        },
+        {
+            "name": "Open iOS Project in Xcode",
+            "type": "dart",
+            "request": "launch",
+            "program": "${workspaceFolder}/ios/Runner.xcworkspace",
+            "console": "debugConsole",
+            "args": []
+        },
+        {
+            "name": "Flutter Debug (iOS Auto)",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main.dart",
+            "console": "debugConsole",
+            "args": ["--debug"]
+        },
+        {
+            "name": "Flutter Debug (macOS)",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main.dart",
+            "deviceId": "macos",
+            "console": "debugConsole",
+            "args": ["--debug"]
+        },
+        {
+            "name": "Flutter Debug (Auto Device)",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main.dart",
+            "console": "debugConsole",
+            "args": ["--debug"]
+        },
+        {
+            "name": "Flutter Profile Mode",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main.dart",
+            "console": "debugConsole",
+            "args": ["--profile"]
+        },
+        {
+            "name": "Flutter Release Mode",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main.dart",
+            "console": "debugConsole",
+            "args": ["--release"]
+        }
+    ]
+}

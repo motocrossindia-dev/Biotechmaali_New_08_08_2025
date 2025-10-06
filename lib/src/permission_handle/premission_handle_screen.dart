@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:biotech_maali/import.dart';
 import 'package:biotech_maali/src/permission_handle/premission_handle_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class PermissionHandleScreen extends StatefulWidget {
   const PermissionHandleScreen({super.key});
@@ -9,11 +12,38 @@ class PermissionHandleScreen extends StatefulWidget {
 }
 
 class _PermissionHandleScreenState extends State<PermissionHandleScreen> {
+  bool _showSkipOption = false;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<PermissionHandleProvider>().checkPermissions();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await context.read<PermissionHandleProvider>().checkPermissions();
+      _checkIfAllPermissionsDenied();
+    });
+  }
+
+  Future<void> _checkIfAllPermissionsDenied() async {
+    // Check if all permissions are permanently denied (excluding photos)
+    bool allDenied = true;
+
+    if (Platform.isIOS) {
+      bool locationDenied =
+          await Permission.locationWhenInUse.isPermanentlyDenied;
+      bool cameraDenied = await Permission.camera.isPermanentlyDenied;
+      bool microphoneDenied = await Permission.microphone.isPermanentlyDenied;
+
+      allDenied = locationDenied && cameraDenied && microphoneDenied;
+    } else {
+      bool locationDenied = await Permission.location.isPermanentlyDenied;
+      bool cameraDenied = await Permission.camera.isPermanentlyDenied;
+      bool microphoneDenied = await Permission.microphone.isPermanentlyDenied;
+
+      allDenied = locationDenied && cameraDenied && microphoneDenied;
+    }
+
+    setState(() {
+      _showSkipOption = allDenied;
     });
   }
 
@@ -47,7 +77,11 @@ class _PermissionHandleScreenState extends State<PermissionHandleScreen> {
                         _buildProgressSection(provider),
                         const SizedBox(height: 16),
 
-                        // Permission Cards
+                        // Show warning if permissions are permanently denied
+                        if (_showSkipOption) _buildWarningCard(),
+                        if (_showSkipOption) const SizedBox(height: 16),
+
+                        // Permission Cards (without photos)
                         _buildPermissionCard(
                           title: 'Location Access',
                           subtitle:
@@ -55,18 +89,11 @@ class _PermissionHandleScreenState extends State<PermissionHandleScreen> {
                           isGranted: provider.locationPermission,
                           onRequest: provider.requestLocationPermission,
                           icon: Icons.location_on_outlined,
+                          isPermanentlyDenied: Platform.isIOS
+                              ? Permission.locationWhenInUse.isPermanentlyDenied
+                              : Permission.location.isPermanentlyDenied,
                         ),
                         const SizedBox(height: 16),
-
-                        // _buildPermissionCard(
-                        //   title: 'Storage Access',
-                        //   subtitle:
-                        //       'Required for saving images and files locally',
-                        //   isGranted: provider.storagePermission,
-                        //   onRequest: provider.requestStoragePermission,
-                        //   icon: Icons.folder_outlined,
-                        // ),
-                        // const SizedBox(height: 16),
 
                         _buildPermissionCard(
                           title: 'Camera Access',
@@ -75,6 +102,8 @@ class _PermissionHandleScreenState extends State<PermissionHandleScreen> {
                           isGranted: provider.cameraPermission,
                           onRequest: provider.requestCameraPermission,
                           icon: Icons.camera_alt_outlined,
+                          isPermanentlyDenied:
+                              Permission.camera.isPermanentlyDenied,
                         ),
                         const SizedBox(height: 16),
 
@@ -84,22 +113,24 @@ class _PermissionHandleScreenState extends State<PermissionHandleScreen> {
                           isGranted: provider.microphonePermission,
                           onRequest: provider.requestMicrophonePermission,
                           icon: Icons.mic_outlined,
+                          isPermanentlyDenied:
+                              Permission.microphone.isPermanentlyDenied,
                         ),
-                        // const SizedBox(height: 16),
-
-                        // _buildPermissionCard(
-                        //   title: 'Notification Access',
-                        //   subtitle:
-                        //       'Required for order updates and important alerts',
-                        //   isGranted: provider.notificationPermission,
-                        //   onRequest: provider.requestNotificationPermission,
-                        //   icon: Icons.notifications_outlined,
-                        // ),
 
                         const SizedBox(height: 20),
 
                         // Continue Button
                         _buildContinueButton(context, provider),
+                        const SizedBox(height: 20),
+
+                        // Skip Button (only show if permissions are denied)
+                        // if (_showSkipOption) ...[
+                        //   const SizedBox(height: 16),
+                        //   _buildSkipButton(context),
+                        // ],
+
+                        _buildSkipButton(context),
+
                         const SizedBox(height: 32),
                       ],
                     ),
@@ -109,6 +140,50 @@ class _PermissionHandleScreenState extends State<PermissionHandleScreen> {
             },
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildWarningCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.orange.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.orange.shade200),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.warning_amber_rounded,
+            color: Colors.orange.shade600,
+            size: 24,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Permissions Previously Denied',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.orange.shade800,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'To enable permissions, go to Settings > Biotech Maali > Permissions',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.orange.shade700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -154,12 +229,12 @@ class _PermissionHandleScreenState extends State<PermissionHandleScreen> {
   }
 
   Widget _buildProgressSection(PermissionHandleProvider provider) {
+    // Only count 3 permissions: location, camera, microphone
+    int totalPermissions = 3;
     int grantedCount = [
       provider.locationPermission,
-      // provider.storagePermission,
       provider.cameraPermission,
       provider.microphonePermission,
-      // provider.notificationPermission,
     ].where((granted) => granted).length;
 
     return Container(
@@ -190,33 +265,36 @@ class _PermissionHandleScreenState extends State<PermissionHandleScreen> {
                 ),
               ),
               Text(
-                '$grantedCount/3',
+                '$grantedCount/$totalPermissions',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color:
-                      grantedCount == 4 ? Colors.green : Colors.grey.shade600,
+                  color: grantedCount == totalPermissions
+                      ? Colors.green
+                      : Colors.grey.shade600,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12),
           LinearProgressIndicator(
-            value: grantedCount / 3,
+            value: grantedCount / totalPermissions,
             backgroundColor: Colors.grey.shade200,
             valueColor: AlwaysStoppedAnimation<Color>(
-              grantedCount == 3 ? Colors.green : Colors.blue,
+              grantedCount == totalPermissions ? Colors.green : Colors.blue,
             ),
             borderRadius: BorderRadius.circular(4),
           ),
           const SizedBox(height: 8),
           Text(
-            grantedCount == 3
+            grantedCount == totalPermissions
                 ? 'All permissions granted!'
-                : '${3 - grantedCount} permissions remaining',
+                : '${totalPermissions - grantedCount} permissions remaining',
             style: TextStyle(
               fontSize: 14,
-              color: grantedCount == 5 ? Colors.green : Colors.grey.shade600,
+              color: grantedCount == totalPermissions
+                  ? Colors.green
+                  : Colors.grey.shade600,
             ),
           ),
         ],
@@ -230,72 +308,104 @@ class _PermissionHandleScreenState extends State<PermissionHandleScreen> {
     required bool isGranted,
     required Function() onRequest,
     required IconData icon,
+    required Future<bool> isPermanentlyDenied,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isGranted ? Colors.green.shade200 : Colors.grey.shade200,
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.shade100,
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: isGranted ? Colors.green.shade100 : Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(12),
+    return FutureBuilder<bool>(
+      future: isPermanentlyDenied,
+      builder: (context, snapshot) {
+        bool permanentlyDenied = snapshot.data ?? false;
+
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isGranted
+                  ? Colors.green.shade200
+                  : permanentlyDenied
+                      ? Colors.red.shade200
+                      : Colors.grey.shade200,
+              width: 1.5,
             ),
-            child: Icon(
-              icon,
-              size: 24,
-              color: isGranted ? Colors.green.shade700 : Colors.grey.shade600,
-            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.shade100,
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey.shade800,
-                  ),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: isGranted
+                      ? Colors.green.shade100
+                      : permanentlyDenied
+                          ? Colors.red.shade100
+                          : Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade600,
-                    height: 1.3,
-                  ),
+                child: Icon(
+                  icon,
+                  size: 24,
+                  color: isGranted
+                      ? Colors.green.shade700
+                      : permanentlyDenied
+                          ? Colors.red.shade600
+                          : Colors.grey.shade600,
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade800,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade600,
+                        height: 1.3,
+                      ),
+                    ),
+                    if (permanentlyDenied && !isGranted) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        'Enable in Settings',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.red.shade600,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(width: 16),
+              _buildPermissionButton(isGranted, permanentlyDenied, onRequest),
+            ],
           ),
-          const SizedBox(width: 16),
-          _buildPermissionButton(isGranted, onRequest),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildPermissionButton(bool isGranted, Function() onRequest) {
+  Widget _buildPermissionButton(
+      bool isGranted, bool permanentlyDenied, Function() onRequest) {
     if (isGranted) {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -323,6 +433,27 @@ class _PermissionHandleScreenState extends State<PermissionHandleScreen> {
           ],
         ),
       );
+    } else if (permanentlyDenied) {
+      return ElevatedButton(
+        onPressed: () =>
+            context.read<PermissionHandleProvider>().openSettings(),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.red.shade600,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+        ),
+        child: const Text(
+          'Settings',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      );
     } else {
       return ElevatedButton(
         onPressed: onRequest,
@@ -348,12 +479,17 @@ class _PermissionHandleScreenState extends State<PermissionHandleScreen> {
 
   Widget _buildContinueButton(
       BuildContext context, PermissionHandleProvider provider) {
+    // Check if core permissions are granted (excluding photos)
+    bool corePermissionsGranted = provider.locationPermission &&
+        provider.cameraPermission &&
+        provider.microphonePermission;
+
     return Container(
       width: double.infinity,
       height: 56,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        boxShadow: provider.allPermissionsGranted
+        boxShadow: corePermissionsGranted
             ? [
                 BoxShadow(
                   color: Colors.blue.shade200,
@@ -364,10 +500,10 @@ class _PermissionHandleScreenState extends State<PermissionHandleScreen> {
             : null,
       ),
       child: ElevatedButton(
-        onPressed: provider.allPermissionsGranted
+        onPressed: corePermissionsGranted
             ? () async {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
-                prefs.setBool('permissionGranted', true);
+                await prefs.setBool('permissionGranted', true);
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
@@ -377,12 +513,10 @@ class _PermissionHandleScreenState extends State<PermissionHandleScreen> {
               }
             : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: provider.allPermissionsGranted
-              ? Colors.blue
-              : Colors.grey.shade300,
-          foregroundColor: provider.allPermissionsGranted
-              ? Colors.white
-              : Colors.grey.shade500,
+          backgroundColor:
+              corePermissionsGranted ? Colors.blue : Colors.grey.shade300,
+          foregroundColor:
+              corePermissionsGranted ? Colors.white : Colors.grey.shade500,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -398,12 +532,80 @@ class _PermissionHandleScreenState extends State<PermissionHandleScreen> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            if (provider.allPermissionsGranted) ...[
+            if (corePermissionsGranted) ...[
               const SizedBox(width: 8),
               const Icon(Icons.arrow_forward, size: 20),
             ],
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSkipButton(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: OutlinedButton(
+        onPressed: () async {
+          // Show confirmation dialog
+          bool? shouldSkip = await _showSkipConfirmationDialog();
+          if (shouldSkip == true) {
+            await context.read<PermissionHandleProvider>().skipPermissions();
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const BottomNavWidget(),
+              ),
+            );
+          }
+        },
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: Colors.grey.shade400),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.skip_next_outlined,
+              size: 20,
+              color: Colors.grey.shade600,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Continue with Limited Features',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey.shade600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<bool?> _showSkipConfirmationDialog() {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Continue with Limited Features?'),
+        content: const Text(
+            'Some app features may not work properly without these permissions. You can always enable them later in Settings.\n\nDo you want to continue?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Continue'),
+          ),
+        ],
       ),
     );
   }

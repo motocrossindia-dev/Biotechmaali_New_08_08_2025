@@ -27,7 +27,7 @@ class ProductListProdvider extends ChangeNotifier {
   bool get isLoadingMore => _isLoadingMore;
   bool get hasMoreData => _nextPageUrl != null;
 
-  setFilteredProducts(List<Product> products) async {
+  Future<void> setFilteredProducts(List<Product> products) async {
     log("Setting filtered products: ${products.length}");
     _originalProducts = List.from(products);
     _allProducts = products;
@@ -269,7 +269,7 @@ class ProductListProdvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  appendProducts(List<Product> newProducts) {
+  void appendProducts(List<Product> newProducts) {
     log("Appending ${newProducts.length} products to existing ${_allProducts.length}");
     _allProducts.addAll(newProducts);
     _originalProducts.addAll(List.from(newProducts));

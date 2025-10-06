@@ -15,12 +15,12 @@ if (localPropertiesFile.exists()) {
 
 def flutterVersionCode = localProperties.getProperty("flutter.versionCode")
 if (flutterVersionCode == null) {
-    flutterVersionCode = "55"
+    flutterVersionCode = "57"
 }
 
 def flutterVersionName = localProperties.getProperty("flutter.versionName")
 if (flutterVersionName == null) {
-    flutterVersionName = "1.0.55"
+    flutterVersionName = "1.0.57"
 }
 
 def keystoreProperties = new Properties()
@@ -31,16 +31,30 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.biotechmaali.app"
-    compileSdk = 34  // Use stable API 34 for compilation
+    compileSdk = 36  // Updated to meet plugin requirements
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
+        
+        // Suppress Kotlin warnings
+        freeCompilerArgs += [
+            "-Xjvm-default=all"
+        ]
+    }
+    
+        // Configure compilation options to suppress warnings
+    tasks.withType(JavaCompile) {
+        options.compilerArgs += [
+            "-Xlint:none"
+        ]
+        options.deprecation = false
+        options.warnings = false
     }
 
     defaultConfig {
@@ -48,7 +62,7 @@ android {
         applicationId = "com.biotechmaali.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdk = 21
+        minSdkVersion = flutter.minSdkVersion
         targetSdk = 35  // Target SDK 35 as required by Google Play
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName

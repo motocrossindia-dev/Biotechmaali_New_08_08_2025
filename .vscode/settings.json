@@ -1,11 +1,24 @@
 {
-  "dart.flutterSdkPath": ".fvm/versions/3.24.4"
-
-  // "github.copilot.enable": {
-  //   "*": false,
-  //   "plaintext": false,
-  //   "markdown": false
-  // },
-  // "editor.inlineSuggest.enabled": false
-
+  "dart.flutterSdkPath": "~/fvm/versions/3.35.4",
+  "dart.debugExternalPackageLibraries": true,
+  "dart.debugSdkLibraries": false,
+  "dart.vmServiceLogFile": ".vscode/vmService.log",
+  "dart.enableSdkFormatter": true,
+  "dart.lineLength": 80,
+  "dart.showInspectorNotificationsForWidgetErrors": true,
+  "dart.flutterHotReloadOnSave": "manual",
+  "dart.openDevTools": "flutter",
+  "dart.insertArgumentPlaceholders": true,
+  "dart.previewFlutterUiGuides": true,
+  "dart.previewFlutterUiGuidesCustomTracking": true,
+  "dart.flutterCreateIOSLanguage": "swift",
+  "dart.flutterCreateAndroidLanguage": "kotlin",
+  "dart.devToolsTheme": "dark",
+  "dart.flutterOutline": true,
+  "files.associations": {
+    "*.dart": "dart"
+  },
+  "emmet.includeLanguages": {
+    "dart": "html"
+  }
 }
