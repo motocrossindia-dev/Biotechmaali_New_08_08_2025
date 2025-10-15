@@ -11,7 +11,7 @@ class ProductDescription extends StatefulWidget {
 }
 
 class _ProductDescriptionState extends State<ProductDescription> {
-  VideoPlayerController? _controller;
+  // VideoPlayerController? _controller; // Disabled - video_player package removed
   ChewieController? _chewieController;
   YoutubePlayerController? _youtubeController;
   bool _isInitialized = false;
@@ -64,7 +64,7 @@ class _ProductDescriptionState extends State<ProductDescription> {
     }
 
     // Dispose existing controllers
-    _controller?.dispose();
+
     _chewieController?.dispose();
 
     try {
@@ -92,10 +92,16 @@ class _ProductDescriptionState extends State<ProductDescription> {
         return;
       }
 
-      // For direct video URLs
-      _controller = VideoPlayerController.network(videoUrl);
-      await _controller!.initialize();
+      // For direct video URLs - Temporarily disabled for Google Play compliance
 
+      // Video player functionality temporarily disabled
+      setState(() {
+        _isInitialized = false;
+        _errorMessage = 'Video player temporarily disabled for compliance';
+      });
+      return;
+
+      /*
       _chewieController = ChewieController(
         videoPlayerController: _controller!,
         autoPlay: false,
@@ -110,15 +116,7 @@ class _ProductDescriptionState extends State<ProductDescription> {
           );
         },
       );
-
-      if (mounted) {
-        setState(
-          () {
-            _errorMessage = null;
-            _isInitialized = true;
-          },
-        );
-      }
+      */
     } catch (error) {
       log("Error initializing video: $error");
       if (mounted) {
@@ -148,7 +146,6 @@ class _ProductDescriptionState extends State<ProductDescription> {
 
   @override
   void dispose() {
-    _controller?.dispose();
     _chewieController?.dispose();
     _youtubeController?.dispose();
     super.dispose();

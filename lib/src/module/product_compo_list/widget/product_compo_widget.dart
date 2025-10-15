@@ -31,7 +31,7 @@ class ProductCompoWidget extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-            child: CachedNetworkImage(
+            child: NetworkImageWidget(
               imageUrl: '${BaseUrl.baseUrlForImages}$image',
               height: 200,
               width: double.infinity,

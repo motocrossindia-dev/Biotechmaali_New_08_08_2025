@@ -46,12 +46,12 @@ class CartProductTile extends StatelessWidget {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      "${BaseUrl.baseUrlForImages}$productImage",
+                    child: NetworkImageWidget(
+                      imageUrl: "${BaseUrl.baseUrlForImages}$productImage",
                       width: 100,
                       height: 100,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
+                      errorWidget: (context, url, error) => Container(
                         width: 100,
                         height: 100,
                         color: Colors.grey[200],

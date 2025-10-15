@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/config/pallet.dart';
 import '../widgets/service_detail_header.dart';
+import '../../../widgets/network_image_widget.dart';
 
 class TerraceGardenScreen extends StatelessWidget {
   const TerraceGardenScreen({super.key});
@@ -100,20 +101,19 @@ class TerraceGardenScreen extends StatelessWidget {
           // Image at the top
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            child: Image.network(
-              imageUrl,
+            child: NetworkImageWidget(
+              imageUrl: imageUrl,
               height: 200,
               width: double.infinity,
               fit: BoxFit.cover,
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) return child;
+              placeholder: (context, url) {
                 return Container(
                   height: 200,
                   color: Colors.grey[200],
                   child: const Center(child: CircularProgressIndicator()),
                 );
               },
-              errorBuilder: (context, error, stackTrace) {
+              errorWidget: (context, url, error) {
                 return Container(
                   height: 200,
                   color: Colors.grey[200],

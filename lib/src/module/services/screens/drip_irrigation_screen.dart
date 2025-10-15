@@ -95,8 +95,8 @@ class DripIrrigationScreen extends StatelessWidget {
           // Image at the top
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            child: Image.network(
-              imageUrl,
+            child: NetworkImageWidget(
+              imageUrl: imageUrl,
               height: 200,
               width: double.infinity,
               fit: BoxFit.cover,

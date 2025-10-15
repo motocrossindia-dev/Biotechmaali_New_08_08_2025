@@ -7,3 +7,4 @@ export 'border_colored_button.dart';
 export '/src/widgets/customizable_button.dart';
 export '/src/widgets/customizable_border_colored_button.dart';
 export '/src/widgets/add_quantity_widget.dart';
+export '/src/widgets/network_image_widget.dart';

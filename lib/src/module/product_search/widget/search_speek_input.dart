@@ -1,5 +1,5 @@
 import 'dart:developer';
-import 'package:permission_handler/permission_handler.dart';
+// import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:biotech_maali/import.dart';
 
@@ -47,7 +47,7 @@ class _ChatInputState extends State<ChatInput>
   }
 
   Future<void> _initializeSpeech() async {
-    await Permission.microphone.request();
+    // await Permission.microphone.request(); // Commented out - permission handler removed
     await _speech.initialize(
       onStatus: (status) {
         if (!mounted) return;

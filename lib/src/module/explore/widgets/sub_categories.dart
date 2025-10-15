@@ -116,7 +116,7 @@ class SubCategories extends StatelessWidget {
                                   top: Radius.circular(8),
                                   bottom: Radius.circular(8),
                                 ),
-                                child: CachedNetworkImage(
+                                child: NetworkImageWidget(
                                   imageUrl: imageBaseUrl + subcategory.image,
                                   fit: BoxFit.cover,
                                   width: double.infinity,

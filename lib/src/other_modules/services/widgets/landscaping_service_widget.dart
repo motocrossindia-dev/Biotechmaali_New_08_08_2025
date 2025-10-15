@@ -119,8 +119,8 @@ class LandscapingServiceCard extends StatelessWidget {
             child: Stack(
               children: [
                 // Image
-                Image.network(
-                  imageUrl,
+                NetworkImageWidget(
+                  imageUrl: imageUrl,
                   fit: BoxFit.cover,
                   height: double.infinity,
                   width: double.infinity,

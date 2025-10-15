@@ -70,7 +70,7 @@ class CarouselWidget extends StatelessWidget {
                       ),
                     );
                   },
-                  child: CachedNetworkImage(
+                  child: NetworkImageWidget(
                     imageUrl: imageUrl['image'] ?? '',
                     imageBuilder: (context, imageProvider) => Container(
                       width: MediaQuery.of(context).size.width,

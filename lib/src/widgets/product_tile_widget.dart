@@ -33,6 +33,14 @@ class ProductTileWidget extends StatelessWidget {
     super.key,
   });
 
+  String _formatPrice(String price) {
+    final doublePrice = double.tryParse(price);
+    if (doublePrice != null) {
+      return doublePrice.toInt().toString();
+    }
+    return price; // Return original if parsing fails
+  }
+
   String _calculateDiscountPercentage() {
     if (discountAmount == null ||
         actualAmount.isEmpty ||
@@ -128,9 +136,9 @@ class ProductTileWidget extends StatelessWidget {
                       height: double.infinity,
                       width: double.infinity,
                       child: productImage != null && productImage!.isNotEmpty
-                          ? CachedNetworkImage(
+                          ? NetworkImageWidget(
                               imageUrl: '$baseUrl$productImage',
-                              fit: BoxFit.cover,
+                              fit: BoxFit.fill,
                               placeholder: (context, url) => Container(
                                 color: Colors.grey[100],
                                 child: const Center(
@@ -400,7 +408,7 @@ class ProductTileWidget extends StatelessWidget {
                         // Show discounted price first if there's a discount
                         if (hasDiscount) ...[
                           CommonTextWidget(
-                            title: '₹$discountAmount',
+                            title: '₹${_formatPrice(discountAmount!)}',
                             fontSize: isTablet
                                 ? 16
                                 : isSmallPhone
@@ -416,7 +424,7 @@ class ProductTileWidget extends StatelessWidget {
                                       ? 3
                                       : 5),
                           CommonTextWidget(
-                            title: '₹$actualAmount',
+                            title: '₹${_formatPrice(actualAmount)}',
                             fontSize: isTablet
                                 ? 14
                                 : isSmallPhone
@@ -429,7 +437,7 @@ class ProductTileWidget extends StatelessWidget {
                         ] else ...[
                           // Show only actual price if no discount
                           CommonTextWidget(
-                            title: '₹$actualAmount',
+                            title: '₹${_formatPrice(actualAmount)}',
                             fontSize: isTablet
                                 ? 16
                                 : isSmallPhone

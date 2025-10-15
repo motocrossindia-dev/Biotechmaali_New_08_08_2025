@@ -78,7 +78,8 @@ class _OrderHistoryDetailScreenState extends State<OrderHistoryDetailScreen> {
                     MaterialPageRoute(
                       builder: (context) => PdfViewerScreen(
                         pdfUrl: "${EndUrl.pdfInvoiceUrl}${widget.orderId}/",
-                        title: widget.orderId.toString(),
+                        title: "Invoice - ${widget.orderId}",
+                        orderNumber: widget.orderNumber,
                       ),
                     ),
                   );
@@ -325,12 +326,18 @@ class _OrderHistoryDetailScreenState extends State<OrderHistoryDetailScreen> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  '${BaseUrl.baseUrlForImages}${item.image}',
+                child: NetworkImageWidget(
+                  imageUrl: '${BaseUrl.baseUrlForImages}${item.image}',
                   width: 70,
                   height: 70,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
+                  placeholder: (context, url) => Container(
+                    width: 70,
+                    height: 70,
+                    color: Colors.grey[300],
+                    child: const Icon(Icons.image),
+                  ),
+                  errorWidget: (context, url, error) => Container(
                     width: 70,
                     height: 70,
                     color: Colors.grey[300],

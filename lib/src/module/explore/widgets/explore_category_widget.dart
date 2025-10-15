@@ -74,7 +74,7 @@ class ExploreCategoryWidget extends StatelessWidget {
                                       child: Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: Center(
-                                          child: CachedNetworkImage(
+                                          child: NetworkImageWidget(
                                             imageUrl:
                                                 '$baseUrl${category.image}',
                                             fit: BoxFit.fill,

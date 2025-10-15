@@ -171,7 +171,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                           onTap: () {
                             context
                                 .read<ProductDetailsProvider>()
-                                .fetchProductDetails(product.id);
+                                .fetchProductDetails(product.prodId);
+
                             Navigator.push(
                               context,
                               MaterialPageRoute(

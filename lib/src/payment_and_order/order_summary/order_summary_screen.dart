@@ -312,12 +312,12 @@ class OrderItemCard extends StatelessWidget {
         //   ),
         // );
       },
-      leading: Image.network(
-        "${BaseUrl.baseUrlForImages}${item.image}",
+      leading: NetworkImageWidget(
+        imageUrl: "${BaseUrl.baseUrlForImages}${item.image}",
         width: 50,
         height: 50,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => const Icon(Icons.error),
+        errorWidget: (context, url, error) => const Icon(Icons.error),
       ),
       title: Text(item.productName),
       subtitle: Column(

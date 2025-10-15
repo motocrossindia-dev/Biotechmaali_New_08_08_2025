@@ -60,7 +60,7 @@ class WishlistProductTileWidget extends StatelessWidget {
           productImage != null
               ? SizedBox(
                   height: 150,
-                  child: CachedNetworkImage(
+                  child: NetworkImageWidget(
                     imageUrl: '$baseUrl$productImage',
                     fit: BoxFit.fill,
                     placeholder: (context, url) => const Center(

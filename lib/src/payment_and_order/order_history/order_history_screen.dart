@@ -209,7 +209,7 @@ class OrderHistoryCard extends StatelessWidget {
                           // Single image - use full space
                           return ClipRRect(
                             borderRadius: BorderRadius.circular(6),
-                            child: CachedNetworkImage(
+                            child: NetworkImageWidget(
                               imageUrl:
                                   '${BaseUrl.baseUrlForImages}${images[0]}',
                               fit: BoxFit.cover,
@@ -242,7 +242,7 @@ class OrderHistoryCard extends StatelessWidget {
                                     topLeft: Radius.circular(6),
                                     bottomLeft: Radius.circular(6),
                                   ),
-                                  child: CachedNetworkImage(
+                                  child: NetworkImageWidget(
                                     imageUrl:
                                         '${BaseUrl.baseUrlForImages}${images[0]}',
                                     fit: BoxFit.cover,
@@ -273,7 +273,7 @@ class OrderHistoryCard extends StatelessWidget {
                                     topRight: Radius.circular(6),
                                     bottomRight: Radius.circular(6),
                                   ),
-                                  child: CachedNetworkImage(
+                                  child: NetworkImageWidget(
                                     imageUrl:
                                         '${BaseUrl.baseUrlForImages}${images[1]}',
                                     fit: BoxFit.cover,
@@ -310,7 +310,7 @@ class OrderHistoryCard extends StatelessWidget {
                                     topLeft: Radius.circular(6),
                                     bottomLeft: Radius.circular(6),
                                   ),
-                                  child: CachedNetworkImage(
+                                  child: NetworkImageWidget(
                                     imageUrl:
                                         '${BaseUrl.baseUrlForImages}${images[0]}',
                                     fit: BoxFit.cover,
@@ -344,7 +344,7 @@ class OrderHistoryCard extends StatelessWidget {
                                         borderRadius: const BorderRadius.only(
                                           topRight: Radius.circular(6),
                                         ),
-                                        child: CachedNetworkImage(
+                                        child: NetworkImageWidget(
                                           imageUrl:
                                               '${BaseUrl.baseUrlForImages}${images[1]}',
                                           fit: BoxFit.cover,
@@ -375,7 +375,7 @@ class OrderHistoryCard extends StatelessWidget {
                                         borderRadius: const BorderRadius.only(
                                           bottomRight: Radius.circular(6),
                                         ),
-                                        child: CachedNetworkImage(
+                                        child: NetworkImageWidget(
                                           imageUrl:
                                               '${BaseUrl.baseUrlForImages}${images[2]}',
                                           fit: BoxFit.cover,
@@ -428,7 +428,7 @@ class OrderHistoryCard extends StatelessWidget {
                                       width: 75,
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(6),
-                                        child: CachedNetworkImage(
+                                        child: NetworkImageWidget(
                                           imageUrl:
                                               '${BaseUrl.baseUrlForImages}$imgUrl',
                                           fit: BoxFit.cover,

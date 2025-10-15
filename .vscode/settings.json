@@ -1,5 +1,24 @@
 {
+  // Flutter SDK Path via FVM
   "dart.flutterSdkPath": "~/fvm/versions/3.35.4",
+
+  // ✅ Enable GitHub Copilot globally and for Dart, Markdown, and plain text
+  "github.copilot.enable": {
+    "*": true,
+    "plaintext": true,
+    "markdown": true,
+    "dart": true
+  },
+
+  // ✅ Enable inline suggestions and completions (new schema)
+  "github.copilot.inlineSuggest.enable": true,
+  "github.copilot.suggestion.showCopilotCompletions": true,
+
+  // ✅ Enable Copilot Chat editing features
+  "github.copilot.chat.enable": true,
+  "github.copilot.chat.editing.enable": true,
+
+  // ✅ Dart / Flutter preferences
   "dart.debugExternalPackageLibraries": true,
   "dart.debugSdkLibraries": false,
   "dart.vmServiceLogFile": ".vscode/vmService.log",
@@ -15,9 +34,13 @@
   "dart.flutterCreateAndroidLanguage": "kotlin",
   "dart.devToolsTheme": "dark",
   "dart.flutterOutline": true,
+
+  // ✅ File associations
   "files.associations": {
     "*.dart": "dart"
   },
+
+  // ✅ Emmet for Flutter UI
   "emmet.includeLanguages": {
     "dart": "html"
   }

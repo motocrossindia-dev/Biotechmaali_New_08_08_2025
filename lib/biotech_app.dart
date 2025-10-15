@@ -20,7 +20,7 @@ import 'package:biotech_maali/src/payment_and_order/coupon/coupon_list_provider.
 import 'package:biotech_maali/src/payment_and_order/local_store_list/local_store_list_provider.dart';
 import 'package:biotech_maali/src/payment_and_order/order_history/order_history_provider.dart';
 import 'package:biotech_maali/src/payment_and_order/order_history_detail/order_history_detail_provider.dart';
-import 'package:biotech_maali/src/permission_handle/premission_handle_provider.dart';
+// import 'package:biotech_maali/src/permission_handle/premission_handle_provider.dart';
 import 'package:biotech_maali/src/splash/splash_provider.dart';
 
 import 'import.dart';
@@ -75,7 +75,7 @@ class BiotechApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => CoinProvider()),
         ChangeNotifierProvider(create: (context) => ReferFriendProvider()),
         ChangeNotifierProvider(create: (context) => LocationPincodeProvider()),
-        ChangeNotifierProvider(create: (context) => PermissionHandleProvider()),
+        // ChangeNotifierProvider(create: (context) => PermissionHandleProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

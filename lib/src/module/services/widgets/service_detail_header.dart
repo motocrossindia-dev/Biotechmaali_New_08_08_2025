@@ -57,8 +57,8 @@ class ServiceDetailHeader extends StatelessWidget {
         background: Stack(
           fit: StackFit.expand,
           children: [
-            Image.network(
-              imageUrl,
+            NetworkImageWidget(
+              imageUrl: imageUrl,
               fit: BoxFit.cover,
             ),
             // Gradient overlay

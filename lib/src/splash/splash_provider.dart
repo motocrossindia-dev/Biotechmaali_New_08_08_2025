@@ -1,11 +1,11 @@
 import 'dart:developer';
-import 'dart:io';
+// import 'dart:io'; // Unnecessary import - provided by import.dart
 import 'package:biotech_maali/import.dart';
-import 'package:biotech_maali/src/permission_handle/premission_handle_provider.dart';
-import 'package:biotech_maali/src/permission_handle/premission_handle_screen.dart';
+// import 'package:biotech_maali/src/permission_handle/premission_handle_provider.dart';
+// import 'package:biotech_maali/src/permission_handle/premission_handle_screen.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:biotech_maali/src/splash/token_repository.dart';
-import 'package:permission_handler/permission_handler.dart';
+// import 'package:permission_handler/permission_handler.dart';
 
 class SplashProvider extends ChangeNotifier {
   SplashProvider({required BuildContext context});
@@ -72,14 +72,18 @@ class SplashProvider extends ChangeNotifier {
       bool shouldRequest = await shouldRequestPermissions();
       log("Should request permissions: $shouldRequest");
 
-      if (shouldRequest) {
-        // Check and request permissions
-        await context.read<PermissionHandleProvider>().checkAllPermissions();
-      } else {
-        log("All permissions are permanently denied, skipping permission requests");
-        // Set permission as granted to allow user to continue with limited functionality
-        await prefs.setBool("permissionGranted", true);
-      }
+      // Skip permission checks - always set as granted for Google Play compliance
+      // if (shouldRequest) {
+      //   // Check and request permissions
+      //   await context.read<PermissionHandleProvider>().checkAllPermissions();
+      // } else {
+      //   log("All permissions are permanently denied, skipping permission requests");
+      //   // Set permission as granted to allow user to continue with limited functionality
+      //   await prefs.setBool("permissionGranted", true);
+      // }
+
+      // Always set permission as granted to bypass permission screen
+      await prefs.setBool("permissionGranted", true);
 
       // Load other data
       await loadData(context);
@@ -91,17 +95,18 @@ class SplashProvider extends ChangeNotifier {
       bool permissionGranted = prefs.getBool("permissionGranted") ?? false;
       log("Permission granted status from SharedPreferences: $permissionGranted");
 
-      if (!permissionGranted && shouldRequest) {
-        log("Navigating to permission screen");
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const PermissionHandleScreen(),
-          ),
-          (route) => false,
-        );
-        return;
-      }
+      // Permission is always granted now, so this block never executes
+      // if (!permissionGranted && shouldRequest) {
+      //   log("Navigating to permission screen");
+      //   Navigator.pushAndRemoveUntil(
+      //     context,
+      //     MaterialPageRoute(
+      //       builder: (context) => const PermissionHandleScreen(),
+      //     ),
+      //     (route) => false,
+      //   );
+      //   return;
+      // }
 
       log("Navigating to home screen");
       Navigator.pushReplacement(
@@ -118,40 +123,10 @@ class SplashProvider extends ChangeNotifier {
     }
   }
 
-  // Add this method to check if we should show permission requests
+  // Simplified method - always return false since we're bypassing permissions
   Future<bool> shouldRequestPermissions() async {
-    try {
-      // If all permissions are permanently denied, don't try to request
-      bool allPermanentlyDenied = true;
-
-      if (Platform.isIOS) {
-        bool locationDenied =
-            await Permission.locationWhenInUse.isPermanentlyDenied;
-        bool cameraDenied = await Permission.camera.isPermanentlyDenied;
-        bool microphoneDenied = await Permission.microphone.isPermanentlyDenied;
-        bool photosDenied = await Permission.photos.isPermanentlyDenied;
-
-        allPermanentlyDenied =
-            locationDenied && cameraDenied && microphoneDenied && photosDenied;
-
-        log("iOS Permission Status - Location: $locationDenied, Camera: $cameraDenied, Microphone: $microphoneDenied, Photos: $photosDenied");
-      } else {
-        bool locationDenied = await Permission.location.isPermanentlyDenied;
-        bool cameraDenied = await Permission.camera.isPermanentlyDenied;
-        bool microphoneDenied = await Permission.microphone.isPermanentlyDenied;
-
-        allPermanentlyDenied =
-            locationDenied && cameraDenied && microphoneDenied;
-
-        log("Android Permission Status - Location: $locationDenied, Camera: $cameraDenied, Microphone: $microphoneDenied");
-      }
-
-      log("All permissions permanently denied: $allPermanentlyDenied");
-      return !allPermanentlyDenied;
-    } catch (e) {
-      log("Error checking permission status: $e");
-      return true; // If error, try to request permissions
-    }
+    log("Permission requests bypassed for Google Play compliance");
+    return false; // Always return false to skip permission requests
   }
 
   // Method to allow user to skip permissions and continue with limited functionality
@@ -263,7 +238,7 @@ class SplashProvider extends ChangeNotifier {
               child: const Text("Go to Settings"),
               onPressed: () {
                 Navigator.of(context).pop();
-                openAppSettings();
+                // openAppSettings(); // Commented out - permission handler removed
               },
             ),
           ],

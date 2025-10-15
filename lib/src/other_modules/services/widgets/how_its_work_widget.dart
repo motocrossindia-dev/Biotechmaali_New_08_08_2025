@@ -63,12 +63,11 @@ class HowItWorksSection extends StatelessWidget {
   Widget _buildWorkStep({required String imagePath, required String label}) {
     return Column(
       children: [
-        Image.network(
-          imagePath,
+        NetworkImageWidget(
+          imageUrl: imagePath,
           width: 24,
           height: 24,
-          color: const Color(0xFF2196F3),
-          errorBuilder: (context, error, stackTrace) => const Icon(
+          errorWidget: (context, url, error) => const Icon(
             Icons.error,
             size: 24,
             color: Color(0xFF2196F3),

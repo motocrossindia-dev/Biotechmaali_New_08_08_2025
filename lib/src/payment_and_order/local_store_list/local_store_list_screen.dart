@@ -158,10 +158,10 @@ class StoreCard extends StatelessWidget {
                     topRight: Radius.circular(8),
                   ),
                   child: store.image != null
-                      ? Image.network(
-                          store.getFullImageUrl()!,
+                      ? NetworkImageWidget(
+                          imageUrl: store.getFullImageUrl()!,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
+                          errorWidget: (context, url, error) =>
                               _buildErrorContainer(),
                         )
                       : _buildErrorContainer(),

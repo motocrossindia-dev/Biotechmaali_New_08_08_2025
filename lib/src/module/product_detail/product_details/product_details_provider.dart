@@ -488,9 +488,9 @@ class ProductDetailsProvider extends ChangeNotifier {
 
   void _preloadImages() {
     for (String imageUrl in _carouselProductImageList) {
-      // Preload images using CachedNetworkImage's precacheImage
+      // Preload images using Image.network's precacheImage
       try {
-        CachedNetworkImageProvider(imageUrl);
+        NetworkImage(imageUrl);
       } catch (e) {
         log('Error preloading image: $imageUrl - $e');
       }

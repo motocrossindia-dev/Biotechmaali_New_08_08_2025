@@ -129,7 +129,7 @@ class CategoryWidget extends StatelessWidget {
                               child: Padding(
                                 padding: const EdgeInsets.all(
                                     11), // Add padding to reduce image size
-                                child: CachedNetworkImage(
+                                child: NetworkImageWidget(
                                   imageUrl: '$baseUrl${category.image}',
                                   fit: BoxFit.fill,
                                   placeholder: (context, url) => const Center(
