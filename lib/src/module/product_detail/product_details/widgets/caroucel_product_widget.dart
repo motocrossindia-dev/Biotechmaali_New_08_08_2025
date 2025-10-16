@@ -22,7 +22,7 @@ class _CaroucelProductWidgetState extends State<CaroucelProductWidget> {
     for (String imageUrl in provider.carouselProductImageList) {
       if (imageUrl.isNotEmpty) {
         precacheImage(
-          CachedNetworkImageProvider(imageUrl),
+          NetworkImage(imageUrl),
           context,
         );
       }
@@ -61,11 +61,11 @@ class _CaroucelProductWidgetState extends State<CaroucelProductWidget> {
                     .map(
                       (item) => SizedBox(
                         width: MediaQuery.of(context).size.width,
-                        child: CachedNetworkImage(
+                        child: NetworkImageWidget(
                           imageUrl: item,
-                          fit: BoxFit.cover,
-                          fadeInDuration: const Duration(milliseconds: 200),
-                          fadeOutDuration: const Duration(milliseconds: 200),
+                          fit: BoxFit.fill,
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height * 0.5,
                           memCacheWidth: (MediaQuery.of(context).size.width *
                                   MediaQuery.of(context).devicePixelRatio)
                               .round(),
@@ -73,12 +73,6 @@ class _CaroucelProductWidgetState extends State<CaroucelProductWidget> {
                                   0.5 *
                                   MediaQuery.of(context).devicePixelRatio)
                               .round(),
-                          maxWidthDiskCache:
-                              (MediaQuery.of(context).size.width * 2).round(),
-                          maxHeightDiskCache:
-                              (MediaQuery.of(context).size.height * 1.0)
-                                  .round(),
-                          cacheKey: item,
                           placeholder: (context, url) => Shimmer.fromColors(
                             baseColor: Colors.grey[300]!,
                             highlightColor: Colors.grey[100]!,

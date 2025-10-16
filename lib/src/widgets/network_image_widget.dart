@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// A replacement for CachedNetworkImage that uses simple Image.network
-/// This ensures no media permissions are required
+/// Ultra-fast network image widget with instant display
+/// Uses Flutter's built-in Image.network with aggressive caching
 class NetworkImageWidget extends StatelessWidget {
   final String imageUrl;
   final Widget Function(BuildContext, String)? placeholder;
@@ -47,39 +47,43 @@ class NetworkImageWidget extends StatelessWidget {
       fit: fit ?? BoxFit.cover,
       width: width,
       height: height,
-      loadingBuilder: (context, child, loadingProgress) {
-        if (loadingProgress == null) return child;
-
+      // Instant display - no fade animation
+      frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+        if (wasSynchronouslyLoaded || frame != null) {
+          return child;
+        }
         if (placeholder != null) {
           return placeholder!(context, imageUrl);
         }
-
-        // Default loading indicator
+        // Minimal placeholder for fast loading
         return Container(
           width: width,
           height: height,
-          color: Colors.grey[200],
-          child: const Center(
-            child: CircularProgressIndicator(),
-          ),
+          color: Colors.grey[100],
         );
       },
       errorBuilder: (context, error, stackTrace) {
         if (errorWidget != null) {
           return errorWidget!(context, imageUrl, error);
         }
-
-        // Default error widget
         return Container(
           width: width,
           height: height,
-          color: Colors.grey[300],
+          color: Colors.grey[200],
           child: const Icon(
-            Icons.error,
+            Icons.broken_image_outlined,
             color: Colors.grey,
+            size: 24,
           ),
         );
       },
+      // Enable caching
+      cacheWidth: memCacheWidth,
+      cacheHeight: memCacheHeight,
+      // Prevent filtering lag
+      filterQuality: FilterQuality.low,
+      // Load faster
+      isAntiAlias: false,
     );
   }
 }

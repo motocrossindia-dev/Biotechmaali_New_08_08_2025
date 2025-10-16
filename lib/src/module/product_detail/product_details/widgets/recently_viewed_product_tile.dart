@@ -94,7 +94,7 @@ class RecentlyViewedProductTile extends StatelessWidget {
                       topRight: Radius.circular(12),
                     ),
                     child: productImage != null && productImage!.isNotEmpty
-                        ? CachedNetworkImage(
+                        ? NetworkImageWidget(
                             imageUrl: '$baseUrl$productImage',
                             fit: BoxFit.cover,
                             placeholder: (context, url) => Container(

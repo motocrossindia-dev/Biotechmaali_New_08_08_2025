@@ -22,5 +22,4 @@ export 'package:video_player/video_player.dart';
 export 'package:timeline_tile/timeline_tile.dart';
 export 'package:dio/dio.dart';
 export 'package:shimmer/shimmer.dart';
-export 'package:cached_network_image/cached_network_image.dart';
 export 'dart:io';
