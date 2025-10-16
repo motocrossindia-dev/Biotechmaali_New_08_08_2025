@@ -33,97 +33,103 @@ class ReferFriendWidget extends StatelessWidget {
           height: isTablet ? height * 0.18 : height * 0.21,
           width: width,
           color: cReferFriendsHome,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: width * 0.04),
-                child: Center(
-                  child: CommonTextWidget(
-                    title: 'Refer & Earn with BiotechMaali Rewards',
-                    fontSize: isTablet ? 24.0 : width * 0.05,
-                    fontWeight: FontWeight.w500,
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.visible,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: width * 0.04),
-                child: Center(
-                  child: CommonTextWidget(
-                    title:
-                        'Share the green with your friends and grow your wallet!. '
-                        'Earn real money or rewards every time someone you refer makes a purchase.',
-                    fontSize: isTablet ? 16.0 : width * 0.035,
-                    fontWeight: FontWeight.w400,
-                    textAlign: TextAlign.center,
-                    maxLines: 3,
-                    overflow: TextOverflow.visible,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: width * 0.04),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    SizedBox(
-                      height: isTablet ? height * 0.05 : height * 0.044,
-                      width: isTablet ? width * 0.35 : width * 0.41,
-                      child: BorderColoredButton(
-                        title: 'Learn More',
-                        event: () async {
-                          final settingsProvider =
-                              context.read<SettingsProvider>();
-                          bool isAuth = await settingsProvider
-                              .checkAccessTokenValidity(context);
-
-                          if (!isAuth) {
-                            _showLoginDialog(context);
-                            return;
-                          }
-                          showReferralPopup(
-                              context,
-                              context
-                                  .read<ReferFriendProvider>()
-                                  .referralCode
-                                  .text);
-                        },
-                        height: isTablet ? height * 0.05 : height * 0.044,
-                      ),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: width * 0.04, vertical: 4),
+                  child: Center(
+                    child: CommonTextWidget(
+                      title: 'Refer & Earn with BiotechMaali Rewards',
+                      fontSize: isTablet ? 24.0 : width * 0.05,
+                      fontWeight: FontWeight.w500,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(width: width * 0.02),
-                    SizedBox(
-                      height: isTablet ? height * 0.05 : height * 0.044,
-                      width: isTablet ? width * 0.35 : width * 0.41,
-                      child: CommonButtonWidget(
-                        title: 'Refer A Friend',
-                        event: () async {
-                          final settingsProvider =
-                              context.read<SettingsProvider>();
-                          bool isAuth = await settingsProvider
-                              .checkAccessTokenValidity(context);
-
-                          if (!isAuth) {
-                            _showLoginDialog(context);
-                            return;
-                          }
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const ReferFriendScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                    )
-                  ],
+                  ),
                 ),
-              ),
-            ],
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: width * 0.04, vertical: 4),
+                  child: Center(
+                    child: CommonTextWidget(
+                      title:
+                          'Share the green with your friends and grow your wallet!. '
+                          'Earn real money or rewards every time someone you refer makes a purchase.',
+                      fontSize: isTablet ? 16.0 : width * 0.035,
+                      fontWeight: FontWeight.w400,
+                      textAlign: TextAlign.center,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: width * 0.04, vertical: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      SizedBox(
+                        height: isTablet ? height * 0.05 : height * 0.044,
+                        width: isTablet ? width * 0.35 : width * 0.41,
+                        child: BorderColoredButton(
+                          title: 'Learn More',
+                          event: () async {
+                            final settingsProvider =
+                                context.read<SettingsProvider>();
+                            bool isAuth = await settingsProvider
+                                .checkAccessTokenValidity(context);
+
+                            if (!isAuth) {
+                              _showLoginDialog(context);
+                              return;
+                            }
+                            showReferralPopup(
+                                context,
+                                context
+                                    .read<ReferFriendProvider>()
+                                    .referralCode
+                                    .text);
+                          },
+                          height: isTablet ? height * 0.05 : height * 0.044,
+                        ),
+                      ),
+                      SizedBox(width: width * 0.02),
+                      SizedBox(
+                        height: isTablet ? height * 0.05 : height * 0.044,
+                        width: isTablet ? width * 0.35 : width * 0.41,
+                        child: CommonButtonWidget(
+                          title: 'Refer A Friend',
+                          event: () async {
+                            final settingsProvider =
+                                context.read<SettingsProvider>();
+                            bool isAuth = await settingsProvider
+                                .checkAccessTokenValidity(context);
+
+                            if (!isAuth) {
+                              _showLoginDialog(context);
+                              return;
+                            }
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ReferFriendScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ],

@@ -106,190 +106,211 @@ class _DeliveryTrackingWidgetState extends State<DeliveryTrackingWidget>
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16, left: 8, top: 50),
-              child: Material(
-                color: Colors.transparent,
-                child: Text(
-                  'Order Tracking',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                        fontSize: 20,
-                      ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16, left: 8, top: 50),
+                child: Material(
+                  color: Colors.transparent,
+                  child: Text(
+                    'Order Tracking',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                          fontSize: 20,
+                        ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ),
-            ),
-            AnimatedBuilder(
-              animation: _animationController,
-              builder: (context, child) {
-                return ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: allStatuses.length,
-                  itemBuilder: (context, index) {
-                    final status = allStatuses[index];
-                    final statusLower = status.toLowerCase();
+              AnimatedBuilder(
+                animation: _animationController,
+                builder: (context, child) {
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: allStatuses.length,
+                    itemBuilder: (context, index) {
+                      final status = allStatuses[index];
+                      final statusLower = status.toLowerCase();
 
-                    // Check if this status is completed
-                    final isCompleted = statusMap.containsKey(statusLower);
+                      // Check if this status is completed
+                      final isCompleted = statusMap.containsKey(statusLower);
 
-                    // Get timestamp if available
-                    final timestamp =
-                        isCompleted ? statusMap[statusLower]!.timestamp : null;
+                      // Get timestamp if available
+                      final timestamp = isCompleted
+                          ? statusMap[statusLower]!.timestamp
+                          : null;
 
-                    // Determine if this status is active or past
-                    final isActive = index <= currentStatusIndex;
+                      // Determine if this status is active or past
+                      final isActive = index <= currentStatusIndex;
 
-                    // Calculate animation progress for this step
-                    final stepProgress = (index + 1) / allStatuses.length;
-                    final isLineAnimated = _lineAnimation.value >= stepProgress;
-                    final isContentVisible =
-                        _contentAnimation.value >= stepProgress;
+                      // Calculate animation progress for this step
+                      final stepProgress = (index + 1) / allStatuses.length;
+                      final isLineAnimated =
+                          _lineAnimation.value >= stepProgress;
+                      final isContentVisible =
+                          _contentAnimation.value >= stepProgress;
 
-                    final isFirst = index == 0;
-                    final isLast = index == allStatuses.length - 1;
+                      final isFirst = index == 0;
+                      final isLast = index == allStatuses.length - 1;
 
-                    return TimelineTile(
-                      alignment: TimelineAlign.start,
-                      isFirst: isFirst,
-                      isLast: isLast,
-                      indicatorStyle: IndicatorStyle(
-                        width: 28,
-                        height: 28,
-                        color: isCompleted
-                            ? cButtonGreen
-                            : isLineAnimated
-                                ? Colors.grey.shade300
-                                : cButtonGreen,
-                        indicatorXY: 0.5,
-                        iconStyle: IconStyle(
-                          color: Colors.white,
-                          iconData: _getStatusIcon(status),
-                          fontSize: 14,
-                        ),
-                      ),
-                      beforeLineStyle: LineStyle(
-                        color: isCompleted
-                            ? cButtonGreen
-                            : isLineAnimated
-                                ? Colors.grey.shade300
-                                : cButtonGreen,
-                        thickness: 3,
-                      ),
-                      afterLineStyle: LineStyle(
-                        color: index < currentStatusIndex
-                            ? cButtonGreen
-                            : isLineAnimated
-                                ? Colors.grey.shade300
-                                : cButtonGreen,
-                        thickness: 3,
-                      ),
-                      endChild: Opacity(
-                        opacity: isContentVisible ? 1.0 : 0.0,
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          transform: Matrix4.translationValues(
-                              isContentVisible ? 0 : 10, 0, 0),
-                          curve: Curves.easeOut,
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 16.0,
-                            horizontal: 16,
+                      return TimelineTile(
+                        alignment: TimelineAlign.start,
+                        isFirst: isFirst,
+                        isLast: isLast,
+                        indicatorStyle: IndicatorStyle(
+                          width: 28,
+                          height: 28,
+                          color: isCompleted
+                              ? cButtonGreen
+                              : isLineAnimated
+                                  ? Colors.grey.shade300
+                                  : cButtonGreen,
+                          indicatorXY: 0.5,
+                          iconStyle: IconStyle(
+                            color: Colors.white,
+                            iconData: _getStatusIcon(status),
+                            fontSize: 14,
                           ),
-                          child: Material(
-                            color: Colors.transparent,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Material(
-                                      color: Colors.transparent,
-                                      child: Text(
-                                        status,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                          color: isActive
-                                              ? Colors.black
-                                              : Colors.grey.shade500,
-                                        ),
-                                      ),
-                                    ),
-                                    if (timestamp != null) ...[
-                                      const SizedBox(width: 8),
-                                      Material(
-                                        color: Colors.transparent,
-                                        child: Text(
-                                          '${_formatDate(timestamp)} - ${_formatTimestamp(timestamp)}',
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            color: Colors.grey.shade500,
-                                            fontWeight: FontWeight.normal,
+                        ),
+                        beforeLineStyle: LineStyle(
+                          color: isCompleted
+                              ? cButtonGreen
+                              : isLineAnimated
+                                  ? Colors.grey.shade300
+                                  : cButtonGreen,
+                          thickness: 3,
+                        ),
+                        afterLineStyle: LineStyle(
+                          color: index < currentStatusIndex
+                              ? cButtonGreen
+                              : isLineAnimated
+                                  ? Colors.grey.shade300
+                                  : cButtonGreen,
+                          thickness: 3,
+                        ),
+                        endChild: Opacity(
+                          opacity: isContentVisible ? 1.0 : 0.0,
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            transform: Matrix4.translationValues(
+                                isContentVisible ? 0 : 10, 0, 0),
+                            curve: Curves.easeOut,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 16.0,
+                              horizontal: 16,
+                            ),
+                            child: Material(
+                              color: Colors.transparent,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Flexible(
+                                        child: Material(
+                                          color: Colors.transparent,
+                                          child: Text(
+                                            status,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              color: isActive
+                                                  ? Colors.black
+                                                  : Colors.grey.shade500,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
                                       ),
+                                      if (timestamp != null) ...[
+                                        const SizedBox(width: 8),
+                                        Flexible(
+                                          child: Material(
+                                            color: Colors.transparent,
+                                            child: Text(
+                                              '${_formatDate(timestamp)} - ${_formatTimestamp(timestamp)}',
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                color: Colors.grey.shade500,
+                                                fontWeight: FontWeight.normal,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ],
-                                  ],
-                                ),
-                                const SizedBox(height: 6),
-                                Material(
-                                  color: Colors.transparent,
-                                  child: Text(
-                                    _getStatusDescription(
-                                        status, isCompleted, timestamp),
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: isActive
-                                          ? Colors.grey.shade700
-                                          : Colors.grey.shade400,
-                                      fontWeight: FontWeight.normal,
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Material(
+                                    color: Colors.transparent,
+                                    child: Text(
+                                      _getStatusDescription(
+                                          status, isCompleted, timestamp),
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: isActive
+                                            ? Colors.grey.shade700
+                                            : Colors.grey.shade400,
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
-                                ),
-                                if (status == 'Dispatched' && isCompleted)
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 6),
-                                    child: Material(
-                                      color: Colors.transparent,
-                                      child: Text(
-                                        "Tracking ID: ${widget.trackingUpdates[2].notes}",
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey.shade700,
-                                          fontWeight: FontWeight.w500,
+                                  if (status == 'Dispatched' && isCompleted)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 6),
+                                      child: Material(
+                                        color: Colors.transparent,
+                                        child: Text(
+                                          "Tracking ID: ${widget.trackingUpdates[2].notes}",
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey.shade700,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
                                     ),
-                                  ),
-                                if (status == 'On the Way' && isCompleted)
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 6),
-                                    child: Material(
-                                      color: Colors.transparent,
-                                      child: Text(
-                                        "Your item has been received in the hub nearest to you",
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey.shade700,
+                                  if (status == 'On the Way' && isCompleted)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 6),
+                                      child: Material(
+                                        color: Colors.transparent,
+                                        child: Text(
+                                          "Your item has been received in the hub nearest to you",
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey.shade700,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
                                     ),
-                                  ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-          ],
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -8,53 +8,73 @@ class CartLoginPromptWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    // Responsive sizing for different screen modes
+    final isSmallScreen = screenHeight < 600 || screenWidth < 400;
+    final animationHeight = isSmallScreen ? screenHeight * 0.25 : 300.0;
+
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Animated graphic (Lottie or SVG/PNG)
-            SizedBox(
-              height: 300,
-              child: Lottie.asset(
-                'assets/animations/login_cart.json', // Replace with your Lottie file path
-                fit: BoxFit.contain,
-                repeat: true,
-              ),
-            ),
-            const SizedBox(height: 32),
-            Text(
-              "Please login to access your cart!",
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              "Sign in to view and manage your cart items, checkout, and enjoy a seamless shopping experience.",
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[700],
-                  ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton.icon(
-              onPressed: onLogin,
-              icon: const Icon(Icons.login, color: Colors.white),
-              label: const Text("Login", style: TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: isSmallScreen ? 16.0 : 32.0,
+            vertical: isSmallScreen ? 12.0 : 24.0,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Animated graphic (Lottie or SVG/PNG)
+              SizedBox(
+                height: animationHeight,
+                child: Lottie.asset(
+                  'assets/animations/login_cart.json',
+                  fit: BoxFit.contain,
+                  repeat: true,
                 ),
-                backgroundColor: cButtonGreen,
               ),
-            ),
-          ],
+              SizedBox(height: isSmallScreen ? 16 : 32),
+              Text(
+                "Please login to access your cart!",
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                      fontSize: isSmallScreen ? 18 : null,
+                    ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: isSmallScreen ? 8 : 16),
+              Text(
+                "Sign in to view and manage your cart items, checkout, and enjoy a seamless shopping experience.",
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey[700],
+                      fontSize: isSmallScreen ? 12 : null,
+                    ),
+                textAlign: TextAlign.center,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: isSmallScreen ? 16 : 32),
+              ElevatedButton.icon(
+                onPressed: onLogin,
+                icon: const Icon(Icons.login, color: Colors.white),
+                label:
+                    const Text("Login", style: TextStyle(color: Colors.white)),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isSmallScreen ? 24 : 32,
+                    vertical: isSmallScreen ? 12 : 14,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  backgroundColor: cButtonGreen,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

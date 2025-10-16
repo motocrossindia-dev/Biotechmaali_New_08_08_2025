@@ -2,9 +2,16 @@ import 'dart:developer';
 
 import 'import.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:flutter/services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Lock app to portrait mode only (no horizontal/landscape view)
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 
   // Check if app was reinstalled and clear old data
   await _handleReinstallCleanup();

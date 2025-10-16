@@ -355,13 +355,16 @@ class ProductTileWidget extends StatelessWidget {
                           : 8.0,
                 ),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min, // Prevent overflow
                   children: [
-                    SizedBox(
-                        height: isTablet
-                            ? 10
-                            : isSmallPhone
-                                ? 6
-                                : 8),
+                    Flexible(
+                      child: SizedBox(
+                          height: isTablet
+                              ? 10
+                              : isSmallPhone
+                                  ? 6
+                                  : 8),
+                    ),
 
                     // Rating
                     Center(
@@ -370,12 +373,14 @@ class ProductTileWidget extends StatelessWidget {
                       ),
                     ),
 
-                    SizedBox(
-                        height: isTablet
-                            ? 10
-                            : isSmallPhone
-                                ? 6
-                                : 8),
+                    Flexible(
+                      child: SizedBox(
+                          height: isTablet
+                              ? 10
+                              : isSmallPhone
+                                  ? 6
+                                  : 8),
+                    ),
 
                     // Product title
                     Center(
@@ -394,12 +399,14 @@ class ProductTileWidget extends StatelessWidget {
                       ),
                     ),
 
-                    SizedBox(
-                        height: isTablet
-                            ? 10
-                            : isSmallPhone
-                                ? 6
-                                : 8),
+                    Flexible(
+                      child: SizedBox(
+                          height: isTablet
+                              ? 10
+                              : isSmallPhone
+                                  ? 6
+                                  : 8),
+                    ),
 
                     // Price section - responsive sizing
                     Row(
