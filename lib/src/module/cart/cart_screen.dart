@@ -67,91 +67,90 @@ class _CartScreenState extends State<CartScreen> {
           }
         }
       },
-      child: SafeArea(
-        child: Scaffold(
-          appBar: AppBar(
-            automaticallyImplyLeading: false,
-            elevation: 4,
-            shadowColor: Colors.black,
-            backgroundColor: Colors.white,
-            surfaceTintColor: Colors.transparent,
-            title: const CommonTextWidget(
-              title: 'Shopping Cart',
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-            ),
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          elevation: 4,
+          shadowColor: Colors.black,
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.transparent,
+          title: const CommonTextWidget(
+            title: 'Shopping Cart',
+            fontSize: 16,
+            fontWeight: FontWeight.w400,
           ),
-          body: Consumer<CartProvider>(
-            builder: (context, cartProvider, child) {
-              // if (cartProvider.isLoading || cartProvider.isPlacingOrder) {
-              //   return const CartShimmer();
-              // }
+        ),
+        body: Consumer<CartProvider>(
+          builder: (context, cartProvider, child) {
+            // if (cartProvider.isLoading || cartProvider.isPlacingOrder) {
+            //   return const CartShimmer();
+            // }
 
-              return AbsorbPointer(
-                absorbing: cartProvider.isDeletingItem,
-                child: Stack(
-                  children: [
-                    // Main content
-                    _buildMainContent(cartProvider),
-                    // Loading overlay
-                    if (cartProvider.isDeletingItem) _buildLoadingOverlay(),
+            return AbsorbPointer(
+              absorbing: cartProvider.isDeletingItem,
+              child: Stack(
+                children: [
+                  // Main content
+                  _buildMainContent(cartProvider),
+                  // Loading overlay
+                  if (cartProvider.isDeletingItem) _buildLoadingOverlay(),
 
-                    // Full-screen loading overlay for delete operation
-                    if (cartProvider.isDeletingItem)
-                      Container(
-                        color: Colors.black.withOpacity(0.7),
-                        child: Center(
-                          child: Container(
-                            padding: const EdgeInsets.all(24),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.3),
-                                  blurRadius: 10,
-                                  spreadRadius: 2,
+                  // Full-screen loading overlay for delete operation
+                  if (cartProvider.isDeletingItem)
+                    Container(
+                      color: Colors.black.withOpacity(0.7),
+                      child: Center(
+                        child: Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.3),
+                                blurRadius: 10,
+                                spreadRadius: 2,
+                              ),
+                            ],
+                          ),
+                          child: const Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Color(0xFF749F09), // cButtonGreen theme color
                                 ),
-                              ],
-                            ),
-                            child: const Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Color(
-                                        0xFF749F09), // cButtonGreen theme color
-                                  ),
-                                  strokeWidth: 3,
+                                strokeWidth: 3,
+                              ),
+                              SizedBox(height: 16),
+                              Text(
+                                'Removing item...',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black87,
                                 ),
-                                SizedBox(height: 16),
-                                Text(
-                                  'Removing item...',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.black87,
-                                  ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Please wait',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
                                 ),
-                                SizedBox(height: 8),
-                                Text(
-                                  'Please wait',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                  ],
-                ),
-              );
-            },
-          ),
-          bottomNavigationBar: Container(
+                    ),
+                ],
+              ),
+            );
+          },
+        ),
+        bottomNavigationBar: SafeArea(
+          child: Container(
             width: double.infinity,
             height: 60,
             color: Colors.white,

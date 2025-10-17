@@ -48,14 +48,21 @@ class RecentlyViewedProductTile extends StatelessWidget {
 
   String get discountPercentage => _calculateDiscountPercentage();
 
+  String _removeDecimals(String? price) {
+    if (price == null || price.isEmpty) return '0';
+    final value = double.tryParse(price) ?? 0;
+    return value.toInt().toString();
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth > 600;
     const baseUrl = BaseUrl.baseUrlForImages;
 
-    // Calculate responsive dimensions
-    double cardWidth = screenWidth * (isTablet ? 0.35 : 0.45);
+    // Calculate responsive dimensions - optimized for all devices
+    double cardWidth = screenWidth * (isTablet ? 0.32 : 0.42);
+    cardWidth = cardWidth.clamp(145.0, 190.0);
 
     return Container(
       width: cardWidth,
@@ -187,71 +194,107 @@ class RecentlyViewedProductTile extends StatelessWidget {
             ),
           ),
 
-          // Content section - optimized for space
+          // Content section - optimized for space with proper constraints
           Expanded(
             flex: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Rating - compact
-
-                  // Product title - compact
-                  CommonTextWidget(
-                    title: productTitle,
-                    color: cProductTitle,
-                    fontSize: isTablet ? 13 : 12,
-                    fontWeight: FontWeight.w500,
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-
-                  // Price section - exactly matching ProductTileWidget
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Show discounted price first if there's a discount
-                      if (hasDiscount) ...[
-                        CommonTextWidget(
-                          title: '₹$discountAmount',
-                          fontSize: isTablet ? 13 : 12,
-                          fontWeight: FontWeight.w600,
-                          color: cProductRate,
-                        ),
-                        const SizedBox(width: 4),
-                        CommonTextWidget(
-                          title: '₹$actualAmount',
-                          fontSize: isTablet ? 11 : 10,
-                          fontWeight: FontWeight.w400,
-                          color: cProductRateCrossed,
-                          lineThrough: TextDecoration.lineThrough,
-                        ),
-                      ] else ...[
-                        // Show only actual price if no discount
-                        CommonTextWidget(
-                          title: '₹$actualAmount',
-                          fontSize: isTablet ? 13 : 12,
-                          fontWeight: FontWeight.w600,
-                          color: cProductRate,
-                        ),
-                      ],
-                    ],
-                  ),
-
-                  // Add to cart button - compact
-                  SizedBox(
-                    width: double.infinity,
-                    height: 32, // Reduced button height
-                    child: BorderColoredButton(
-                      title: isCart ? "Go To Cart" : 'Add To Cart',
+            child: SingleChildScrollView(
+              physics: const NeverScrollableScrollPhysics(),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Product title - compact with fixed height
+                    SizedBox(
                       height: 32,
-                      event: addToCartEvent,
+                      child: Center(
+                        child: CommonTextWidget(
+                          title: productTitle,
+                          color: cProductTitle,
+                          fontSize: isTablet ? 13 : 11,
+                          fontWeight: FontWeight.w500,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+
+                    const SizedBox(height: 4),
+
+                    // Price section - centered with no decimals
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Show discounted price first if there's a discount
+                        if (hasDiscount) ...[
+                          CommonTextWidget(
+                            title: '₹${_removeDecimals(discountAmount)}',
+                            fontSize: isTablet ? 13 : 11,
+                            fontWeight: FontWeight.w600,
+                            color: cProductRate,
+                          ),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: CommonTextWidget(
+                              title: '₹${_removeDecimals(actualAmount)}',
+                              fontSize: isTablet ? 11 : 9,
+                              fontWeight: FontWeight.w400,
+                              color: cProductRateCrossed,
+                              lineThrough: TextDecoration.lineThrough,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ] else ...[
+                          // Show only actual price if no discount
+                          CommonTextWidget(
+                            title: '₹${_removeDecimals(actualAmount)}',
+                            fontSize: isTablet ? 13 : 11,
+                            fontWeight: FontWeight.w600,
+                            color: cProductRate,
+                          ),
+                        ],
+                      ],
+                    ),
+
+                    const SizedBox(height: 6),
+
+                    // Add to cart button - compact with full visibility
+                    SizedBox(
+                      width: double.infinity,
+                      height: 36,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: cAppBackround,
+                          foregroundColor: cButtonGreen,
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(color: cButtonGreen, width: 1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 8),
+                        ),
+                        onPressed: addToCartEvent,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            isCart ? "GO TO CART" : 'ADD TO CART',
+                            style: GoogleFonts.poppins(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

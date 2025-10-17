@@ -530,7 +530,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         ],
                       ),
                     ),
-                    sizedBoxHeight15
+                    sizedBoxHeight70
                   ],
                 ),
               ),

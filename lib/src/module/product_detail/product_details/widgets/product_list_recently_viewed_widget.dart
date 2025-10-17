@@ -21,10 +21,10 @@ class ProductListRecentlyViewedWidget extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth > 600;
 
-    // Calculate responsive height - optimized for the new compact tile
-    double containerHeight = screenHeight * (isTablet ? 0.35 : 0.30);
-    // Reduced height bounds since we have a more compact tile design
-    containerHeight = containerHeight.clamp(250.0, 320.0);
+    // Calculate responsive height - optimized to show full content without overflow
+    double containerHeight = screenHeight * (isTablet ? 0.37 : 0.34);
+    // Adjusted height bounds to ensure Add to Cart button is fully visible
+    containerHeight = containerHeight.clamp(270.0, 350.0);
 
     return Consumer<ProductDetailsProvider>(
       builder: (context, provider, child) {

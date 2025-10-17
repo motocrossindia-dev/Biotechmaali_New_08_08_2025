@@ -6,6 +6,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   connectivity_plus
   flutter_inappwebview_windows
   geolocator_windows
+  pdfx
   share_plus
   speech_to_text_windows
   url_launcher_windows
