@@ -113,6 +113,8 @@ class _ProductSearchViewState extends State<ProductSearchView> {
                         mainProdId: product.id,
                         discountAmount: product.sellingPrice.toString(),
                         rating: product.productRating.avgRating,
+                        ribbon:
+                            null, // Product search doesn't have ribbon field
                         addToFavouriteEvent: () async {
                           final settingsProvider =
                               context.read<SettingsProvider>();

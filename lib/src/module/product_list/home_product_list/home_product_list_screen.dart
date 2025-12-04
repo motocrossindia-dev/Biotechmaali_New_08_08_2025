@@ -4,6 +4,7 @@ import 'package:biotech_maali/src/module/product_search/product_search_screen.da
 import 'package:biotech_maali/src/module/wishlist/wishlist_screen.dart';
 import 'package:biotech_maali/src/widgets/login_prompt_dialog.dart';
 import 'package:biotech_maali/src/module/product_list/product_list_shimmer.dart';
+import 'package:biotech_maali/src/module/product_list/home_product_list/widget/home_product_tile_widget.dart';
 
 import '../../../../import.dart';
 
@@ -97,7 +98,7 @@ class _HomeProductListScreenState extends State<HomeProductListScreen> {
                             crossAxisCount: 2,
                             crossAxisSpacing: 15.0,
                             mainAxisSpacing: 15.0,
-                            childAspectRatio: 0.48,
+                            childAspectRatio: 0.62,
                           ),
                           itemBuilder: (context, index) {
                             HomeProductModel productDetails = products[index];
@@ -116,7 +117,7 @@ class _HomeProductListScreenState extends State<HomeProductListScreen> {
                                   ),
                                 );
                               },
-                              child: ProductTileWidget(
+                              child: HomeProductTileWidget(
                                 mainProdId: productDetails.id,
                                 productTitle: productDetails.name,
                                 productImage: productDetails.image,
@@ -135,6 +136,8 @@ class _HomeProductListScreenState extends State<HomeProductListScreen> {
                                 home: true,
                                 isWishlist: productDetails.isWishlist,
                                 isCart: productDetails.isCart,
+                                ribbon: productDetails
+                                    .ribbon, // Pass ribbon from model
                                 addToFavouriteEvent: () async {
                                   final settingsProvider =
                                       context.read<SettingsProvider>();

@@ -30,7 +30,7 @@ class ReferFriendWidget extends StatelessWidget {
           ),
         ),
         Container(
-          height: isTablet ? height * 0.18 : height * 0.21,
+          height: isTablet ? height * 0.2 : height * 0.23,
           width: width,
           color: cReferFriendsHome,
           child: SingleChildScrollView(

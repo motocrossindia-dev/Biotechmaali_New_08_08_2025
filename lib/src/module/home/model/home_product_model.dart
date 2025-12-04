@@ -11,6 +11,7 @@ class HomeProductModel {
   final String? image;
   final double? sellingPrice;
   final double? mrp;
+  final String? ribbon; // Added ribbon field
 
   HomeProductModel({
     required this.id,
@@ -25,6 +26,7 @@ class HomeProductModel {
     this.image,
     this.sellingPrice,
     this.mrp,
+    this.ribbon, // Added ribbon parameter
   });
 
   String? getFullImageUrl() {
@@ -47,6 +49,7 @@ class HomeProductModel {
       image: json['image'],
       sellingPrice: json['selling_price']?.toDouble(),
       mrp: json['mrp']?.toDouble(),
+      ribbon: json['ribbon']?.toString(), // Added ribbon from JSON
     );
   }
 
@@ -63,6 +66,7 @@ class HomeProductModel {
         'image': image,
         'selling_price': sellingPrice,
         'mrp': mrp,
+        'ribbon': ribbon, // Added ribbon to JSON
       };
 }
 

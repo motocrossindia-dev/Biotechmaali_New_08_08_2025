@@ -227,13 +227,13 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                                 children: [
                                   CommonTextWidget(
                                     title:
-                                        '₹${provider.orderData!.order.totalPrice}',
+                                        '₹${provider.orderData!.order.totalPrice.toInt()}',
                                     lineThrough: TextDecoration.lineThrough,
                                     fontSize: 12,
                                   ),
                                   CommonTextWidget(
                                     title:
-                                        '₹${provider.orderData!.order.grandTotal}',
+                                        '₹${provider.orderData!.order.grandTotal.toInt()}',
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   )
@@ -332,7 +332,7 @@ class OrderItemCard extends StatelessWidget {
           Row(
             children: [
               Text(
-                '₹${item.mrp * item.quantity}',
+                '₹${(item.mrp * item.quantity).toInt()}',
                 style: const TextStyle(
                   decoration: TextDecoration.lineThrough,
                   fontSize: 12,
@@ -340,7 +340,7 @@ class OrderItemCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                '₹${(item.sellingPrice) * item.quantity}',
+                '₹${(item.sellingPrice * item.quantity).toInt()}',
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                 ),

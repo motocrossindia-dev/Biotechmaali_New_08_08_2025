@@ -1,10 +1,8 @@
 import 'package:biotech_maali/import.dart';
 import 'package:biotech_maali/src/payment_and_order/order_history/model.dart/order_history_model.dart';
-import 'package:biotech_maali/src/payment_and_order/order_history/order_history_provider.dart';
-import 'package:biotech_maali/src/payment_and_order/order_history/widgets/invoice_download_popup.dart';
 import 'package:biotech_maali/src/payment_and_order/order_history_detail/order_history_detail_shimmer.dart';
-import 'package:biotech_maali/src/permission_handle/pdf_viewer/pdf_viewer.dart';
 import 'order_history_detail_provider.dart';
+import 'widgets/order_actions_sheet.dart';
 import 'model/order_history_detail_model.dart';
 
 class OrderHistoryDetailScreen extends StatefulWidget {
@@ -70,39 +68,25 @@ class _OrderHistoryDetailScreenState extends State<OrderHistoryDetailScreen> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 15.0),
-            child: ElevatedButton.icon(
+            child: IconButton(
               onPressed: () {
-                if (widget.orderStatus.toUpperCase() == "DELIVERED") {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PdfViewerScreen(
-                        pdfUrl: "${EndUrl.pdfInvoiceUrl}${widget.orderId}/",
-                        title: "Invoice - ${widget.orderId}",
-                        orderNumber: widget.orderNumber,
-                      ),
-                    ),
-                  );
-                } else {
-                  InvoiceDownloadPopup.showInvoiceBottomSheet(context);
-                }
+                OrderActionsSheet.show(
+                  context: context,
+                  orderId: widget.orderId,
+                  orderNumber: widget.orderNumber,
+                  orderStatus: widget.orderStatus,
+                  deliveryDate: widget.orderDate,
+                );
               },
-              icon: const Icon(Icons.file_download_outlined, size: 18),
-              label: const Text('Invoice'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: themeColor,
-                elevation: 0,
-                side: const BorderSide(color: themeColor, width: 1.2),
+              icon: const Icon(Icons.help_outline_rounded, size: 24),
+              tooltip: 'Help & Actions',
+              style: IconButton.styleFrom(
+                backgroundColor: themeColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.all(12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 18,
-                  vertical: 10,
-                ),
-                textStyle:
-                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -129,73 +113,6 @@ class _OrderHistoryDetailScreenState extends State<OrderHistoryDetailScreen> {
                   title: 'Order Summary',
                   child: _buildOrderSummaryContent(),
                 ),
-                if (widget.orderStatus.toLowerCase() != 'cancelled' &&
-                    widget.orderStatus.toLowerCase() != 'delivered' &&
-                    widget.orderStatus.toLowerCase() != 'ready_for_pickup' &&
-                    widget.orderStatus.toLowerCase() != 'on_the_way')
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 18),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: TextButton.icon(
-                        icon: const Icon(Icons.cancel, color: themeColor),
-                        label: const Text(
-                          'Cancel Order',
-                          style: TextStyle(
-                            color: themeColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        style: TextButton.styleFrom(
-                          backgroundColor: themeColor.withOpacity(0.08),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        onPressed: () async {
-                          final confirm = await showDialog<bool>(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text('Cancel Order'),
-                              content: const Text(
-                                  'Are you sure you want to cancel this order?'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.pop(context, false),
-                                  child: const Text('No'),
-                                ),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, true),
-                                  child: const Text('Yes'),
-                                ),
-                              ],
-                            ),
-                          );
-                          if (confirm == true) {
-                            final success = await context
-                                .read<OrderHistoryProvider>()
-                                .cancelOrder(widget.orderId.toString());
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    success
-                                        ? 'Order cancelled successfully'
-                                        : 'Failed to cancel order',
-                                  ),
-                                  backgroundColor:
-                                      success ? Colors.green : Colors.red,
-                                ),
-                              );
-                            }
-                          }
-                        },
-                      ),
-                    ),
-                  ),
                 _buildSectionCard(
                   icon: Icons.local_shipping_outlined,
                   title: 'Shipping Information',

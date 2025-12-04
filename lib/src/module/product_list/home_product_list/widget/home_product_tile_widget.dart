@@ -1,7 +1,6 @@
-import 'package:biotech_maali/src/widgets/login_prompt_dialog.dart';
-import '../../import.dart';
+import '../../../../../import.dart';
 
-class ProductTileWidget extends StatelessWidget {
+class HomeProductTileWidget extends StatelessWidget {
   final bool? isOffer;
   final String productTitle;
   final String? productImage;
@@ -17,7 +16,7 @@ class ProductTileWidget extends StatelessWidget {
   final int? mainProdId;
   final String? ribbon; // New parameter for ribbon text
 
-  const ProductTileWidget({
+  const HomeProductTileWidget({
     this.isOffer,
     required this.productTitle,
     this.productImage,
@@ -40,7 +39,7 @@ class ProductTileWidget extends StatelessWidget {
     if (doublePrice != null) {
       return doublePrice.toInt().toString();
     }
-    return price; // Return original if parsing fails
+    return price;
   }
 
   String _calculateDiscountPercentage() {
@@ -64,7 +63,8 @@ class ProductTileWidget extends StatelessWidget {
   String get discountPercentage => _calculateDiscountPercentage();
 
   bool get shouldShowDiscountBadge =>
-      isOffer == true && discountPercentage != '0';
+      hasDiscount &&
+      discountPercentage != '0'; // Show when there's a valid discount
 
   @override
   Widget build(BuildContext context) {
@@ -74,18 +74,18 @@ class ProductTileWidget extends StatelessWidget {
     final isLargePhone = screenWidth >= 414;
     final isSmallPhone = screenWidth < 360;
 
-    // Responsive sizing based on device type
+    // Responsive sizing - ORIGINAL VALUES for home product list
     final cardWidth = isTablet
-        ? screenWidth * 0.3 // 30% for tablets
+        ? screenWidth * 0.3
         : isLargePhone
-            ? screenWidth * 0.43 // 43% for large phones
-            : screenWidth * 0.45; // 45% for small phones
+            ? screenWidth * 0.43
+            : screenWidth * 0.45;
 
     final cardHeight = isTablet
-        ? screenHeight * 0.12 // SUPER COMPACT - no wasted space
+        ? screenHeight * 0.35 // ORIGINAL height for 0.48 aspect ratio
         : isSmallPhone
-            ? screenHeight * 0.15 // SUPER COMPACT
-            : screenHeight * 0.11; // SUPER COMPACT
+            ? screenHeight * 0.38
+            : screenHeight * 0.32;
 
     final containerSize = isTablet
         ? screenWidth * 0.04
@@ -126,7 +126,7 @@ class ProductTileWidget extends StatelessWidget {
           children: [
             // Product image with overlaid elements
             Expanded(
-              flex: isTablet ? 5 : 4, // More space for image on tablets
+              flex: isTablet ? 4 : 3,
               child: ClipRRect(
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(borderRadius),
@@ -134,12 +134,11 @@ class ProductTileWidget extends StatelessWidget {
                 ),
                 child: Stack(
                   children: [
-                    // Square image container aligned to top - FULL WIDTH
+                    // Square image container - FULL WIDTH
                     SizedBox(
-                      width: double.infinity, // Force full width
+                      width: double.infinity,
                       child: AspectRatio(
-                        aspectRatio: 1, // Makes image square
-
+                        aspectRatio: 1.0, // Square image
                         child: ClipRRect(
                           borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(borderRadius),
@@ -338,7 +337,7 @@ class ProductTileWidget extends StatelessWidget {
                           ),
                         ),
                       ),
-                    // Wishlist button (bottom right corner) for home screens
+                    // Wishlist button (bottom right corner)
                     if (home)
                       Positioned(
                         bottom: isTablet
@@ -408,9 +407,9 @@ class ProductTileWidget extends StatelessWidget {
               ),
             ),
 
-            // Content section with fixed spacing
+            // Content section
             Expanded(
-              flex: isTablet ? 3 : 3, // More space for content on tablets
+              flex: isTablet ? 3 : 2,
               child: Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: isTablet
@@ -420,14 +419,16 @@ class ProductTileWidget extends StatelessWidget {
                           : 8.0,
                 ),
                 child: Column(
-                  mainAxisSize: MainAxisSize.min, // Prevent overflow
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    SizedBox(
-                        height: isTablet
-                            ? 4 // Reduced from 10
-                            : isSmallPhone
-                                ? 2 // Reduced from 6
-                                : 3), // Reduced from 8
+                    Flexible(
+                      child: SizedBox(
+                          height: isTablet
+                              ? 10
+                              : isSmallPhone
+                                  ? 6
+                                  : 8),
+                    ),
 
                     // Rating
                     Center(
@@ -457,7 +458,7 @@ class ProductTileWidget extends StatelessWidget {
                                 : 14,
                         fontWeight: FontWeight.w500,
                         textAlign: TextAlign.center,
-                        maxLines: isTablet ? 2 : 1, // Allow 2 lines on tablets
+                        maxLines: isTablet ? 2 : 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -471,11 +472,10 @@ class ProductTileWidget extends StatelessWidget {
                                   : 8),
                     ),
 
-                    // Price section - responsive sizing
+                    // Price section
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Show discounted price first if there's a discount
                         if (hasDiscount) ...[
                           CommonTextWidget(
                             title: '₹${_formatPrice(discountAmount!)}',
@@ -542,7 +542,6 @@ class ProductTileWidget extends StatelessWidget {
                             ),
                           ),
                         ] else ...[
-                          // Show only actual price if no discount
                           CommonTextWidget(
                             title: '₹${_formatPrice(actualAmount)}',
                             fontSize: isTablet
@@ -557,31 +556,26 @@ class ProductTileWidget extends StatelessWidget {
                       ],
                     ),
 
-                    SizedBox(
-                        height: isTablet
-                            ? 6
-                            : isSmallPhone
-                                ? 4
-                                : 5), // Fixed small spacing instead of Spacer
+                    const Spacer(),
 
-                    // Add to cart button - responsive sizing
+                    // Add to cart button
                     if (home)
                       Container(
                         width: double.infinity,
                         padding: EdgeInsets.only(
                           bottom: isTablet
-                              ? 2.0 // Minimal padding
+                              ? 12.0
                               : isSmallPhone
-                                  ? 1.0 // Minimal padding
-                                  : 2.0, // Minimal padding
+                                  ? 6.0
+                                  : 8.0,
                         ),
                         child: BorderColoredButton(
                           title: isCart ? "Go To Cart" : 'Add To Cart',
                           height: isTablet
-                              ? 40 // Reduced from 44
+                              ? 44
                               : isSmallPhone
-                                  ? 30 // Reduced from 32
-                                  : 34, // Reduced from 36
+                                  ? 32
+                                  : 36,
                           event: addToCartEvent,
                         ),
                       ),
@@ -592,15 +586,6 @@ class ProductTileWidget extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  void showLoginDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return const LoginPromptDialog();
-      },
     );
   }
 }

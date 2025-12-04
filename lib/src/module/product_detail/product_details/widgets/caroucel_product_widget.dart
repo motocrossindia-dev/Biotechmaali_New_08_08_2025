@@ -50,7 +50,9 @@ class _CaroucelProductWidgetState extends State<CaroucelProductWidget> {
               padding: const EdgeInsets.only(top: 12.0, right: 20, left: 20),
               child: CarouselSlider(
                 options: CarouselOptions(
-                  height: MediaQuery.of(context).size.height * 0.5,
+                  height: MediaQuery.of(context)
+                      .size
+                      .width, // Square height based on width
                   autoPlay: false,
                   viewportFraction: 1.0,
                   onPageChanged: (index, reason) {
@@ -59,52 +61,59 @@ class _CaroucelProductWidgetState extends State<CaroucelProductWidget> {
                 ),
                 items: provider.carouselProductImageList
                     .map(
-                      (item) => SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        child: NetworkImageWidget(
-                          imageUrl: item,
-                          fit: BoxFit.fill,
-                          width: MediaQuery.of(context).size.width,
-                          height: MediaQuery.of(context).size.height * 0.5,
-                          memCacheWidth: (MediaQuery.of(context).size.width *
-                                  MediaQuery.of(context).devicePixelRatio)
-                              .round(),
-                          memCacheHeight: (MediaQuery.of(context).size.height *
-                                  0.5 *
-                                  MediaQuery.of(context).devicePixelRatio)
-                              .round(),
-                          placeholder: (context, url) => Shimmer.fromColors(
-                            baseColor: Colors.grey[300]!,
-                            highlightColor: Colors.grey[100]!,
-                            child: Container(
-                              width: double.infinity,
-                              height: double.infinity,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[300],
-                                borderRadius: BorderRadius.circular(8),
+                      (item) => Center(
+                        child: AspectRatio(
+                          aspectRatio: 1.0, // Makes it square (1:1 ratio)
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: NetworkImageWidget(
+                              imageUrl: item,
+                              fit: BoxFit
+                                  .cover, // Changed from fill to cover for better square display
+                              memCacheWidth: (MediaQuery.of(context)
+                                          .size
+                                          .width *
+                                      MediaQuery.of(context).devicePixelRatio)
+                                  .round(),
+                              memCacheHeight: (MediaQuery.of(context)
+                                          .size
+                                          .width *
+                                      MediaQuery.of(context).devicePixelRatio)
+                                  .round(),
+                              placeholder: (context, url) => Shimmer.fromColors(
+                                baseColor: Colors.grey[300]!,
+                                highlightColor: Colors.grey[100]!,
+                                child: Container(
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[300],
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                          errorWidget: (context, url, error) => Container(
-                            color: Colors.grey[200],
-                            child: const Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.broken_image,
-                                    color: Colors.grey,
-                                    size: 40,
+                              errorWidget: (context, url, error) => Container(
+                                color: Colors.grey[200],
+                                child: const Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.broken_image,
+                                        color: Colors.grey,
+                                        size: 40,
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        'Image not available',
+                                        style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  SizedBox(height: 8),
-                                  Text(
-                                    'Image not available',
-                                    style: TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
                             ),
                           ),

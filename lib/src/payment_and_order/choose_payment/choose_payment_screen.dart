@@ -75,12 +75,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       // Price Details
                       _buildPriceRow(
                           'Price (${orderDetails.data.orderItems.length} items)',
-                          '₹${orderDetails.data.order.totalPrice}'),
+                          '₹${orderDetails.data.order.totalPrice.toInt()}'),
                       _buildPriceRow('Discount',
-                          '-₹${(orderDetails.data.order.totalDiscount).toStringAsFixed(1)}',
+                          '-₹${orderDetails.data.order.totalDiscount.toInt()}',
                           isGreen: true),
                       _buildPriceRow('Coupon Discount',
-                          '-₹${orderDetails.data.order.couponDiscount}',
+                          '-₹${orderDetails.data.order.couponDiscount.toInt()}',
                           isGreen: true),
                       _buildPriceRow('Delivery Charges', 'Free',
                           originalPrice: '₹', isGreen: true),
@@ -91,7 +91,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       // Total
                       _buildPriceRow(
                         'Total Amount',
-                        '₹${orderDetails.data.order.grandTotal}',
+                        '₹${orderDetails.data.order.grandTotal.toInt()}',
                         isBold: true,
                       ),
 
@@ -99,7 +99,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8.0),
                         child: Text(
-                          'You will save ₹${(orderDetails.data.order.totalDiscount + orderDetails.data.order.couponDiscount).toStringAsFixed(1)} on this order',
+                          'You will save ₹${(orderDetails.data.order.totalDiscount + orderDetails.data.order.couponDiscount).toInt()} on this order',
                           style: TextStyle(
                             color: Colors.green[600],
                             fontWeight: FontWeight.w500,
@@ -465,7 +465,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
               context.watch<ChoosePaymentProvider>().actualWalletBalance !=
                           null &&
                       context.watch<ChoosePaymentProvider>().isWalletCheckbox
-                  ? "₹${context.watch<ChoosePaymentProvider>().actualWalletBalance!.toStringAsFixed(1)}"
+                  ? "₹${context.watch<ChoosePaymentProvider>().actualWalletBalance!.toInt()}"
                   : "₹$amount",
               style: TextStyle(
                 color: Colors.green[600],

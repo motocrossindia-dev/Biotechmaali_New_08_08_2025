@@ -51,6 +51,8 @@ class OrderHistoryRepository {
       );
 
       if (response.statusCode == 200) {
+        log("Cancel Order Request: ${response.statusCode.toString()}");
+        log("Cancel Order Response: ${response.data.toString()}");
         return response.data;
       }
       throw Exception('Failed to cancel order');

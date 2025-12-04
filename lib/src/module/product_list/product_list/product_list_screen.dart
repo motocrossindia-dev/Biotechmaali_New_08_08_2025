@@ -162,7 +162,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       crossAxisCount: 2,
                       crossAxisSpacing: 15.0,
                       mainAxisSpacing: 15.0,
-                      childAspectRatio: 0.48,
+                      childAspectRatio:
+                          0.62, // INCREASED from 0.48 - makes cards shorter
                     ),
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
@@ -199,6 +200,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                             home: true,
                             isWishlist: product.isWishlist,
                             isCart: product.isCart,
+                            ribbon: product.ribbon, // Pass the ribbon value
                             addToFavouriteEvent: () async {
                               final settingsProvider =
                                   context.read<SettingsProvider>();

@@ -20,11 +20,12 @@ class ProductListModel {
     return ProductListModel(
       message: json['message']?.toString() ?? '',
       products: productsList
-          .map((productJson) => Product.fromJson(productJson))
+          .map((productJson) =>
+              Product.fromJson(productJson as Map<String, dynamic>))
           .toList(),
       nextPage: json['next']?.toString(),
       previousPage: json['previous']?.toString(),
-      count: json['count'] ?? 0,
+      count: int.tryParse(json['count']?.toString() ?? '') ?? 0,
     );
   }
 
@@ -49,6 +50,7 @@ class Product {
   final double sellingPrice;
   final String image;
   final ProductRating productRating;
+  final String? ribbon; // added based on JSON
 
   Product({
     required this.id,
@@ -60,25 +62,29 @@ class Product {
     required this.sellingPrice,
     required this.image,
     required this.productRating,
+    this.ribbon,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      id: _parseId(json['id']),
-      prodId: _parseId(json['prod_id']),
+      id: _parseInt(json['id']),
+      prodId: _parseInt(json['prod_id']),
       name: json['name']?.toString() ?? '',
-      isCart: json['is_cart'] ?? false,
-      isWishlist: json['is_wishlist'] ?? false,
+      isCart: _parseBool(json['is_cart']),
+      isWishlist: _parseBool(json['is_wishlist']),
       mrp: _parseDouble(json['mrp']),
       sellingPrice: _parseDouble(json['selling_price']),
       image: json['image']?.toString() ?? '',
-      productRating: ProductRating.fromJson(json['product_rating'] ?? {}),
+      productRating: ProductRating.fromJson(
+          (json['product_rating'] ?? {}) as Map<String, dynamic>),
+      ribbon: json['ribbon']?.toString(),
     );
   }
 
   // Helper methods for parsing
-  static int _parseId(dynamic value) {
+  static int _parseInt(dynamic value) {
     if (value is int) return value;
+    if (value is double) return value.toInt();
     if (value is String) return int.tryParse(value) ?? 0;
     return 0;
   }
@@ -88,6 +94,16 @@ class Product {
     if (value is int) return value.toDouble();
     if (value is String) return double.tryParse(value) ?? 0.0;
     return 0.0;
+  }
+
+  static bool _parseBool(dynamic value) {
+    if (value is bool) return value;
+    if (value is int) return value != 0;
+    if (value is String) {
+      final v = value.toLowerCase().trim();
+      return v == 'true' || v == '1' || v == 'yes';
+    }
+    return false;
   }
 
   Map<String, dynamic> toJson() {
@@ -101,6 +117,7 @@ class Product {
       'selling_price': sellingPrice,
       'image': image,
       'product_rating': productRating.toJson(),
+      'ribbon': ribbon,
     };
   }
 }
@@ -117,7 +134,7 @@ class ProductRating {
   factory ProductRating.fromJson(Map<String, dynamic> json) {
     return ProductRating(
       avgRating: Product._parseDouble(json['avg_rating']),
-      numRatings: Product._parseId(json['num_ratings']),
+      numRatings: Product._parseInt(json['num_ratings']),
     );
   }
 

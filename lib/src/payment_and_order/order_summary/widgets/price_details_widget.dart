@@ -19,12 +19,12 @@ class PriceDetailsWidget extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             _buildPriceRow('Price (${orderData.orderItems.length} items)',
-                '₹${orderData.order.totalPrice}'),
-            _buildPriceRow('Discount',
-                '-₹${(orderData.order.totalDiscount).toStringAsFixed(1)}',
-                isGreen: true),
+                '₹${orderData.order.totalPrice.toInt()}'),
             _buildPriceRow(
-                'Coupon Discount', '-₹${orderData.order.couponDiscount}',
+                'Discount', '-₹${orderData.order.totalDiscount.toInt()}',
+                isGreen: true),
+            _buildPriceRow('Coupon Discount',
+                '-₹${orderData.order.couponDiscount.toInt()}',
                 isGreen: true),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -50,11 +50,12 @@ class PriceDetailsWidget extends StatelessWidget {
             ),
             _buildPriceRow('secured Packaging Fee', ""), //'₹198',
             const Divider(thickness: 1),
-            _buildPriceRow('Total Amount', '₹${orderData.order.grandTotal}',
+            _buildPriceRow(
+                'Total Amount', '₹${orderData.order.grandTotal.toInt()}',
                 isBold: true),
             const SizedBox(height: 8),
             Text(
-              'You will save ₹${(orderData.order.totalDiscount + orderData.order.couponDiscount).toStringAsFixed(2)} on this order',
+              'You will save ₹${(orderData.order.totalDiscount + orderData.order.couponDiscount).toInt()} on this order',
               style: const TextStyle(color: Colors.green),
             ),
           ],

@@ -86,10 +86,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                CommonTextWidget(
-                                  title: "Your Gender*",
-                                  fontSize: 12,
-                                  color: cBorderGrey,
+                                Row(
+                                  children: [
+                                    CommonTextWidget(
+                                      title: "Your Gender",
+                                      fontSize: 12,
+                                      color: cBorderGrey,
+                                    ),
+                                    CommonTextWidget(
+                                      title: " *",
+                                      fontSize: 12,
+                                      color: Colors.red,
+                                    ),
+                                  ],
                                 ),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
@@ -141,7 +150,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   editProfileProvider.emailAddress.text.isEmpty
                                       ? 'Email Address'
                                       : editProfileProvider.emailAddress.text,
-                              labelText: 'Email Address',
+                              labelText: 'Email Address *',
                               keyboardType: TextInputType.emailAddress,
                               readOnly: !editProfileProvider.isEditing,
                             ),

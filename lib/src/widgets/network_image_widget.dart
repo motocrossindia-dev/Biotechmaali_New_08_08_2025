@@ -77,13 +77,15 @@ class NetworkImageWidget extends StatelessWidget {
           ),
         );
       },
-      // Enable caching
+      // Enable caching with specified dimensions
       cacheWidth: memCacheWidth,
       cacheHeight: memCacheHeight,
-      // Prevent filtering lag
-      filterQuality: FilterQuality.low,
-      // Load faster
-      isAntiAlias: false,
+      // Use medium quality for balance between speed and quality
+      filterQuality: FilterQuality.medium,
+      // Enable anti-aliasing for smoother images
+      isAntiAlias: true,
+      // Load images as soon as possible
+      loadingBuilder: null, // Don't use loading builder for faster display
     );
   }
 }

@@ -198,6 +198,7 @@ class _OfferProductListWidgetState extends State<OfferProductListWidget> {
                             home: true,
                             isWishlist: product.isWishlist,
                             isCart: product.isCart,
+                            ribbon: product.ribbon, // Pass the ribbon value
                             addToFavouriteEvent: () async {
                               final settingsProvider =
                                   context.read<SettingsProvider>();

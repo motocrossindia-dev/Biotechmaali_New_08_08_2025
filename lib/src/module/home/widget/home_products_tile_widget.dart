@@ -2,6 +2,7 @@ import 'package:biotech_maali/core/settings_provider/settings_provider.dart';
 import 'package:biotech_maali/src/module/home/model/home_product_model.dart';
 import 'package:biotech_maali/src/module/wishlist/whishlist_provider.dart';
 import 'package:biotech_maali/src/widgets/login_prompt_dialog.dart';
+import 'package:biotech_maali/src/module/product_list/home_product_list/widget/home_product_tile_widget.dart';
 import '../../../../import.dart';
 
 class HomeProductsTileWidget extends StatelessWidget {
@@ -26,17 +27,6 @@ class HomeProductsTileWidget extends StatelessWidget {
               ),
               Consumer<HomeProvider>(
                 builder: (context, provider, child) {
-                  // List<HomeProductModel> products = [];
-                  // if (title == "Featured") {
-                  //   products = provider.featuredProducts;
-                  // } else if (title == "Latest") {
-                  //   products = provider.trendingProducts;
-                  // } else if (title == "Bestseller") {
-                  //   products = provider.bestSellerProducts;
-                  // } else if (title == "Seasonal Collection") {
-                  //   products = provider.seasonalProducts;
-                  // }
-
                   return CustomizableButton(
                     title: 'View All',
                     event: () {
@@ -155,7 +145,7 @@ class HomeProductsTileWidget extends StatelessWidget {
                                     ),
                                   );
                                 },
-                                child: ProductTileWidget(
+                                child: HomeProductTileWidget(
                                   productTitle: productDetails.name,
                                   productImage: productDetails.image,
                                   tempImage:
@@ -171,9 +161,11 @@ class HomeProductsTileWidget extends StatelessWidget {
                                           : productDetails.mrp.toString(),
                                   rating:
                                       productDetails.productRating.avgRating,
-                                  home: false,
+                                  home: false, // Show favorite button on image
                                   isWishlist: productDetails.isWishlist,
                                   isCart: productDetails.isCart,
+                                  ribbon: productDetails
+                                      .ribbon, // Pass ribbon from model
                                   addToFavouriteEvent: () async {
                                     final settingsProvider =
                                         context.read<SettingsProvider>();
