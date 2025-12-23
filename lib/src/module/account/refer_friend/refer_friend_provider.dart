@@ -50,11 +50,11 @@ class ReferFriendProvider extends ChangeNotifier {
     try {
       // Create a temporary file with the app logo
       final ByteData byteData =
-          await rootBundle.load('assets/png/biotech_logo.png');
+          await rootBundle.load('assets/png/Gidan Logo.png');
       final Uint8List imageBytes = byteData.buffer.asUint8List();
 
       final tempDir = await getTemporaryDirectory();
-      final File file = File('${tempDir.path}/biotech_logo.png');
+      final File file = File('${tempDir.path}/Gidan Logo.png');
       await file.writeAsBytes(imageBytes);
 
       // Customize the message to be shared

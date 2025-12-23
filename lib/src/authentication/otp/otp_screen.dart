@@ -36,7 +36,7 @@ class _OtpScreenContent extends StatelessWidget {
                 child: Column(
                   children: [
                     Image.asset(
-                      'assets/png/biotech_logo.png',
+                      'assets/png/Gidan Logo.png',
                       height: 62,
                       width: 120,
                     ),

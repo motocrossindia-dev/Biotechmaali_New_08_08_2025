@@ -4,6 +4,7 @@ import 'package:biotech_maali/src/module/cart/cart_provider.dart';
 import 'package:biotech_maali/src/module/home/home_repository.dart';
 import 'package:biotech_maali/src/module/home/model/banner_model.dart';
 import 'package:biotech_maali/src/module/home/model/category_model.dart';
+import 'package:biotech_maali/src/module/home/model/content_block_model.dart';
 import 'package:biotech_maali/src/module/home/model/home_product_model.dart';
 import 'package:biotech_maali/src/widgets/add_to_cart.dart';
 import 'package:biotech_maali/src/widgets/add_to_wishlist.dart';
@@ -57,6 +58,11 @@ class HomeProvider extends ChangeNotifier {
 
   List<BannerModel> _banners = [];
 
+  // Content blocks state
+  List<ContentBlock> _contentBlocks = [];
+  bool _isContentBlocksLoading = false;
+  String? _contentBlocksError;
+
   // Carousel related code (keeping existing functionality)
   bool get isBannersLoading => _isBannersLoading;
 
@@ -65,6 +71,77 @@ class HomeProvider extends ChangeNotifier {
   List<BannerModel> get banners => _banners;
   int _caroucelIndex = 0;
   int get caroucelIndex => _caroucelIndex;
+
+  // Content blocks getters
+  List<ContentBlock> get contentBlocks => _contentBlocks;
+  bool get isContentBlocksLoading => _isContentBlocksLoading;
+  String? get contentBlocksError => _contentBlocksError;
+
+  // Get content blocks by section
+  ContentBlock? get comboOfferContent => _contentBlocks
+              .firstWhere(
+                (block) => block.section == 'combo_offers' && block.isActive,
+                orElse: () => ContentBlock(
+                  id: 0,
+                  section: '',
+                  title: '',
+                  subtitle: '',
+                  buttonText: '',
+                  order: 0,
+                  isActive: false,
+                ),
+              )
+              .id !=
+          0
+      ? _contentBlocks.firstWhere(
+          (block) => block.section == 'combo_offers' && block.isActive,
+        )
+      : null;
+
+  ContentBlock? get bannerContent => _contentBlocks
+              .firstWhere(
+                (block) => block.section == 'banner' && block.isActive,
+                orElse: () => ContentBlock(
+                  id: 0,
+                  section: '',
+                  title: '',
+                  subtitle: '',
+                  buttonText: '',
+                  order: 0,
+                  isActive: false,
+                ),
+              )
+              .id !=
+          0
+      ? _contentBlocks.firstWhere(
+          (block) => block.section == 'banner' && block.isActive,
+        )
+      : null;
+
+  ContentBlock? get homeScreenVideoContent => _contentBlocks
+              .firstWhere(
+                (block) =>
+                    block.section == 'home_screen_video' && block.isActive,
+                orElse: () => ContentBlock(
+                  id: 0,
+                  section: '',
+                  title: '',
+                  subtitle: '',
+                  buttonText: '',
+                  order: 0,
+                  isActive: false,
+                ),
+              )
+              .id !=
+          0
+      ? _contentBlocks.firstWhere(
+          (block) => block.section == 'home_screen_video' && block.isActive,
+        )
+      : null;
+
+  List<ContentBlock> get offersRewardsContent => _contentBlocks
+      .where((block) => block.section == 'offers_rewards' && block.isActive)
+      .toList();
 
   List<Map<String, String>> get visibleHomeBanners {
     const baseUrl = BaseUrl.baseUrlForImages; // Add your base URL here
@@ -75,6 +152,7 @@ class HomeProvider extends ChangeNotifier {
         .map((banner) => {
               'image': '$baseUrl${banner.mobileBanner}',
               'productId': banner.productId?.toString() ?? '0',
+              'bannerId': banner.id.toString(), // Add banner ID
             })
         .toList();
   }
@@ -302,6 +380,25 @@ class HomeProvider extends ChangeNotifier {
           "Failed to load categories, please check your internet connection or try again later.";
       notifyListeners();
       log("Error fetching categories: $e");
+    }
+  }
+
+  // Fetch content blocks
+  Future<void> fetchContentBlocks() async {
+    try {
+      _isContentBlocksLoading = true;
+      _contentBlocksError = null;
+      notifyListeners();
+
+      _contentBlocks = await _repository.getContentBlocks();
+      log("Content Blocks fetched: ${_contentBlocks.length}");
+      _contentBlocksError = null;
+    } catch (e) {
+      _contentBlocksError = e.toString();
+      log('Content blocks fetch error: $e');
+    } finally {
+      _isContentBlocksLoading = false;
+      notifyListeners();
     }
   }
 

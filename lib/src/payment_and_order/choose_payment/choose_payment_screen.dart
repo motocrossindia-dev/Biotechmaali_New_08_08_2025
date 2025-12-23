@@ -29,6 +29,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   Widget build(BuildContext context) {
     final orderDetails = widget.orderSummaryResponse;
+    final shippingCharge = context
+            .read<OrderSummaryProvider>()
+            .orderData
+            ?.shippingInfo
+            ?.shippingCharge ??
+        0.00;
+    // orderDetails.data.shippingInfo?.shippingCharge ?? 0.0;
+
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -82,9 +90,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       _buildPriceRow('Coupon Discount',
                           '-₹${orderDetails.data.order.couponDiscount.toInt()}',
                           isGreen: true),
-                      _buildPriceRow('Delivery Charges', 'Free',
-                          originalPrice: '₹', isGreen: true),
-                      _buildPriceRow('Secured Packaging Fee', ''),
+                      _buildPriceRow(
+                        'Delivery Charges',
+                        shippingCharge > 0
+                            ? '₹${shippingCharge.toInt()}'
+                            : 'Free',
+                        isGreen: shippingCharge == 0,
+                      ),
+                      // _buildPriceRow('Secured Packaging Fee', ''),
 
                       const Divider(height: 32),
 
@@ -164,45 +177,78 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         },
                       ),
 
-                      Consumer<WalletProvider>(
-                        builder: (context, walletProvider, child) {
-                          return _buildPaymentOption(
-                            'Use Wallet',
-                            walletProvider.balance.toStringAsFixed(1),
-                            isCheckbox: true,
-                            onWalletChanged: (value) {
-                              if (value == true) {
-                                if (walletProvider.balance == 0.0) {
-                                  Fluttertoast.showToast(
-                                      msg: "Insufficient wallet balance",
-                                      backgroundColor: Colors.red);
-                                  return;
-                                }
+                      Consumer2<WalletProvider, ChoosePaymentProvider>(
+                        builder: (context, walletProvider,
+                            choosePaymentProvider, child) {
+                          // Calculate payable amount after wallet deduction
+                          final grandTotal =
+                              widget.orderSummaryResponse.data.order.grandTotal;
+                          final walletBalance = walletProvider.balance;
+                          final isWalletChecked =
+                              choosePaymentProvider.isWalletCheckbox;
+                          final payableAmount = isWalletChecked
+                              ? (grandTotal - walletBalance)
+                                  .clamp(0.0, double.infinity)
+                              : grandTotal;
 
-                                // Calculate wallet balance after deduction for display
-                                double actualWalletBalance =
-                                    walletProvider.balance -
-                                        widget.orderSummaryResponse.data.order
-                                            .grandTotal;
-                                context
-                                    .read<ChoosePaymentProvider>()
-                                    .handleWalletBalance(actualWalletBalance);
-                                context
-                                    .read<ChoosePaymentProvider>()
-                                    .handleWalletCheckbox(
-                                        value!, walletProvider.balance);
-                              } else {
-                                double actualWalletBalance =
-                                    walletProvider.balance;
-                                context
-                                    .read<ChoosePaymentProvider>()
-                                    .handleWalletBalance(actualWalletBalance);
-                                context
-                                    .read<ChoosePaymentProvider>()
-                                    .handleWalletCheckbox(
-                                        value!, walletProvider.balance);
-                              }
-                            },
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildPaymentOption(
+                                'Use Wallet',
+                                walletProvider.balance.toStringAsFixed(1),
+                                isCheckbox: true,
+                                onWalletChanged: (value) {
+                                  if (value == true) {
+                                    if (walletProvider.balance == 0.0) {
+                                      Fluttertoast.showToast(
+                                          msg: "Insufficient wallet balance",
+                                          backgroundColor: Colors.red);
+                                      return;
+                                    }
+
+                                    // Calculate wallet balance after deduction for display
+                                    double actualWalletBalance =
+                                        walletProvider.balance -
+                                            widget.orderSummaryResponse.data
+                                                .order.grandTotal;
+                                    context
+                                        .read<ChoosePaymentProvider>()
+                                        .handleWalletBalance(
+                                            actualWalletBalance);
+                                    context
+                                        .read<ChoosePaymentProvider>()
+                                        .handleWalletCheckbox(
+                                            value!, walletProvider.balance);
+                                  } else {
+                                    double actualWalletBalance =
+                                        walletProvider.balance;
+                                    context
+                                        .read<ChoosePaymentProvider>()
+                                        .handleWalletBalance(
+                                            actualWalletBalance);
+                                    context
+                                        .read<ChoosePaymentProvider>()
+                                        .handleWalletCheckbox(
+                                            value!, walletProvider.balance);
+                                  }
+                                },
+                              ),
+                              // Show payable amount when wallet is checked
+                              if (isWalletChecked)
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 40, top: 4, bottom: 8),
+                                  child: Text(
+                                    'Payable Amount: ₹${payableAmount.toInt()}',
+                                    style: TextStyle(
+                                      color: Colors.green[700],
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                            ],
                           );
                         },
                       ),
@@ -461,17 +507,53 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ),
           ),
           if (amount.isNotEmpty && !isGstCheckbox)
-            Text(
-              context.watch<ChoosePaymentProvider>().actualWalletBalance !=
-                          null &&
-                      context.watch<ChoosePaymentProvider>().isWalletCheckbox
-                  ? "₹${context.watch<ChoosePaymentProvider>().actualWalletBalance!.toInt()}"
-                  : "₹$amount",
-              style: TextStyle(
-                color: Colors.green[600],
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            context.watch<ChoosePaymentProvider>().isWalletCheckbox
+                ? Row(
+                    children: [
+                      Text(
+                        "₹${widget.orderSummaryResponse.data.order.grandTotal.toInt()}",
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 12,
+                        ),
+                      ),
+                      Text(
+                        " - ",
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 12,
+                        ),
+                      ),
+                      Text(
+                        "₹${amount}",
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 12,
+                        ),
+                      ),
+                      Text(
+                        " = ",
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 12,
+                        ),
+                      ),
+                      Text(
+                        "₹${(widget.orderSummaryResponse.data.order.grandTotal - double.parse(amount)).clamp(0.0, double.infinity).toInt()}",
+                        style: TextStyle(
+                          color: Colors.green[600],
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  )
+                : Text(
+                    "₹$amount",
+                    style: TextStyle(
+                      color: Colors.green[600],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
         ],
       ),
     );

@@ -33,7 +33,7 @@ class MobileNumberScreen extends StatelessWidget {
                           children: [
                             sizedBoxHeight70,
                             Image.asset(
-                              'assets/png/biotech_logo.png',
+                              'assets/png/Gidan Logo.png',
                               height: 62,
                               width: 120,
                             ),

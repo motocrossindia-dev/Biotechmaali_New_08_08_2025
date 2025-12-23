@@ -6,6 +6,7 @@ import 'package:biotech_maali/src/module/account/wallet/wallet_provider.dart';
 import 'package:biotech_maali/src/module/cart/cart_provider.dart';
 import 'package:biotech_maali/src/module/location_popup/location_pincode_provider.dart';
 import 'package:biotech_maali/src/module/product_compo_list/product_compo_list_provider.dart';
+import 'package:biotech_maali/src/module/product_list/banner_product_list/banner_product_list_provider.dart';
 import 'package:biotech_maali/src/module/product_search/product_search_provider.dart';
 import 'package:biotech_maali/src/module/wishlist/whishlist_provider.dart';
 import 'package:biotech_maali/src/other_modules/carrers/carriers_provider.dart';
@@ -69,6 +70,8 @@ class BiotechApp extends StatelessWidget {
             create: (context) => OrderHistoryDetailProvider()),
         ChangeNotifierProvider(create: (context) => ProductSearchProvider()),
         ChangeNotifierProvider(create: (context) => ProductListProdvider()),
+        ChangeNotifierProvider(
+            create: (context) => BannerProductListProvider()),
         ChangeNotifierProvider(create: (context) => LocalStoreListProvider()),
         ChangeNotifierProvider(create: (context) => ProductCompoListProvider()),
         ChangeNotifierProvider(create: (context) => CouponProvider()),

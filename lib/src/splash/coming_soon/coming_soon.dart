@@ -240,7 +240,7 @@ class _ComingSoonScreenState extends State<ComingSoonScreen>
                                     child: Padding(
                                       padding: const EdgeInsets.all(20),
                                       child: Image.asset(
-                                        'assets/png/biotech_logo.png',
+                                        'assets/png/Gidan Logo.png',
                                         fit: BoxFit.contain,
                                         errorBuilder:
                                             (context, error, stackTrace) {

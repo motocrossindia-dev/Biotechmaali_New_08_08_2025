@@ -8,6 +8,16 @@ class PriceDetailsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Check if order data exists
+    if (orderData.order == null) {
+      return const Center(
+        child: Text('Order details not available'),
+      );
+    }
+
+    final order = orderData.order!;
+    final shippingCharge = orderData.shippingInfo?.shippingCharge ?? 0.0;
+
     return Consumer<OrderSummaryProvider>(
       builder: (context, provider, child) {
         return Column(
@@ -19,43 +29,24 @@ class PriceDetailsWidget extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             _buildPriceRow('Price (${orderData.orderItems.length} items)',
-                '₹${orderData.order.totalPrice.toInt()}'),
+                '₹${order.totalPrice.toInt()}'),
+            _buildPriceRow('Discount', '-₹${order.totalDiscount.toInt()}',
+                isGreen: true),
             _buildPriceRow(
-                'Discount', '-₹${orderData.order.totalDiscount.toInt()}',
+                'Coupon Discount', '-₹${order.couponDiscount.toInt()}',
                 isGreen: true),
-            _buildPriceRow('Coupon Discount',
-                '-₹${orderData.order.couponDiscount.toInt()}',
-                isGreen: true),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildPriceRow(
-                  'Delivery Charges',
-                  '',
-                ),
-                // const Row(
-                //   children: [
-                //     CommonTextWidget(
-                //       title: '₹80',
-                //       lineThrough: TextDecoration.lineThrough,
-                //     ),
-                //     sizedBoxWidth5,
-                //     CommonTextWidget(
-                //       title: 'Free',
-                //       color: Colors.green,
-                //     )
-                //   ],
-                // )
-              ],
+            _buildPriceRow(
+              'Delivery Charges',
+              shippingCharge > 0 ? '₹${shippingCharge.toInt()}' : 'Free',
+              isGreen: shippingCharge == 0,
             ),
-            _buildPriceRow('secured Packaging Fee', ""), //'₹198',
+            // _buildPriceRow('secured Packaging Fee', ""), //'₹198',
             const Divider(thickness: 1),
-            _buildPriceRow(
-                'Total Amount', '₹${orderData.order.grandTotal.toInt()}',
+            _buildPriceRow('Total Amount', '₹${order.grandTotal.toInt()}',
                 isBold: true),
             const SizedBox(height: 8),
             Text(
-              'You will save ₹${(orderData.order.totalDiscount + orderData.order.couponDiscount).toInt()} on this order',
+              'You will save ₹${(order.totalDiscount + order.couponDiscount).toInt()} on this order',
               style: const TextStyle(color: Colors.green),
             ),
           ],

@@ -18,10 +18,12 @@ class OrderSummaryResponse {
 class OrderSummaryData {
   final OrderSummaryDetails order;
   final List<OrderItem> orderItems;
+  final ShippingInfo? shippingInfo;
 
   OrderSummaryData({
     required this.order,
     required this.orderItems,
+    this.shippingInfo,
   });
 
   factory OrderSummaryData.fromJson(Map<String, dynamic> json) {
@@ -31,6 +33,9 @@ class OrderSummaryData {
               ?.map((item) => OrderItem.fromJson(item))
               .toList() ??
           [],
+      shippingInfo: json['shipping_info'] != null
+          ? ShippingInfo.fromJson(json['shipping_info'])
+          : null,
     );
   }
 }
@@ -41,7 +46,7 @@ class OrderSummaryDetails {
   final String customerName;
   final double totalPrice;
   final double totalDiscount;
-   double grandTotal;
+  double grandTotal;
   final String email;
   final String mobile;
   final String? trackingId;
@@ -131,6 +136,36 @@ class OrderItem {
       productId: json['product_id'] ?? 0,
       comboOffer: json['combo_offer']?.toString(),
       productName: json['product_name'] ?? '',
+    );
+  }
+}
+
+class ShippingInfo {
+  final double totalAmount;
+  final double shippingCharge;
+  final bool freeShipping;
+  final double totalActualWeight;
+  final double totalVolumetricWeight;
+  final double chargeableWeight;
+
+  ShippingInfo({
+    required this.totalAmount,
+    required this.shippingCharge,
+    required this.freeShipping,
+    required this.totalActualWeight,
+    required this.totalVolumetricWeight,
+    required this.chargeableWeight,
+  });
+
+  factory ShippingInfo.fromJson(Map<String, dynamic> json) {
+    return ShippingInfo(
+      totalAmount: _parseDouble(json['total_amount']) ?? 0.0,
+      shippingCharge: _parseDouble(json['shipping_charge']) ?? 0.0,
+      freeShipping: json['free_shipping'] ?? false,
+      totalActualWeight: _parseDouble(json['total_actual_weight']) ?? 0.0,
+      totalVolumetricWeight:
+          _parseDouble(json['total_volumetric_weight']) ?? 0.0,
+      chargeableWeight: _parseDouble(json['chargeable_weight']) ?? 0.0,
     );
   }
 }

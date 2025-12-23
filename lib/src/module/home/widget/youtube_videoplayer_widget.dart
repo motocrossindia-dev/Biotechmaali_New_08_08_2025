@@ -1,3 +1,4 @@
+import 'package:biotech_maali/src/module/home/home_provider.dart';
 import '../../../../import.dart';
 
 class YoutubeVideoplayerWidget extends StatefulWidget {
@@ -11,24 +12,41 @@ class YoutubeVideoplayerWidget extends StatefulWidget {
 class _YoutubeVideoplayerWidgetState extends State<YoutubeVideoplayerWidget> {
   late YoutubePlayerController _controller;
   bool _isPlaying = false;
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
+    // Initialize controller in didChangeDependencies after we have access to context
+  }
 
-    // Extract video ID from YouTube URL
-    final videoId = YoutubePlayer.convertUrlToId(
-        'https://www.youtube.com/watch?v=md63AQAmqVU');
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
 
-    _controller = YoutubePlayerController(
-      initialVideoId: videoId ?? '',
-      flags: const YoutubePlayerFlags(
-        autoPlay: false,
-        mute: false,
-        enableCaption: true,
-        showLiveFullscreenButton: true,
-      ),
-    );
+    if (!_isInitialized) {
+      final homeProvider = context.read<HomeProvider>();
+      final videoContent = homeProvider.homeScreenVideoContent;
+
+      // Get video URL from content block or use default
+      final videoUrl = videoContent?.videoLink ??
+          'https://www.youtube.com/watch?v=md63AQAmqVU';
+
+      // Extract video ID from YouTube URL
+      final videoId = YoutubePlayer.convertUrlToId(videoUrl);
+
+      _controller = YoutubePlayerController(
+        initialVideoId: videoId ?? '',
+        flags: const YoutubePlayerFlags(
+          autoPlay: false,
+          mute: false,
+          enableCaption: true,
+          showLiveFullscreenButton: true,
+        ),
+      );
+
+      _isInitialized = true;
+    }
   }
 
   @override

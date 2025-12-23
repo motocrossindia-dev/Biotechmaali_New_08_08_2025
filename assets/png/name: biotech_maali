@@ -53,7 +53,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/png/images/biotech_logo.png"  # Update this path to your actual logo file
+  image_path: "assets/png/images/Gidan Logo.png"  # Update this path to your actual logo file
   min_sdk_android: 21
 
 flutter:

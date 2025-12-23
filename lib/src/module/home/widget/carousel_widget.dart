@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:biotech_maali/src/module/product_list/banner_product_list/banner_product_list_screen.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../../../../import.dart';
 
@@ -55,18 +56,42 @@ class CarouselWidget extends StatelessWidget {
               items: banners.map((imageUrl) {
                 return InkWell(
                   onTap: () {
-                    if (imageUrl['productId'] == '0') {
-                      Fluttertoast.showToast(msg: "No product available");
+                    // Get banner ID
+                    final bannerId = imageUrl['bannerId'];
+                    final productId = imageUrl['productId'];
+
+                    log("Banner tapped - Banner ID: $bannerId, Product ID: $productId");
+
+                    // If productId is 0 or null, navigate to banner product list
+                    if (productId == '0' ||
+                        productId == null ||
+                        productId.isEmpty) {
+                      if (bannerId != null && bannerId != '0') {
+                        // Navigate to banner product list screen
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BannerProductListScreen(
+                              bannerId: int.parse(bannerId),
+                              title: 'Featured Products',
+                            ),
+                          ),
+                        );
+                      } else {
+                        Fluttertoast.showToast(msg: "No products available");
+                      }
                       return;
                     }
-                    log("Banner tapped: ${imageUrl['productId']}");
-                    context.read<ProductDetailsProvider>().fetchProductDetails(
-                        int.parse(imageUrl['productId'] ?? '0'));
+
+                    // If productId exists, navigate to product details
+                    context
+                        .read<ProductDetailsProvider>()
+                        .fetchProductDetails(int.parse(productId));
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => ProductDetailsScreen(
-                            productId: int.parse(imageUrl['productId'] ?? '0')),
+                            productId: int.parse(productId)),
                       ),
                     );
                   },

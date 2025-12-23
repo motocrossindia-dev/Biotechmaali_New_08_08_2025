@@ -66,11 +66,18 @@ class CategoryWidget extends StatelessWidget {
         builder: (context, provider, child) {
           const baseUrl = BaseUrl.baseUrlForImages;
           List<MainCategoryModel> maincategories = provider.maincategories;
+
+          // Filter out unpublished categories and sort by order
+          List<MainCategoryModel> publishedCategories = maincategories
+              .where((category) => category.isPublished)
+              .toList()
+            ..sort((a, b) => a.order.compareTo(b.order));
+
           return ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: maincategories.length,
+            itemCount: publishedCategories.length,
             itemBuilder: (context, index) {
-              final category = maincategories[index];
+              final category = publishedCategories[index];
               return Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: InkWell(

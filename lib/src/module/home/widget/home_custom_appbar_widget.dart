@@ -11,11 +11,22 @@ class CustomAppBarWithSearch extends StatelessWidget
   const CustomAppBarWithSearch({super.key});
 
   @override
-  // Increase height to accommodate content
-  Size get preferredSize => const Size.fromHeight(120);
+  Size get preferredSize => const Size.fromHeight(115);
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isTablet = screenWidth > 600;
+
+    // Responsive sizing
+    final logoWidth = isTablet ? screenWidth * 0.12 : screenWidth * 0.25;
+    final logoHeight = isTablet ? screenHeight * 0.05 : screenHeight * 0.045;
+    final iconSize = isTablet ? 26.0 : 22.0;
+    final searchBarHeight = isTablet ? 50.0 : 42.0;
+    final horizontalPadding = screenWidth * 0.04;
+    final locationWidth = isTablet ? screenWidth * 0.35 : screenWidth * 0.3;
+
     return AppBar(
       automaticallyImplyLeading: false,
       elevation: 4,
@@ -23,108 +34,114 @@ class CustomAppBarWithSearch extends StatelessWidget
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
       scrolledUnderElevation: 0,
-      toolbarHeight: 140, // Match with preferredSize
+      toolbarHeight: 115,
       flexibleSpace: SafeArea(
-        // Add SafeArea
-        child: Column(
-          children: [
-            Padding(
-              // Adjust top padding
-              padding: const EdgeInsets.only(left: 16, right: 16, top: 10),
-              child: Row(
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: horizontalPadding,
+            vertical: screenHeight * 0.008,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Logo and Location Row
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Image.asset(
-                    'assets/png/biotech_logo.png',
-                    height: 42,
-                    width: 80,
+                    'assets/png/Gidan Logo.png',
+                    height: logoHeight,
+                    width: logoWidth,
+                    fit: BoxFit.contain,
                   ),
-                  Consumer<HomeProvider>(
-                    builder: (context, provider, child) => InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  const LocationPincodePopup()),
-                        );
-                      },
-                      child: Row(
-                        children: [
-                          SvgPicture.asset(
-                            'assets/svg/icons/location_icon.svg',
-                            height: 22,
-                            width: 22,
-                          ),
-                          const SizedBox(width: 6),
-                          // Auto-scrolling address container
-                          SizedBox(
-                            width: 120, // Fixed width for scrolling area
-                            height: 20,
-                            child: provider.fullAddress.isNotEmpty
-                                ? _AutoScrollingText(
-                                    text: provider.fullAddress,
-                                    style: const TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    scrollSpeed: 200,
-                                  )
-                                : const Text(
-                                    'Getting location...',
-                                    style: TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                          ),
-                          const SizedBox(width: 8),
-                          // Static pincode with styling
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
+                  Flexible(
+                    child: Consumer<HomeProvider>(
+                      builder: (context, provider, child) => InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const LocationPincodePopup()),
+                          );
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SvgPicture.asset(
+                              'assets/svg/icons/location_icon.svg',
+                              height: iconSize,
+                              width: iconSize,
                             ),
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade100,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: Colors.grey.shade300,
-                                width: 1,
+                            SizedBox(width: screenWidth * 0.015),
+                            // Auto-scrolling address container
+                            Flexible(
+                              child: SizedBox(
+                                width: locationWidth,
+                                height: isTablet ? 24 : 20,
+                                child: provider.fullAddress.isNotEmpty
+                                    ? _AutoScrollingText(
+                                        text: provider.fullAddress,
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: isTablet ? 14 : 12,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        scrollSpeed: 200,
+                                      )
+                                    : Text(
+                                        'Getting location...',
+                                        style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: isTablet ? 14 : 12,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                               ),
                             ),
-                            child: Text(
-                              provider.pinCode != "Searching..."
-                                  ? provider.pinCode
-                                  : "560001", // Default pincode while loading
-                              style: const TextStyle(
-                                color: Colors.black87,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
+                            SizedBox(width: screenWidth * 0.02),
+                            // Static pincode with styling
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: screenWidth * 0.02,
+                                vertical: screenHeight * 0.005,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Colors.grey.shade300,
+                                  width: 1,
+                                ),
+                              ),
+                              child: Text(
+                                provider.pinCode != "Searching..."
+                                    ? provider.pinCode
+                                    : "560001",
+                                style: TextStyle(
+                                  color: Colors.black87,
+                                  fontSize: isTablet ? 12 : 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
-            ),
-            sizedBoxHeight05,
-            Padding(
-              // Adjust vertical padding
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-              child: Row(
+              SizedBox(height: screenHeight * 0.006),
+              // Search Bar and Icons Row
+              Row(
                 children: [
                   Expanded(
                     child: SizedBox(
-                      height: 42,
-                      width: 251,
+                      height: searchBarHeight,
                       child: TextFormField(
-                        readOnly: true, // Prevents keyboard from showing
-                        showCursor: false, // Hides the cursor
+                        readOnly: true,
+                        showCursor: false,
                         onTap: () {
                           Navigator.push(
                             context,
@@ -136,14 +153,19 @@ class CustomAppBarWithSearch extends StatelessWidget
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: cSearchBox,
-                          hintStyle: GoogleFonts.poppins(fontSize: 12),
+                          hintStyle: GoogleFonts.poppins(
+                            fontSize: isTablet ? 14 : 12,
+                          ),
                           hintText: 'Search for "plants"',
-                          prefixIcon: const Icon(Icons.search, size: 22),
+                          prefixIcon: Icon(
+                            Icons.search,
+                            size: isTablet ? 26 : 22,
+                          ),
                           suffixIcon: IconButton(
                             icon: SvgPicture.asset(
                               'assets/svg/icons/microphone.svg',
-                              height: 20,
-                              width: 20,
+                              height: isTablet ? 24 : 20,
+                              width: isTablet ? 24 : 20,
                             ),
                             onPressed: () {
                               Navigator.push(
@@ -157,8 +179,10 @@ class CustomAppBarWithSearch extends StatelessWidget
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
                           ),
-                          contentPadding: const EdgeInsets.symmetric(
-                              vertical: 0, horizontal: 16),
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: 0,
+                            horizontal: screenWidth * 0.04,
+                          ),
                           border: OutlineInputBorder(
                             borderSide: BorderSide.none,
                             borderRadius: BorderRadius.circular(30),
@@ -175,12 +199,12 @@ class CustomAppBarWithSearch extends StatelessWidget
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: screenWidth * 0.02),
                   IconButton(
                     icon: SvgPicture.asset(
                       'assets/svg/icons/heart_unselected.svg',
-                      height: 24,
-                      width: 24,
+                      height: isTablet ? 28 : 24,
+                      width: isTablet ? 28 : 24,
                     ),
                     onPressed: () async {
                       final settingsProvider = context.read<SettingsProvider>();
@@ -198,20 +222,10 @@ class CustomAppBarWithSearch extends StatelessWidget
                       );
                     },
                   ),
-                  // IconButton(
-                  //   icon: SvgPicture.asset(
-                  //     'assets/svg/icons/notification_unselected.svg',
-                  //     height: 24,
-                  //     width: 24,
-                  //   ),
-                  //   onPressed: () {
-                  //     // Handle notification button press
-                  //   },
-                  // ),
                 ],
               ),
-            )
-          ],
+            ],
+          ),
         ),
       ),
     );

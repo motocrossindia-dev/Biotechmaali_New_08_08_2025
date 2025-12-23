@@ -51,12 +51,14 @@ class MainCategoryModel {
   final String name;
   final String image;
   final bool isPublished;
+  final int order;
 
   MainCategoryModel({
     required this.id,
     required this.name,
     required this.image,
     required this.isPublished,
+    required this.order,
   });
 
   factory MainCategoryModel.fromJson(Map<String, dynamic> json) {
@@ -65,6 +67,7 @@ class MainCategoryModel {
       name: json['name'] as String,
       image: json['image'] as String,
       isPublished: json['is_published'] as bool,
+      order: json['order'] as int,
     );
   }
 
@@ -74,11 +77,12 @@ class MainCategoryModel {
       'name': name,
       'image': image,
       'is_published': isPublished,
+      'order': order,
     };
   }
 
   @override
   String toString() {
-    return 'Category(id: $id, name: $name, image: $image, isPublished: $isPublished)';
+    return 'Category(id: $id, name: $name, image: $image, isPublished: $isPublished, order: $order)';
   }
 }

@@ -60,7 +60,7 @@ class _AccountScreenState extends State<AccountScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Image.asset(
-                'assets/png/biotech_logo.png',
+                'assets/png/Gidan Logo.png',
                 height: 42,
                 width: 80,
               ),

@@ -182,9 +182,11 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: CouponWidget(
-                                cartValue: provider.orderData!.order.grandTotal,
+                                cartValue:
+                                    provider.orderData!.order?.grandTotal ?? 0,
                                 orderId:
-                                    provider.orderData!.order.id.toString(),
+                                    provider.orderData!.order?.id.toString() ??
+                                        '',
                               ),
                             ),
                           ),
@@ -227,13 +229,13 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                                 children: [
                                   CommonTextWidget(
                                     title:
-                                        '₹${provider.orderData!.order.totalPrice.toInt()}',
+                                        '₹${provider.orderData!.order?.totalPrice.toInt() ?? 0}',
                                     lineThrough: TextDecoration.lineThrough,
                                     fontSize: 12,
                                   ),
                                   CommonTextWidget(
                                     title:
-                                        '₹${provider.orderData!.order.grandTotal.toInt()}',
+                                        '₹${provider.orderData!.order?.grandTotal.toInt() ?? 0}',
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   )
@@ -261,7 +263,8 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                                       // final success =
                                       await provider.updateOrderSummary(
                                         context: context,
-                                        orderId: provider.orderData!.order.id,
+                                        orderId:
+                                            provider.orderData!.order?.id ?? 0,
                                         addressId: provider.selectedAddressId!,
                                       );
 

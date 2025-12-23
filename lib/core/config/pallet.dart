@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 // Normal Color
 
+Color logoColor = const Color(0xFF062E25);
 Color cBorderGrey = const Color.fromRGBO(155, 153, 153, 1.0);
 Color cButtonGreen = const Color(0xFF749F09);
 Color cButtonText = const Color(0xFFFFFFFF);

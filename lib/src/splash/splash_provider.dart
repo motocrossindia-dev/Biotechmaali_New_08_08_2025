@@ -1,11 +1,7 @@
 import 'dart:developer';
-// import 'dart:io'; // Unnecessary import - provided by import.dart
 import 'package:biotech_maali/import.dart';
-// import 'package:biotech_maali/src/permission_handle/premission_handle_provider.dart';
-// import 'package:biotech_maali/src/permission_handle/premission_handle_screen.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:biotech_maali/src/splash/token_repository.dart';
-// import 'package:permission_handler/permission_handler.dart';
 
 class SplashProvider extends ChangeNotifier {
   SplashProvider({required BuildContext context});
@@ -19,9 +15,16 @@ class SplashProvider extends ChangeNotifier {
     if (!isInternetOn) {
       return;
     }
+
+    // Check if the widget is still mounted before proceeding
+    if (!context.mounted) return;
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     try {
       await Future.delayed(const Duration(seconds: 3)); // Add 3-second delay
+
+      // Check if the widget is still mounted after delay
+      if (!context.mounted) return;
 
       String? accessToken = prefs.getString("accessToken");
       String? refreshToken = prefs.getString("refreshToken");
@@ -56,7 +59,11 @@ class SplashProvider extends ChangeNotifier {
   }
 
   Future<void> navigateToHomeScreen(BuildContext context) async {
-    await Future.delayed(const Duration(seconds: 4));
+    await Future.delayed(const Duration(seconds: 3));
+
+    // Check if the widget is still mounted before proceeding
+    if (!context.mounted) return;
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     bool isInternetOn = await _checkInternetConnection(context);
@@ -85,8 +92,14 @@ class SplashProvider extends ChangeNotifier {
       // Always set permission as granted to bypass permission screen
       await prefs.setBool("permissionGranted", true);
 
+      // Check if the widget is still mounted before proceeding
+      if (!context.mounted) return;
+
       // Load other data
       await loadData(context);
+
+      // Check if the widget is still mounted before accessing context
+      if (!context.mounted) return;
 
       // Get user profile data
       context.read<EditProfileProvider>().fetchProfileData();
@@ -108,6 +121,9 @@ class SplashProvider extends ChangeNotifier {
       //   return;
       // }
 
+      // Check if the widget is still mounted before navigation
+      if (!context.mounted) return;
+
       log("Navigating to home screen");
       Navigator.pushReplacement(
         context,
@@ -117,6 +133,8 @@ class SplashProvider extends ChangeNotifier {
       );
     } catch (e) {
       log("Error in navigateToHomeScreen: $e");
+      // Check if the widget is still mounted before showing dialog
+      if (!context.mounted) return;
       // Handle error - maybe show error screen or retry
       _showErrorDialog(
           context, "Permission Error", "Failed to check permissions: $e");
@@ -135,6 +153,9 @@ class SplashProvider extends ChangeNotifier {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setBool("permissionGranted", true);
       log("Permissions skipped by user");
+
+      // Check if the widget is still mounted before navigation
+      if (!context.mounted) return;
 
       // Navigate to home screen
       Navigator.pushReplacement(
@@ -164,6 +185,8 @@ class SplashProvider extends ChangeNotifier {
 
     if (connectivityResults.isEmpty ||
         connectivityResults.first == ConnectivityResult.none) {
+      // Check if the widget is still mounted before showing dialog
+      if (!context.mounted) return false;
       // No internet connection, show a dialog or message
       _showNoInternetDialog(context);
       return false;

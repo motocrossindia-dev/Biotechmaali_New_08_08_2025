@@ -17,6 +17,7 @@ class _SplashScreenState extends State<SplashScreen>
   late AnimationController _textController;
   late Animation<double> _logoAnimation;
   late Animation<double> _fadeAnimation;
+  bool _navigationTriggered = false; // Add flag to prevent multiple navigations
 
   @override
   void initState() {
@@ -234,10 +235,18 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    SplashProvider(context: context);
     return Consumer<SplashProvider>(
       builder: (context, splashProvider, child) {
-        splashProvider.navigateToHomeScreen(context);
+        // Trigger navigation only once using post-frame callback
+        if (!_navigationTriggered) {
+          _navigationTriggered = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              splashProvider.navigateToHomeScreen(context);
+            }
+          });
+        }
+
         if (splashProvider.isLoading) {
           return Scaffold(
             backgroundColor: Colors.white,
@@ -286,9 +295,9 @@ class _SplashScreenState extends State<SplashScreen>
                                         ],
                                       ),
                                       child: Image.asset(
-                                        'assets/png/biotech_logo.png',
-                                        height: 101,
-                                        width: 194,
+                                        'assets/png/Gidan Logo.png',
+                                        height: 150,
+                                        width: 280,
                                       ),
                                     ),
                                   ),
@@ -315,7 +324,7 @@ class _SplashScreenState extends State<SplashScreen>
                                             "Your green garden is loading...",
                                         fontSize: 18,
                                         fontWeight: FontWeight.w600,
-                                        color: cButtonGreen,
+                                        color: logoColor,
                                       ),
 
                                       const SizedBox(height: 30),
@@ -421,7 +430,7 @@ class _SplashScreenState extends State<SplashScreen>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset(
-                  'assets/png/biotech_logo.png',
+                  'assets/png/Gidan Logo.png',
                   height: 101,
                   width: 194,
                 ),

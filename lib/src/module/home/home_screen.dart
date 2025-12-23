@@ -37,6 +37,9 @@ class _HomeScreenState extends State<HomeScreen> {
         context.read<HomeProvider>().getLocationPincode();
         context.read<HomeProvider>().getLocationName();
 
+        // Fetch content blocks for dynamic content
+        context.read<HomeProvider>().fetchContentBlocks();
+
         context.read<WalletProvider>().fetchWalletDetails();
         context.read<AccountProvider>().getUserName();
         context.read<EditProfileProvider>().fetchProfileData();
@@ -54,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
       const ReferFriendWidget(),
       const HomeProductsTileWidget(title: 'Seasonal Collection'),
       const YoutubeVideoplayerWidget(),
-      const ExploreOurWorkWidget(),
+      // const ExploreOurWorkWidget(),
     ]);
 
     // Initially load first few widgets

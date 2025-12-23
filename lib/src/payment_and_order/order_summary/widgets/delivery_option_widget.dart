@@ -26,8 +26,8 @@ class _DeliveryOptionsWidgetState extends State<DeliveryOptionsWidget> {
               ),
             ),
             const SizedBox(height: 12),
-            _buildDeliveryOption('Standard', orderProvider),
-            _buildDeliveryOption('Express', orderProvider),
+            _buildDeliveryOption('Door Delivery', orderProvider),
+            // _buildDeliveryOption('Express', orderProvider),
             _buildPickupOption(orderProvider, storeProvider),
           ],
         );

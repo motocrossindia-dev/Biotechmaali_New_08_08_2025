@@ -22,7 +22,7 @@ class LoginScreen extends StatelessWidget {
                     children: [
                       sizedBoxHeight50,
                       Image.asset(
-                        'assets/png/biotech_logo.png',
+                        'assets/png/Gidan Logo.png',
                         height: 62,
                         width: 120,
                       ),
