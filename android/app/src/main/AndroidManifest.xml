@@ -18,7 +18,7 @@
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" tools:node="remove" />
 
     <application
-        android:label="biotech_maali"
+        android:label="Gidan"
         android:name="${applicationName}"
         android:icon="@mipmap/app_icon"
         android:usesCleartextTraffic="true">

@@ -49,7 +49,7 @@ class CoinRepository {
       }
 
       final response = await _dio.post(
-        '${EndUrl.baseUrl}wallet/redeem-btcoins/', // Update with your actual endpoint
+        '${EndUrl.baseUrl}wallet/redeem-btcoins/',
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',

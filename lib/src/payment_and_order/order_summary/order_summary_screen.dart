@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:biotech_maali/src/payment_and_order/order_summary/model/order_response_model.dart';
+import 'package:biotech_maali/src/payment_and_order/order_summary/widgets/bt_coin_earned_widget.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../../../import.dart';
 
@@ -181,12 +182,20 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                             ),
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: CouponWidget(
-                                cartValue:
-                                    provider.orderData!.order?.grandTotal ?? 0,
-                                orderId:
-                                    provider.orderData!.order?.id.toString() ??
+                              child: Column(
+                                children: [
+                                  CouponWidget(
+                                    cartValue:
+                                        provider.orderData!.order?.grandTotal ??
+                                            0,
+                                    orderId: provider.orderData!.order?.id
+                                            .toString() ??
                                         '',
+                                  ),
+                                  BtCoinEarnedWidget(
+                                    orderData: provider.orderData!,
+                                  ),
+                                ],
                               ),
                             ),
                           ),
