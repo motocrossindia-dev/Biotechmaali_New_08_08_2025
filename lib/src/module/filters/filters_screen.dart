@@ -17,8 +17,7 @@ class _FilterScreenState extends State<FilterScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // context.read<FiltersProvider>().resetAllFilters();
-      log("category name : ${widget.type}");
+      log("Loading filters for category: ${widget.type}");
       context.read<FiltersProvider>().loadFilters(widget.type);
     });
   }
@@ -28,11 +27,9 @@ class _FilterScreenState extends State<FilterScreen> {
     return Consumer<FiltersProvider>(
       builder: (context, provider, _) {
         if (provider.isLoading) {
-          return const Center(
-            child: Scaffold(
-              body: Center(
-                child: ProductListShimmer(),
-              ),
+          return const Scaffold(
+            body: Center(
+              child: ProductListShimmer(),
             ),
           );
         }
@@ -67,67 +64,28 @@ class _FilterScreenState extends State<FilterScreen> {
   }
 
   Widget _buildCategoriesList(FiltersProvider provider) {
-    List<Map<String, String>> categories = [];
+    // Get dynamic categories based on API response
+    final categories = provider.getDisplayCategories(widget.type);
 
-    switch (widget.type) {
-      case "PLANTS":
-        categories = [
-          {"id": "subcategories", "title": "Type of Plants"},
-          {"id": "price", "title": "Price"},
-          {"id": "size", "title": "Size"},
-          {"id": "planter_size", "title": "Planter Size"},
-          {"id": "planter", "title": "Planter"},
-          {"id": "color", "title": "Color"},
-        ];
-        break;
-
-      case "POTS":
-        categories = [
-          {"id": "subcategories", "title": "Type of Pots"},
-          {"id": "price", "title": "Price"},
-          {"id": "planter_size", "title": "Pot Size"},
-          {"id": "litre_size", "title": "Litre Size"},
-          {"id": "color", "title": "Color"},
-        ];
-        break;
-
-      case "SEEDS":
-        categories = [
-          {"id": "subcategories", "title": "Type of Seeds"},
-          {"id": "price", "title": "Price"},
-          {"id": "weights", "title": "Weights"},
-        ];
-        break;
-
-      case "TOOLS":
-        categories = [
-          {"id": "subcategories", "title": "Type of Tools"},
-          {"id": "price", "title": "Price"},
-          {"id": "size", "title": "Size"},
-          {"id": "color", "title": "Color"},
-        ];
-        break;
+    if (categories.isEmpty) {
+      return const Center(child: Text('No filters available'));
     }
 
     return ListView.builder(
       itemCount: categories.length,
       itemBuilder: (context, index) {
         final category = categories[index];
+        final isSelected = provider.selectedCategory == category["title"];
+
         return ListTile(
           title: Text(
             category["title"]!,
             style: TextStyle(
-              fontWeight: provider.selectedCategory == category["title"]
-                  ? FontWeight.bold
-                  : FontWeight.normal,
-              color: provider.selectedCategory == category["title"]
-                  ? Theme.of(context).primaryColor
-                  : Colors.black,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              color: isSelected ? Theme.of(context).primaryColor : Colors.black,
             ),
           ),
-          tileColor: provider.selectedCategory == category["title"]
-              ? Colors.grey[100]
-              : null,
+          tileColor: isSelected ? Colors.grey[100] : null,
           onTap: () => provider.setSelectedCategory(category["title"]!),
         );
       },
@@ -138,117 +96,154 @@ class _FilterScreenState extends State<FilterScreen> {
     final response = provider.filterResponse;
     if (response == null) return const SizedBox();
 
-    switch (provider.selectedCategory) {
-      case "Type of Plants":
-      case "Type of Pots":
-      case "Type of Seeds":
-      case "Type of Tools":
-        return _buildFilterSection(
-          provider.selectedCategory,
-          response.subcategories ?? [],
-          "subcategories",
-        );
+    // Map selected category title to the filter type
+    String filterType = "";
+    final categories = provider.getDisplayCategories(widget.type);
 
-      case "Size":
-        return _buildFilterSection(
-          "Size",
-          response.sizes ?? [],
-          "size",
-        );
+    for (var category in categories) {
+      if (category["title"] == provider.selectedCategory) {
+        filterType = category["id"]!;
+        break;
+      }
+    }
 
-      case "Planter Size":
-      case "Pot Size":
-        return _buildFilterSection(
-          "Size",
-          response.planterSizes ?? [],
-          "planter_size",
-        );
+    switch (filterType) {
+      case "subcategories":
+        if (response.subcategories != null) {
+          return _buildFilterOptionsSection(
+            provider.selectedCategory,
+            response.subcategories!,
+            "subcategories",
+            provider,
+          );
+        }
+        break;
 
-      case "Planter":
-        return _buildFilterSection(
-          "Planter",
-          response.planters ?? [],
-          "planter",
-        );
+      case "size":
+        if (response.sizes != null) {
+          return _buildFilterOptionsSection(
+            "Size",
+            response.sizes!,
+            "size",
+            provider,
+          );
+        }
+        break;
 
-      case "Color":
-        return _buildFilterSection(
-          "Color",
-          response.colors ?? [],
-          "color",
-        );
+      case "planter_size":
+        if (response.planterSizes != null) {
+          return _buildFilterOptionsSection(
+            widget.type == "POTS" ? "Pot Size" : "Planter Size",
+            response.planterSizes!,
+            "planter_size",
+            provider,
+          );
+        }
+        break;
 
-      case "Weights":
-        return _buildFilterSection(
-          "Weights",
-          response.weights ?? [],
-          "weights",
-        );
+      case "planter":
+        if (response.planters != null) {
+          return _buildFilterOptionsSection(
+            "Planter",
+            response.planters!,
+            "planter",
+            provider,
+          );
+        }
+        break;
 
-      case "Litre Size":
-        return _buildFilterSection(
-          "Litre Size",
-          response.litreSizes ?? [],
-          "litre_size",
-        );
+      case "color":
+        if (response.colors != null) {
+          return _buildFilterOptionsSection(
+            "Color",
+            response.colors!,
+            "color",
+            provider,
+          );
+        }
+        break;
 
-      case "Price":
+      case "weights":
+        if (response.weights != null) {
+          return _buildFilterOptionsSection(
+            "Weights",
+            response.weights!,
+            "weights",
+            provider,
+          );
+        }
+        break;
+
+      case "litre_size":
+        if (response.litreSizes != null) {
+          return _buildFilterOptionsSection(
+            "Litre Size",
+            response.litreSizes!,
+            "litre_size",
+            provider,
+          );
+        }
+        break;
+
+      case "price":
         return _buildPriceFilter(provider);
 
       default:
         return const Center(child: Text("Select a category"));
     }
+
+    return const Center(child: Text("No options available"));
   }
 
-  Widget _buildFilterSection(
-      String title, List<String> values, String category) {
-    return Consumer<FiltersProvider>(
-      builder: (context, provider, _) {
-        final selectedValues = provider.selectedFilters[category] ?? [];
-
-        return Container(
-          color: Colors.white,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: Colors.grey[300]!),
+  Widget _buildFilterOptionsSection(
+    String title,
+    List<FilterOption> options,
+    String category,
+    FiltersProvider provider,
+  ) {
+    return Container(
+      color: Colors.white,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: Colors.grey[300]!),
+              ),
+            ),
+            child: Text(
+              title,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
                   ),
-                ),
-                child: Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: values.length,
-                  itemBuilder: (context, index) {
-                    final value = values[index];
-                    return CheckboxListTile(
-                      title: Text(value),
-                      value: selectedValues.contains(value),
-                      activeColor: Theme.of(context).primaryColor,
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 16),
-                      onChanged: (bool? checked) {
-                        if (checked != null) {
-                          provider.toggleFilter(category, value);
-                        }
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
+            ),
           ),
-        );
-      },
+          Expanded(
+            child: ListView.builder(
+              itemCount: options.length,
+              itemBuilder: (context, index) {
+                final option = options[index];
+                final isSelected =
+                    provider.isFilterSelected(category, option.id);
+
+                return CheckboxListTile(
+                  title: Text(option.name),
+                  value: isSelected,
+                  activeColor: Theme.of(context).primaryColor,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  onChanged: (bool? checked) {
+                    if (checked != null) {
+                      provider.toggleFilterById(category, option.id);
+                    }
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -261,14 +256,18 @@ class _FilterScreenState extends State<FilterScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Price Range", style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            "Price Range",
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
           const SizedBox(height: 16),
           RangeSlider(
             values: provider.currentRangeValues,
             min: min,
             max: max,
-            divisions:
-                ((max - min) / 100).ceil(), // Dynamic divisions based on range
+            divisions: ((max - min) / 100).ceil().clamp(1, 100),
             labels: RangeLabels(
               "₹${provider.currentRangeValues.start.round()}",
               "₹${provider.currentRangeValues.end.round()}",
@@ -278,8 +277,14 @@ class _FilterScreenState extends State<FilterScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("₹${provider.currentRangeValues.start.round()}"),
-              Text("₹${provider.currentRangeValues.end.round()}"),
+              Text(
+                "₹${provider.currentRangeValues.start.round()}",
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+              Text(
+                "₹${provider.currentRangeValues.end.round()}",
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
             ],
           ),
         ],
@@ -323,8 +328,7 @@ class _FilterScreenState extends State<FilterScreen> {
             child: ElevatedButton(
               onPressed: () async {
                 try {
-                  provider
-                      .resetPagination(); // Reset pagination before applying new filters
+                  provider.resetPagination();
                   final result =
                       await provider.applyFilters(widget.type, context);
                   if (mounted) {
@@ -333,7 +337,7 @@ class _FilterScreenState extends State<FilterScreen> {
                 } catch (e) {
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Failed to apply filters')),
+                      SnackBar(content: Text('Failed to apply filters: $e')),
                     );
                   }
                 }

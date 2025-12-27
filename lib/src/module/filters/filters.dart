@@ -9,3 +9,4 @@ export '/src/module/filters/model/indoor_outdoor_model.dart';
 export '/src/module/filters/widgets/indoor_outdoor_widget.dart';
 export '/src/module/filters/model/pot_size_model.dart';
 export '/src/module/filters/widgets/pot_size_widget.dart';
+export '/src/module/filters/model/filter_response_model.dart';
