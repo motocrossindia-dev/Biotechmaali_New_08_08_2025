@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'package:biotech_maali/src/payment_and_order/order_summary/model/order_response_model.dart';
-import 'package:biotech_maali/src/payment_and_order/order_summary/widgets/bt_coin_earned_widget.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../../../import.dart';
 

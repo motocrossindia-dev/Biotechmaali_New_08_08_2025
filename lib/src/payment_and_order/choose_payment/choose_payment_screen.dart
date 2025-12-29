@@ -37,6 +37,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
         0.00;
     // orderDetails.data.shippingInfo?.shippingCharge ?? 0.0;
 
+    // Get the selected delivery option from OrderSummaryProvider
+    final selectedDeliveryOption =
+        context.read<OrderSummaryProvider>().selectedDeliveryOption;
+    // If Pick Up Store is selected, shipping charge should be 0
+    final displayShippingCharge =
+        selectedDeliveryOption == "Pick Up Store" ? 0.0 : shippingCharge;
+
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -92,10 +99,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           isGreen: true),
                       _buildPriceRow(
                         'Delivery Charges',
-                        shippingCharge > 0
-                            ? '₹${shippingCharge.toInt()}'
+                        displayShippingCharge > 0
+                            ? '₹${displayShippingCharge.toInt()}'
                             : 'Free',
-                        isGreen: shippingCharge == 0,
+                        isGreen: displayShippingCharge == 0,
                       ),
                       // _buildPriceRow('Secured Packaging Fee', ''),
 
@@ -196,7 +203,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             children: [
                               _buildPaymentOption(
                                 'Use Wallet',
-                                walletProvider.balance.toStringAsFixed(1),
+                                walletProvider.balance.toInt().toString(),
                                 isCheckbox: true,
                                 onWalletChanged: (value) {
                                   if (value == true) {

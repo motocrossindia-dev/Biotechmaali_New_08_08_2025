@@ -26,7 +26,7 @@ class _DeliveryOptionsWidgetState extends State<DeliveryOptionsWidget> {
               ),
             ),
             const SizedBox(height: 12),
-            _buildDeliveryOption('Door Delivery', orderProvider),
+            _buildDeliveryOption('Door Step Delivery', orderProvider),
             // _buildDeliveryOption('Express', orderProvider),
             _buildPickupOption(orderProvider, storeProvider),
           ],
@@ -38,10 +38,10 @@ class _DeliveryOptionsWidgetState extends State<DeliveryOptionsWidget> {
   Widget _buildDeliveryOption(String option, OrderSummaryProvider provider) {
     return RadioListTile<String>(
       title: Text(option),
-      value: option,
+      value: 'Door Delivery',
       groupValue: provider.selectedDeliveryOption,
       onChanged: (value) {
-        provider.setDeliveryOption(value ?? 'Standard');
+        provider.setDeliveryOption(value ?? 'Door Delivery');
         provider.setChooseDeliveryOption(false);
       },
       activeColor: Colors.green,
@@ -66,7 +66,7 @@ class _DeliveryOptionsWidgetState extends State<DeliveryOptionsWidget> {
                 value: "Pick Up Store",
                 groupValue: orderProvider.selectedDeliveryOption,
                 onChanged: (value) async {
-                  orderProvider.setDeliveryOption(value ?? 'Standard');
+                  orderProvider.setDeliveryOption(value ?? 'Door Delivery');
                   if (value == "Pick Up Store") {
                     await _showStoreSelection(context, storeProvider);
                   }

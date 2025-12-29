@@ -55,7 +55,7 @@ class RatingsAndReviewsContent extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    provider.averageRating.toStringAsFixed(1),
+                    provider.averageRating.toInt().toString(),
                     style: const TextStyle(
                       fontSize: 48,
                       fontWeight: FontWeight.bold,

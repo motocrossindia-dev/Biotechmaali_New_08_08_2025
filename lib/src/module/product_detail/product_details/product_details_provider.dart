@@ -145,6 +145,12 @@ class ProductDetailsProvider extends ChangeNotifier {
       final details =
           await productDetailsRepository.fetchProductDetails(productId);
       _productDetails = details;
+
+      log("===== INITIAL PRODUCT DETAILS =====");
+      log("Product ID: $productId");
+      log("Images count: ${details.data.product.images.length}");
+      log("Images: ${details.data.product.images.map((img) => img.image).toList()}");
+
       _updateCarouselImages();
 
       // Set default selections
@@ -158,12 +164,89 @@ class ProductDetailsProvider extends ChangeNotifier {
       _productVideo = details.data.product.videoLink;
       _whatsIncluded = details.data.product.whatsIncluded;
 
+      log("Default selections - SizeId: $_selectedSizeId, PlanterSizeId: $_selectedPlanterSizeId, PlanterId: $_selectedPlanterId, ColorId: $_selectedColorId, WeightId: $_selectedWeightId, LitreId: $_selectedLitreId");
+
       _isLoading = false;
       notifyListeners();
+
+      // Automatically apply default combination filter to get all images
+      // Use the combination product ID from the response, not the main product ID
+      await _applyDefaultCombination(details.data.product.id);
     } catch (e) {
       _error = e.toString();
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  // New method to apply default combination filter
+  Future<void> _applyDefaultCombination(int combinationProductId) async {
+    try {
+      // Only apply filter if there are any combinations available
+      bool hasCombinations = _selectedSizeId != null ||
+          _selectedPlanterSizeId != null ||
+          _selectedPlanterId != null ||
+          _selectedColorId != null ||
+          _selectedWeightId != null ||
+          _selectedLitreId != null;
+
+      log("===== CHECKING DEFAULT COMBINATION =====");
+      log("Has combinations: $hasCombinations");
+      log("Combination Product ID: $combinationProductId");
+      log("SizeId: $_selectedSizeId, PlanterSizeId: $_selectedPlanterSizeId, PlanterId: $_selectedPlanterId, ColorId: $_selectedColorId, WeightId: $_selectedWeightId, LitreId: $_selectedLitreId");
+
+      if (hasCombinations) {
+        log("Applying default combination filter for combination product: $combinationProductId");
+
+        // Send only the primary dimension parameter, not all of them
+        // This matches how the manual selection works (e.g., clicking "18 inches" only sends planter_size_id)
+        if (_selectedPlanterSizeId != null) {
+          // For pots with planter sizes, send only planter_size_id
+          await _filterProduct(
+            productId: combinationProductId,
+            planterSizeId: _selectedPlanterSizeId,
+          );
+        } else if (_selectedSizeId != null) {
+          // For plants with sizes, send only size_id
+          await _filterProduct(
+            productId: combinationProductId,
+            sizeId: _selectedSizeId,
+          );
+        } else if (_selectedLitreId != null) {
+          // For products with litre options, send only litre_id
+          await _filterProduct(
+            productId: combinationProductId,
+            litreId: _selectedLitreId,
+          );
+        } else if (_selectedWeightId != null) {
+          // For seeds with weight options, send only weight_id
+          await _filterProduct(
+            productId: combinationProductId,
+            weightId: _selectedWeightId,
+          );
+        } else if (_selectedPlanterId != null) {
+          // For products with planter options, send only planter_id
+          await _filterProduct(
+            productId: combinationProductId,
+            planterId: _selectedPlanterId,
+          );
+        } else if (_selectedColorId != null) {
+          // For products with only color options, send only color_id
+          await _filterProduct(
+            productId: combinationProductId,
+            colorId: _selectedColorId,
+          );
+        }
+
+        log("===== AFTER FILTER APPLIED =====");
+        log("Images count: ${_productDetails?.data.product.images.length ?? 0}");
+        log("Images: ${_productDetails?.data.product.images.map((img) => img.image).toList()}");
+      } else {
+        log("No combinations available, skipping filter");
+      }
+    } catch (e) {
+      log("Error applying default combination: $e");
+      // Don't throw error here, just log it
     }
   }
 
@@ -317,6 +400,9 @@ class ProductDetailsProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      log("===== CALLING FILTER API =====");
+      log("Product ID: $productId, SizeId: $sizeId, PlanterSizeId: $planterSizeId, PlanterId: $planterId, LitreId: $litreId, ColorId: $colorId, WeightId: $weightId");
+
       final filteredDetails = await productDetailsRepository.filterProduct(
           productId: productId,
           sizeId: sizeId,
@@ -325,6 +411,10 @@ class ProductDetailsProvider extends ChangeNotifier {
           litreId: litreId,
           colorId: colorId,
           weightId: weightId);
+
+      log("===== FILTER API RESPONSE =====");
+      log("Images count: ${filteredDetails.data.product.images.length}");
+      log("Images: ${filteredDetails.data.product.images.map((img) => img.image).toList()}");
 
       // Update selected IDs
       if (sizeId != null) _selectedSizeId = sizeId;

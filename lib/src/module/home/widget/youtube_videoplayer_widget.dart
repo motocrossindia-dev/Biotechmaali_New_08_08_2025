@@ -67,19 +67,23 @@ class _YoutubeVideoplayerWidgetState extends State<YoutubeVideoplayerWidget> {
           Expanded(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: YoutubePlayer(
-                controller: _controller,
-                showVideoProgressIndicator: true,
-                progressIndicatorColor: cButtonGreen,
-                progressColors: ProgressBarColors(
-                  playedColor: cButtonGreen,
-                  handleColor: cButtonGreen,
+              child: AbsorbPointer(
+                absorbing:
+                    false, // Allow touches to pass through when not interacting
+                child: YoutubePlayer(
+                  controller: _controller,
+                  showVideoProgressIndicator: true,
+                  progressIndicatorColor: cButtonGreen,
+                  progressColors: ProgressBarColors(
+                    playedColor: cButtonGreen,
+                    handleColor: cButtonGreen,
+                  ),
+                  onReady: () {
+                    setState(() {
+                      _isPlaying = true;
+                    });
+                  },
                 ),
-                onReady: () {
-                  setState(() {
-                    _isPlaying = true;
-                  });
-                },
               ),
             ),
           ),

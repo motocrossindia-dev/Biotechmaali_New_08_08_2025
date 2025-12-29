@@ -50,7 +50,7 @@ class WalletScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            '₹${walletProvider.balance.toStringAsFixed(2)}',
+                            '₹${walletProvider.balance.toInt()}',
                             style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,

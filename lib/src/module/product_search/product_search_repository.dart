@@ -9,9 +9,9 @@ class ProductSearchRepository {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("access_token");
     try {
-      final response = await _dio.post(
+      final response = await _dio.get(
         EndUrl.searchUrl,
-        data: {'search': query},
+        queryParameters: {'search': query},
         options: Options(headers: {
           if (token != null) 'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -20,7 +20,7 @@ class ProductSearchRepository {
 
       log("Response : ${response.statusCode}, data: ${response.data}");
 
-      if (response.data['message'] == 'success') {
+      if (response.statusCode == 200) {
         return SearchResponse.fromJson(response.data);
       }
       return SearchResponse(products: [], count: 0);
@@ -35,9 +35,8 @@ class ProductSearchRepository {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("access_token");
     try {
-      final response = await _dio.post(
+      final response = await _dio.get(
         url,
-        data: {'search': searchQuery},
         options: Options(headers: {
           if (token != null) 'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -46,7 +45,7 @@ class ProductSearchRepository {
 
       log("Response : ${response.statusCode}, data: ${response.data}");
 
-      if (response.data['message'] == 'success') {
+      if (response.statusCode == 200) {
         return SearchResponse.fromJson(response.data);
       }
       return SearchResponse(products: [], count: 0);

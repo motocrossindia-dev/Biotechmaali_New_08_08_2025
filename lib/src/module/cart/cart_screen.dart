@@ -298,7 +298,7 @@ class _CartScreenState extends State<CartScreen> {
                 Center(
                   child: CommonTextWidget(
                     title:
-                        'You will save ₹${(cartProvider.totalDiscount).toStringAsFixed(2)} on this order',
+                        'You will save ₹${(cartProvider.totalDiscount).toInt()} on this order',
                     color: Colors.green,
                     fontWeight: FontWeight.w400,
                     fontSize: 16,

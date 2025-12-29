@@ -13,16 +13,21 @@ class OurStoresRepository {
       if (response.statusCode == 200) {
         final data = response.data;
         log("store data : ${data.toString()}");
-        if (data['message'] == 'success' && data['data'] != null) {
-          final stores = data['data']['stores'] as List;
-          log("store data : ${stores.toString()}");
-          return stores.map((store) => OurStoreModel.fromJson(store)).toList();
+
+        // Use the new OurStoreResponse model for better type safety
+        final storeResponse = OurStoreResponse.fromJson(data);
+
+        if (storeResponse.message == 'success') {
+          log("store data parsed: ${storeResponse.data.stores.length} stores found");
+          return storeResponse.data.stores;
         }
       }
       throw Exception('Failed to load stores');
     } on DioException catch (e) {
+      log("Dio error: ${e.message}");
       throw Exception('Network error: ${e.message}');
     } catch (e) {
+      log("Error loading stores: $e");
       throw Exception('Error loading stores: $e');
     }
   }

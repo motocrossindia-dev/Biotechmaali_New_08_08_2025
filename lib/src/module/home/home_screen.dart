@@ -4,6 +4,7 @@ import 'package:biotech_maali/src/module/account/wallet/wallet_provider.dart';
 import 'package:biotech_maali/src/module/home/home_shimmer.dart';
 import 'package:biotech_maali/src/module/home/widget/promotional_banner.dart';
 import 'package:biotech_maali/src/module/home/widget/referral_popup.dart';
+import 'package:biotech_maali/src/module/home/widget/our_store_widget.dart';
 import 'package:biotech_maali/src/widgets/error_message_widget.dart';
 import '../../../import.dart';
 import 'dart:math' as math;
@@ -57,6 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
       const ReferFriendWidget(),
       const HomeProductsTileWidget(title: 'Seasonal Collection'),
       const YoutubeVideoplayerWidget(),
+      const OurStoreWidget(), // Our Store widget added after YouTube
       // const ExploreOurWorkWidget(),
     ]);
 
@@ -136,6 +138,8 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             child: CustomScrollView(
               controller: _scrollController,
+              physics:
+                  const AlwaysScrollableScrollPhysics(), // Ensure scrolling always works
               slivers: [
                 // Always visible widgets
                 SliverToBoxAdapter(

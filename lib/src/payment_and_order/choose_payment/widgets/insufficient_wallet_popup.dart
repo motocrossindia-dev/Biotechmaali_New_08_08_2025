@@ -60,7 +60,7 @@ class InsufficientWalletPopup extends StatelessWidget {
 
             // Current Balance
             Text(
-              'Current Balance: ₹${currentBalance.toStringAsFixed(1)}',
+              'Current Balance: ₹${currentBalance.toInt()}',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey.shade600,
@@ -72,7 +72,7 @@ class InsufficientWalletPopup extends StatelessWidget {
 
             // Required Amount
             Text(
-              'Required Amount: ₹${requiredAmount.toStringAsFixed(1)}',
+              'Required Amount: ₹${requiredAmount.toInt()}',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey.shade600,
@@ -90,7 +90,7 @@ class InsufficientWalletPopup extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                'You need to add ₹${shortfallAmount.toStringAsFixed(1)} to complete this payment using wallet',
+                'You need to add ₹${shortfallAmount.toInt()} to complete this payment using wallet',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.orange.shade700,

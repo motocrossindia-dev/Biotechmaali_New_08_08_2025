@@ -25,7 +25,7 @@ class PriceDetailRow extends StatelessWidget {
           fontWeight: isBold ? FontWeight.w500 : FontWeight.w400,
         ),
         CommonTextWidget(
-          title: '₹${amount.toStringAsFixed(2)}',
+          title: '₹${amount.toInt()}',
           fontSize: 16,
           fontWeight: isBold ? FontWeight.w500 : FontWeight.w400,
           color: color,

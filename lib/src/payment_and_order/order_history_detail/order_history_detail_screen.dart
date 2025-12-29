@@ -179,10 +179,10 @@ class _OrderHistoryDetailScreenState extends State<OrderHistoryDetailScreen> {
         _buildInfoRow('Payment Method', widget.paymentMethod ?? 'Not defined'),
         _buildInfoRow('Delivery Option', widget.deliveryOption),
         const Divider(height: 24),
-        _buildInfoRow('Total Price', '₹${widget.totalPrice}'),
-        _buildInfoRow('Discount', '- ₹${widget.totalDiscount}',
+        _buildInfoRow('Total Price', '₹${widget.totalPrice.toInt()}'),
+        _buildInfoRow('Discount', '- ₹${widget.totalDiscount.toInt()}',
             valueColor: Colors.green),
-        _buildInfoRow('Grand Total', '₹${widget.grandTotal}',
+        _buildInfoRow('Grand Total', '₹${widget.grandTotal.toInt()}',
             isBold: true, valueColor: themeColor),
       ],
     );
@@ -276,14 +276,14 @@ class _OrderHistoryDetailScreenState extends State<OrderHistoryDetailScreen> {
                     const SizedBox(height: 2),
                     Text('Quantity: ${item.quantity}',
                         style: const TextStyle(fontSize: 13)),
-                    Text('Price: ₹${item.mrp}',
+                    Text('Price: ₹${item.mrp.toInt()}',
                         style: const TextStyle(fontSize: 13)),
                     if (item.discount > 0)
-                      Text('Discount: ₹${item.discount}',
+                      Text('Discount: ₹${item.discount.toInt()}',
                           style: const TextStyle(
                               color: Colors.green, fontSize: 13)),
                     const SizedBox(height: 4),
-                    Text('Total: ₹${item.total}',
+                    Text('Total: ₹${item.total.toInt()}',
                         style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 15,

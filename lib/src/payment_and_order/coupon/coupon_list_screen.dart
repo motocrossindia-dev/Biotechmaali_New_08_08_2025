@@ -195,7 +195,7 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
                         ),
                         const Spacer(),
                         Text(
-                          '- ₹${couponProvider.discountAmount.toStringAsFixed(2)}',
+                          '- ₹${couponProvider.discountAmount.toInt()}',
                           style: TextStyle(
                             color: Colors.green[700],
                             fontWeight: FontWeight.bold,
@@ -324,7 +324,7 @@ class CouponCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   if (!coupon.isApplicable && coupon.isApplicable)
                     Text(
-                      'Add ₹${remainingAmount.toStringAsFixed(0)} more to avail this offer',
+                      'Add ₹${remainingAmount.toInt()} more to avail this offer',
                       style: const TextStyle(color: Colors.grey),
                     ),
                   const SizedBox(height: 8),

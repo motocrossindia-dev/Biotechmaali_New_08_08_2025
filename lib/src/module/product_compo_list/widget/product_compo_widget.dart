@@ -70,7 +70,7 @@ class ProductCompoWidget extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      '₹${finalPrice.toStringAsFixed(0)}',
+                      '₹${finalPrice.toInt()}',
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -79,7 +79,7 @@ class ProductCompoWidget extends StatelessWidget {
                     const SizedBox(width: 8),
                     if (discount > 0 && totalPrice > 0) ...[
                       Text(
-                        '₹${totalPrice.toStringAsFixed(0)}',
+                        '₹${totalPrice.toInt()}',
                         style: const TextStyle(
                           decoration: TextDecoration.lineThrough,
                           color: Colors.grey,

@@ -23,16 +23,30 @@ class ProductDetailsScreen extends StatefulWidget {
 
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   final _pincodeController = TextEditingController();
+  bool _isInitialized = false;
 
   @override
   void initState() {
+    super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<ProductDetailsProvider>();
-      // provider.fetchProductDetails(widget.productId);
       provider.updateQuantity();
       provider.fetchRecentlyViewed();
     });
-    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Fetch product details when screen loads or comes back into focus
+    if (!_isInitialized) {
+      _isInitialized = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final provider = context.read<ProductDetailsProvider>();
+        provider.fetchProductDetails(widget.productId);
+      });
+    }
   }
 
   @override
@@ -189,7 +203,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                   children: [
                                     CommonTextWidget(
                                       title:
-                                          '₹${productDetail.product.sellingPrice}',
+                                          '₹${productDetail.product.sellingPrice.toInt()}',
                                       fontSize: isTablet ? 18 : 16,
                                       fontWeight: FontWeight.w600,
                                       color: cProductRate,
@@ -197,7 +211,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                     if (productDetail.product.mrp >
                                         productDetail.product.sellingPrice)
                                       CommonTextWidget(
-                                        title: '₹${productDetail.product.mrp}',
+                                        title:
+                                            '₹${productDetail.product.mrp.toInt()}',
                                         fontSize: isTablet ? 14 : 12,
                                         fontWeight: FontWeight.w400,
                                         color: cProductRateCrossed,

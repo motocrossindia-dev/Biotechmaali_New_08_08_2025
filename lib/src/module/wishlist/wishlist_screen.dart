@@ -129,8 +129,9 @@ class WishlistScreen extends StatelessWidget {
                                   provider.removeFromWishlist(
                                       product.id, context);
                                 },
-                                mrp: product.mrp.toString(),
-                                sellingPrice: product.sellingPrice.toString(),
+                                mrp: product.mrp.toInt().toString(),
+                                sellingPrice:
+                                    product.sellingPrice.toInt().toString(),
                                 home: true,
                               ),
                             ],

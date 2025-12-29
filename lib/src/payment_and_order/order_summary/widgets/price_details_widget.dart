@@ -20,6 +20,12 @@ class PriceDetailsWidget extends StatelessWidget {
 
     return Consumer<OrderSummaryProvider>(
       builder: (context, provider, child) {
+        // If Pick Up Store is selected, shipping charge should be 0
+        final displayShippingCharge =
+            provider.selectedDeliveryOption == "Pick Up Store"
+                ? 0.0
+                : shippingCharge;
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -37,8 +43,10 @@ class PriceDetailsWidget extends StatelessWidget {
                 isGreen: true),
             _buildPriceRow(
               'Delivery Charges',
-              shippingCharge > 0 ? '₹${shippingCharge.toInt()}' : 'Free',
-              isGreen: shippingCharge == 0,
+              displayShippingCharge > 0
+                  ? '₹${displayShippingCharge.toInt()}'
+                  : 'Free',
+              isGreen: displayShippingCharge == 0,
             ),
             // _buildPriceRow('secured Packaging Fee', ""), //'₹198',
             const Divider(thickness: 1),

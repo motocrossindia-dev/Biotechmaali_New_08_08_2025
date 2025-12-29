@@ -73,14 +73,14 @@ class CartProductTile extends StatelessWidget {
                         Row(
                           children: [
                             CommonTextWidget(
-                              title: '₹${sellingPrice.toStringAsFixed(2)}',
+                              title: '₹${sellingPrice.toInt()}',
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
                               color: cProductRate,
                             ),
                             const SizedBox(width: 8),
                             CommonTextWidget(
-                              title: '₹${mrp.toStringAsFixed(2)}',
+                              title: '₹${mrp.toInt()}',
                               fontSize: 14,
                               fontWeight: FontWeight.w400,
                               color: cProductRateCrossed,

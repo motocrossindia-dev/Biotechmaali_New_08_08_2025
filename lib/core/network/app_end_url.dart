@@ -37,7 +37,7 @@ class EndUrl {
   static String addSingleProductUrl = "${baseUrl}order/placeOrder/";
   static String orderSummaryUrl = "${baseUrl}order/orderSummary/";
   static String placeOrderUrl = "${baseUrl}order/placeOrder/";
-  static String searchUrl = "${baseUrl}product/searchProducts/";
+  static String searchUrl = "${baseUrl}filters/main_productsFilter/";
   static String increaseOrDecreaseQtyUrl = "${baseUrl}product/stockCheck/";
   static String categoryProductUrl = "${baseUrl}product/category-products/";
   static String subCategoryProductUrl =

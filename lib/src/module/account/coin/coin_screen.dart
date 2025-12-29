@@ -578,7 +578,7 @@ class _CoinScreenState extends State<CoinScreen> {
 
                     // Show success snackbar
                     _safeShowSnackBar(
-                      '$redeemAmount coins redeemed successfully! ₹${discountValue.toStringAsFixed(2)} added to your wallet.',
+                      '$redeemAmount coins redeemed successfully! ₹${discountValue.toInt()} added to your wallet.',
                       backgroundColor: Colors.green,
                     );
                   }
