@@ -139,8 +139,14 @@ class CategoryWidget extends StatelessWidget {
                                 child: NetworkImageWidget(
                                   imageUrl: '$baseUrl${category.image}',
                                   fit: BoxFit.fill,
-                                  placeholder: (context, url) => const Center(
-                                    child: CircularProgressIndicator(),
+                                  width: 48,
+                                  height: 48,
+                                  memCacheWidth:
+                                      96, // Small cache for category icons
+                                  memCacheHeight: 96,
+                                  placeholder: (context, url) => Container(
+                                    color: Colors.grey[50],
+                                    child: const SizedBox.shrink(),
                                   ),
                                 ),
                               ),

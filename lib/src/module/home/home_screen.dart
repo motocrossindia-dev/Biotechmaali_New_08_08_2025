@@ -138,21 +138,24 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             child: CustomScrollView(
               controller: _scrollController,
+              cacheExtent: 1000, // Cache more widgets for smoother scroll
               physics:
-                  const AlwaysScrollableScrollPhysics(), // Ensure scrolling always works
+                  const ClampingScrollPhysics(), // Native Android smooth scroll
               slivers: [
                 // Always visible widgets
                 SliverToBoxAdapter(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 10),
-                      const CategoryWidget(),
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.41,
-                        child: const CarouselWidget(),
-                      ),
-                      const PromotionalBanner(),
-                    ],
+                  child: RepaintBoundary(
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 10),
+                        const CategoryWidget(),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.41,
+                          child: const CarouselWidget(),
+                        ),
+                        const PromotionalBanner(),
+                      ],
+                    ),
                   ),
                 ),
 
@@ -161,9 +164,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
                       if (index < _lazyWidgets.length) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: _lazyWidgets[index],
+                        return RepaintBoundary(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: _lazyWidgets[index],
+                          ),
                         );
                       }
 
@@ -182,6 +187,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       return null;
                     },
                     childCount: _lazyWidgets.length + (_isLoadingMore ? 1 : 0),
+                    addRepaintBoundaries: true,
+                    addAutomaticKeepAlives: true,
                   ),
                 ),
               ],

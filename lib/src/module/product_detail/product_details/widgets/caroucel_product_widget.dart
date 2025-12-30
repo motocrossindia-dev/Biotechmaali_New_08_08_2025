@@ -68,29 +68,16 @@ class _CaroucelProductWidgetState extends State<CaroucelProductWidget> {
                             borderRadius: BorderRadius.circular(12),
                             child: NetworkImageWidget(
                               imageUrl: item,
-                              fit: BoxFit
-                                  .cover, // Changed from fill to cover for better square display
-                              memCacheWidth: (MediaQuery.of(context)
-                                          .size
-                                          .width *
-                                      MediaQuery.of(context).devicePixelRatio)
-                                  .round(),
-                              memCacheHeight: (MediaQuery.of(context)
-                                          .size
-                                          .width *
-                                      MediaQuery.of(context).devicePixelRatio)
-                                  .round(),
-                              placeholder: (context, url) => Shimmer.fromColors(
-                                baseColor: Colors.grey[300]!,
-                                highlightColor: Colors.grey[100]!,
-                                child: Container(
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[300],
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
+                              fit: BoxFit.cover,
+                              width: MediaQuery.of(context).size.width,
+                              height: MediaQuery.of(context).size.width,
+                              memCacheWidth: 600, // Fixed optimized cache size
+                              memCacheHeight:
+                                  600, // Square cache for product images
+                              placeholder: (context, url) => Container(
+                                color: Colors.grey[50],
+                                child: const SizedBox
+                                    .shrink(), // No loading spinner for instant display
                               ),
                               errorWidget: (context, url, error) => Container(
                                 color: Colors.grey[200],

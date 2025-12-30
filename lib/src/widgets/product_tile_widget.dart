@@ -149,22 +149,15 @@ class ProductTileWidget extends StatelessWidget {
                                   productImage!.isNotEmpty
                               ? NetworkImageWidget(
                                   imageUrl: '$baseUrl$productImage',
-                                  fit: BoxFit.fill,
-                                  memCacheWidth:
-                                      400, // Cache at 400px width for faster loading
-                                  memCacheHeight:
-                                      400, // Cache at 400px height (square)
+                                  fit: BoxFit.cover,
+                                  width: 200,
+                                  height: 200,
+                                  memCacheWidth: 300, // Optimized cache size
+                                  memCacheHeight: 300,
                                   placeholder: (context, url) => Container(
-                                    color: Colors.grey[100],
-                                    child: const Center(
-                                      child: SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                        ),
-                                      ),
-                                    ),
+                                    color: Colors.grey[50],
+                                    child: const SizedBox
+                                        .shrink(), // No loading spinner for speed
                                   ),
                                   errorWidget: (context, url, error) =>
                                       Container(

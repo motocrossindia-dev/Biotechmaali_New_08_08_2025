@@ -97,6 +97,11 @@ class CarouselWidget extends StatelessWidget {
                   },
                   child: NetworkImageWidget(
                     imageUrl: imageUrl['image'] ?? '',
+                    fit: BoxFit.cover,
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height * 0.38,
+                    memCacheWidth: 800, // Optimized banner cache size
+                    memCacheHeight: 400,
                     imageBuilder: (context, imageProvider) => Container(
                       width: MediaQuery.of(context).size.width,
                       decoration: BoxDecoration(
@@ -106,7 +111,10 @@ class CarouselWidget extends StatelessWidget {
                         ),
                       ),
                     ),
-                    placeholder: (context, url) => const ShimmerWidget(),
+                    placeholder: (context, url) => Container(
+                      color: Colors.grey[50],
+                      child: const SizedBox.shrink(),
+                    ),
                     errorWidget: (context, url, error) => Container(
                       width: MediaQuery.of(context).size.width,
                       color: Colors.grey[300],
