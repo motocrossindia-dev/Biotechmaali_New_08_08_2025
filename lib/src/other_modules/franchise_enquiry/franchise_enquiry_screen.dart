@@ -189,17 +189,70 @@ class FranchiseScreen extends StatelessWidget {
             _buildWhyWeRockSection(),
             ..._buildFeatureItems(),
             _buildStoreLocationsSection(),
-            // ..._buildStoreCards(),
-            SizedBox(
-              height: 350,
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: context.read<OurStoreProvider>().stores.length,
-                itemBuilder: (context, index) {
-                  final store = context.read<OurStoreProvider>().stores[index];
-                  return StoreCard(store: store);
-                },
-              ),
+
+            // Store Cards with proper Consumer
+            Consumer<OurStoreProvider>(
+              builder: (context, storeProvider, child) {
+                if (storeProvider.isLoading) {
+                  return const SizedBox(
+                    height: 200,
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+
+                if (storeProvider.error != null) {
+                  return SizedBox(
+                    height: 200,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
+                            color: Colors.red,
+                            size: 48,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            storeProvider.error ?? 'Failed to load stores',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                if (storeProvider.stores.isEmpty) {
+                  return const SizedBox(
+                    height: 200,
+                    child: Center(
+                      child: Text(
+                        'No stores available',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                return SizedBox(
+                  height: 350,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: storeProvider.stores.length,
+                    itemBuilder: (context, index) {
+                      final store = storeProvider.stores[index];
+                      return StoreCard(store: store);
+                    },
+                  ),
+                );
+              },
             ),
 
             const SizedBox(height: 20),

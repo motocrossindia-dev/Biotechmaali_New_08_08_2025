@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:biotech_maali/src/module/product_list/product_list/model/product_list_model.dart';
 
 import '../../../import.dart';
-import 'model/filter_response_model.dart';
 import 'filters_repository.dart';
 
 class FiltersProvider extends ChangeNotifier {

@@ -532,7 +532,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         ),
                       ),
                       Text(
-                        "₹${amount}",
+                        "₹$amount",
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 12,

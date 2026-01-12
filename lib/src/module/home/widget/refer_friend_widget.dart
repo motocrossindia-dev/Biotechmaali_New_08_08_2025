@@ -1,7 +1,6 @@
 import 'package:biotech_maali/core/settings_provider/settings_provider.dart';
 import 'package:biotech_maali/src/module/account/refer_friend/refer_friend_provider.dart';
 import 'package:biotech_maali/src/module/account/refer_friend/refer_friend_screen.dart';
-import 'package:biotech_maali/src/module/home/home_provider.dart';
 import 'package:biotech_maali/src/widgets/login_prompt_dialog.dart';
 
 import '../../../../import.dart';

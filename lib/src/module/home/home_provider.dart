@@ -6,6 +6,7 @@ import 'package:biotech_maali/src/module/home/model/banner_model.dart';
 import 'package:biotech_maali/src/module/home/model/category_model.dart';
 import 'package:biotech_maali/src/module/home/model/content_block_model.dart';
 import 'package:biotech_maali/src/module/home/model/home_product_model.dart';
+import 'package:biotech_maali/src/module/home/model/promotional_banner_model.dart';
 import 'package:biotech_maali/src/widgets/add_to_cart.dart';
 import 'package:biotech_maali/src/widgets/add_to_wishlist.dart';
 import 'package:biotech_maali/src/widgets/login_prompt_dialog.dart';
@@ -63,6 +64,11 @@ class HomeProvider extends ChangeNotifier {
   bool _isContentBlocksLoading = false;
   String? _contentBlocksError;
 
+  // Promotional banner state
+  PromotionalBannerModel? _promotionalBanner;
+  bool _isPromotionalBannerLoading = false;
+  String? _promotionalBannerError;
+
   // Carousel related code (keeping existing functionality)
   bool get isBannersLoading => _isBannersLoading;
 
@@ -76,6 +82,11 @@ class HomeProvider extends ChangeNotifier {
   List<ContentBlock> get contentBlocks => _contentBlocks;
   bool get isContentBlocksLoading => _isContentBlocksLoading;
   String? get contentBlocksError => _contentBlocksError;
+
+  // Promotional banner getters
+  PromotionalBannerModel? get promotionalBanner => _promotionalBanner;
+  bool get isPromotionalBannerLoading => _isPromotionalBannerLoading;
+  String? get promotionalBannerError => _promotionalBannerError;
 
   // Get content blocks by section
   ContentBlock? get comboOfferContent => _contentBlocks
@@ -398,6 +409,25 @@ class HomeProvider extends ChangeNotifier {
       log('Content blocks fetch error: $e');
     } finally {
       _isContentBlocksLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Fetch promotional banner
+  Future<void> fetchPromotionalBanner(int bannerId) async {
+    try {
+      _isPromotionalBannerLoading = true;
+      _promotionalBannerError = null;
+      notifyListeners();
+
+      _promotionalBanner = await _repository.getPromotionalBanner(bannerId);
+      log("Promotional Banner fetched: ${_promotionalBanner?.title}");
+      _promotionalBannerError = null;
+    } catch (e) {
+      _promotionalBannerError = e.toString();
+      log('Promotional banner fetch error: $e');
+    } finally {
+      _isPromotionalBannerLoading = false;
       notifyListeners();
     }
   }

@@ -11,7 +11,7 @@ class CustomAppBarWithSearch extends StatelessWidget
   const CustomAppBarWithSearch({super.key});
 
   @override
-  Size get preferredSize => const Size.fromHeight(115);
+  Size get preferredSize => const Size.fromHeight(130); // Increased from 115
 
   @override
   Widget build(BuildContext context) {
@@ -19,13 +19,13 @@ class CustomAppBarWithSearch extends StatelessWidget
     final screenHeight = MediaQuery.of(context).size.height;
     final isTablet = screenWidth > 600;
 
-    // Responsive sizing
-    final logoWidth = isTablet ? screenWidth * 0.12 : screenWidth * 0.25;
-    final logoHeight = isTablet ? screenHeight * 0.05 : screenHeight * 0.045;
+    // Responsive sizing - Optimized logo size
+    final logoWidth = isTablet ? screenWidth * 0.20 : screenWidth * 0.40;
+    final logoHeight = isTablet ? screenHeight * 0.06 : screenHeight * 0.055;
     final iconSize = isTablet ? 26.0 : 22.0;
     final searchBarHeight = isTablet ? 50.0 : 42.0;
     final horizontalPadding = screenWidth * 0.04;
-    final locationWidth = isTablet ? screenWidth * 0.35 : screenWidth * 0.3;
+    final locationWidth = isTablet ? screenWidth * 0.35 : screenWidth * 0.28;
 
     return AppBar(
       automaticallyImplyLeading: false,
@@ -34,12 +34,12 @@ class CustomAppBarWithSearch extends StatelessWidget
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
       scrolledUnderElevation: 0,
-      toolbarHeight: 115,
+      toolbarHeight: 130, // Increased from 115
       flexibleSpace: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(
             horizontal: horizontalPadding,
-            vertical: screenHeight * 0.008,
+            vertical: screenHeight * 0.006, // Reduced from 0.008
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -132,7 +132,7 @@ class CustomAppBarWithSearch extends StatelessWidget
                   ),
                 ],
               ),
-              SizedBox(height: screenHeight * 0.006),
+              SizedBox(height: screenHeight * 0.004), // Reduced from 0.006
               // Search Bar and Icons Row
               Row(
                 children: [

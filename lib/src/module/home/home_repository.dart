@@ -4,6 +4,7 @@ import 'package:biotech_maali/src/module/home/model/banner_model.dart';
 import 'package:biotech_maali/src/module/home/model/category_model.dart';
 import 'package:biotech_maali/src/module/home/model/content_block_model.dart';
 import 'package:biotech_maali/src/module/home/model/home_product_model.dart';
+import 'package:biotech_maali/src/module/home/model/promotional_banner_model.dart';
 import '../../../import.dart';
 
 class HomeRepository {
@@ -226,6 +227,47 @@ class HomeRepository {
     } catch (e) {
       log("Error in getContentBlocks: $e");
       throw Exception('Failed to load content blocks: $e');
+    }
+  }
+
+  // Fetch promotional banner by ID
+  Future<PromotionalBannerModel> getPromotionalBanner(int bannerId) async {
+    try {
+      final String promotionalBannerUrl =
+          '${BaseUrl.baseUrl}promotion/banner/$bannerId/';
+
+      Response response = await dio.get(
+        promotionalBannerUrl,
+        options: Options(
+          headers: {
+            "Content-Type": "application/json",
+          },
+        ),
+      );
+
+      log("Promotional banner response status: ${response.statusCode}");
+      log("Promotional banner response data: ${response.data}");
+
+      if (response.statusCode == 200 && response.data != null) {
+        final Map<String, dynamic> responseData = response.data;
+
+        if (responseData['data'] == null) {
+          throw Exception('Invalid response format: missing data');
+        }
+
+        return PromotionalBannerModel.fromJson(
+            responseData['data'] as Map<String, dynamic>);
+      } else {
+        throw Exception(
+            'Failed to load promotional banner. Status code: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      log("DioException in getPromotionalBanner: ${e.message}");
+      log("DioException response: ${e.response?.data}");
+      throw Exception('Network error: ${e.message}');
+    } catch (e) {
+      log("Error in getPromotionalBanner: $e");
+      throw Exception('Failed to load promotional banner: $e');
     }
   }
 }

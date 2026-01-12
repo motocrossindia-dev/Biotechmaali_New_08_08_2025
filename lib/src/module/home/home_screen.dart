@@ -41,6 +41,9 @@ class _HomeScreenState extends State<HomeScreen> {
         // Fetch content blocks for dynamic content
         context.read<HomeProvider>().fetchContentBlocks();
 
+        // Fetch promotional banner (ID: 33)
+        context.read<HomeProvider>().fetchPromotionalBanner(33);
+
         context.read<WalletProvider>().fetchWalletDetails();
         context.read<AccountProvider>().getUserName();
         context.read<EditProfileProvider>().fetchProfileData();
