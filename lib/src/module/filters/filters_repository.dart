@@ -4,7 +4,7 @@ import 'package:biotech_maali/src/module/product_list/product_list/model/product
 
 class FiltersRepository {
   final Dio _dio = Dio();
-  final String baseUrl = 'https://backend.biotechmaali.com';
+  final String baseUrl = 'https://backend.gidan.store';
 
   // New API endpoint for getting filters
   Future<FilterResponseModel> getFilters(String type) async {
@@ -14,6 +14,8 @@ class FiltersRepository {
         '$baseUrl/filters/filters_n/',
         queryParameters: {'type': type},
       );
+
+      log("status code : ${response.statusCode.toString()}");
       log("Filter response data: ${response.data.toString()}");
       return FilterResponseModel.fromJson(response.data);
     } catch (e) {

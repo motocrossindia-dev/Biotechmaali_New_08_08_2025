@@ -31,7 +31,7 @@ class HomeProductModel {
 
   String? getFullImageUrl() {
     if (image == null) return null;
-    const baseUrl = 'https://www.backend.biotechmaali.com';
+    const baseUrl = 'https://www.https://backend.gidan.store';
     return '$baseUrl$image';
   }
 

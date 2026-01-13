@@ -1,11 +1,11 @@
 # Promotional Banner API Integration Guide
 
 ## Overview
-Successfully integrated promotional banner API (`https://backend.biotechmaali.com/promotion/banner/33/`) into both the home screen promotional banner and product list custom banner widgets.
+Successfully integrated promotional banner API (`https://https://backend.gidan.store/promotion/banner/33/`) into both the home screen promotional banner and product list custom banner widgets.
 
 ## API Details
 
-**Endpoint**: `https://backend.biotechmaali.com/promotion/banner/33/`  
+**Endpoint**: `https://https://backend.gidan.store/promotion/banner/33/`  
 **Method**: GET  
 **Response Structure**:
 ```json
@@ -133,8 +133,8 @@ Both widgets construct full image URLs using:
 final String imageUrl = '${BaseUrl.baseUrlForImages}${bannerData.mobileBanner}';
 ```
 
-**Base URL**: `https://www.backend.biotechmaali.com`  
-**Example Full URL**: `https://www.backend.biotechmaali.com/media/banners/mobileBanner/1_eM1djM6.jpg`
+**Base URL**: `https://www.https://backend.gidan.store`  
+**Example Full URL**: `https://www.https://backend.gidan.store/media/banners/mobileBanner/1_eM1djM6.jpg`
 
 ## Features Implemented
 
@@ -296,4 +296,4 @@ Potential improvements:
 **Version**: 1.0.0  
 **Date**: 30 December 2025  
 **Status**: ✅ Production Ready  
-**API Endpoint**: `https://backend.biotechmaali.com/promotion/banner/33/`
+**API Endpoint**: `https://https://backend.gidan.store/promotion/banner/33/`
