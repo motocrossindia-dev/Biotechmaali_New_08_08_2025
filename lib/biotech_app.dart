@@ -23,6 +23,7 @@ import 'package:biotech_maali/src/payment_and_order/order_history/order_history_
 import 'package:biotech_maali/src/payment_and_order/order_history_detail/order_history_detail_provider.dart';
 // import 'package:biotech_maali/src/permission_handle/premission_handle_provider.dart';
 import 'package:biotech_maali/src/splash/splash_provider.dart';
+import 'package:biotech_maali/core/version_check_wrapper.dart';
 
 import 'import.dart';
 
@@ -80,15 +81,31 @@ class BiotechApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => LocationPincodeProvider()),
         // ChangeNotifierProvider(create: (context) => PermissionHandleProvider()),
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: orderSummaryBackground),
-          primaryColor: cButtonGreen,
-          useMaterial3: true,
-        ),
-        navigatorKey: navigatorKey,
-        home: const SplashScreen(),
+      child: Builder(
+        builder: (context) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(
+              colorScheme: ColorScheme(
+                brightness: Brightness.light,
+                primary: cButtonGreen,
+                onPrimary: Colors.white,
+                secondary: cButtonGreen,
+                onSecondary: Colors.white,
+                error: Colors.red,
+                onError: Colors.white,
+                background: Colors.white,
+                onBackground: Colors.black,
+                surface: Colors.white,
+                onSurface: Colors.black,
+              ),
+              primaryColor: cButtonGreen,
+              useMaterial3: true,
+            ),
+            navigatorKey: navigatorKey,
+            home: const VersionCheckWrapper(child: SplashScreen()),
+          );
+        },
       ),
     );
   }

@@ -19,7 +19,9 @@ void main() async {
   // Initialize app lifecycle handler for data cleanup
   AppLifecycleHandler.initialize();
 
-  runApp(const BiotechApp());
+  runApp(
+    const BiotechApp(),
+  );
 }
 
 /// Detects app reinstall and clears SharedPreferences

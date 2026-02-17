@@ -7,7 +7,6 @@ import 'package:biotech_maali/src/module/home/widget/referral_popup.dart';
 import 'package:biotech_maali/src/module/home/widget/our_store_widget.dart';
 import 'package:biotech_maali/src/widgets/error_message_widget.dart';
 import '../../../import.dart';
-import 'dart:math' as math;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,82 +17,33 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
-  bool _isLoadingMore = false;
-  final List<Widget> _lazyWidgets = [];
-  final List<Widget> _allWidgets = [];
 
   @override
   void initState() {
     super.initState();
 
-    _initializeWidgets();
-    _setupScrollController();
-
     context.read<ReferFriendProvider>().getReferralDetails();
 
     // Move wallet fetch to post-frame callback
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        // Load location data first for immediate display
-        context.read<HomeProvider>().getLocationPincode();
-        context.read<HomeProvider>().getLocationName();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) {
+        if (mounted) {
+          // Load location data first for immediate display
+          context.read<HomeProvider>().getLocationPincode();
+          context.read<HomeProvider>().getLocationName();
 
-        // Fetch content blocks for dynamic content
-        context.read<HomeProvider>().fetchContentBlocks();
+          // Fetch content blocks for dynamic content
+          context.read<HomeProvider>().fetchContentBlocks();
 
-        // Fetch promotional banner (ID: 33)
-        context.read<HomeProvider>().fetchPromotionalBanner(33);
+          // Fetch promotional banner (ID: 33)
+          context.read<HomeProvider>().fetchPromotionalBanner(33);
 
-        context.read<WalletProvider>().fetchWalletDetails();
-        context.read<AccountProvider>().getUserName();
-        context.read<EditProfileProvider>().fetchProfileData();
-      }
-    });
-  }
-
-  void _initializeWidgets() {
-    // Initialize all widgets that will be lazy loaded
-    _allWidgets.addAll([
-      const HomeProductsTileWidget(title: 'Featured'),
-      const CompoOfferWidget(),
-      const HomeProductsTileWidget(title: 'Latest'),
-      const HomeProductsTileWidget(title: 'Bestseller'),
-      const ReferFriendWidget(),
-      const HomeProductsTileWidget(title: 'Seasonal Collection'),
-      const YoutubeVideoplayerWidget(),
-      const OurStoreWidget(), // Our Store widget added after YouTube
-      // const ExploreOurWorkWidget(),
-    ]);
-
-    // Initially load first few widgets
-    _loadMoreWidgets();
-  }
-
-  void _setupScrollController() {
-    _scrollController.addListener(
-      () {
-        if (_scrollController.position.pixels >=
-            _scrollController.position.maxScrollExtent - 500) {
-          _loadMoreWidgets();
+          context.read<WalletProvider>().fetchWalletDetails();
+          context.read<AccountProvider>().getUserName();
+          context.read<EditProfileProvider>().fetchProfileData();
         }
       },
     );
-  }
-
-  void _loadMoreWidgets() {
-    if (!_isLoadingMore && _lazyWidgets.length < _allWidgets.length) {
-      setState(
-        () {
-          _isLoadingMore = true;
-          final int nextIndex = _lazyWidgets.length;
-          final int itemsToLoad = math.min(2, _allWidgets.length - nextIndex);
-
-          _lazyWidgets
-              .addAll(_allWidgets.getRange(nextIndex, nextIndex + itemsToLoad));
-          _isLoadingMore = false;
-        },
-      );
-    }
   }
 
   @override
@@ -139,62 +89,37 @@ class _HomeScreenState extends State<HomeScreen> {
             onRefresh: () async {
               await provider.refreshAll();
             },
-            child: CustomScrollView(
+            child: SingleChildScrollView(
               controller: _scrollController,
-              cacheExtent: 1000, // Cache more widgets for smoother scroll
-              physics:
-                  const ClampingScrollPhysics(), // Native Android smooth scroll
-              slivers: [
-                // Always visible widgets
-                SliverToBoxAdapter(
-                  child: RepaintBoundary(
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 10),
-                        const CategoryWidget(),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.41,
-                          child: const CarouselWidget(),
-                        ),
-                        const PromotionalBanner(),
-                      ],
-                    ),
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                children: [
+                  const SizedBox(height: 10),
+                  const CategoryWidget(),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.41,
+                    child: const CarouselWidget(),
                   ),
-                ),
-
-                // Lazy loaded widgets
-                SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      if (index < _lazyWidgets.length) {
-                        return RepaintBoundary(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            child: _lazyWidgets[index],
-                          ),
-                        );
-                      }
-
-                      if (_isLoadingMore) {
-                        // Show shimmer for lazy loading items
-                        return Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Shimmer.fromColors(
-                            baseColor: Colors.grey[300]!,
-                            highlightColor: Colors.grey[100]!,
-                            child: const ProductCardShimmer(),
-                          ),
-                        );
-                      }
-
-                      return null;
-                    },
-                    childCount: _lazyWidgets.length + (_isLoadingMore ? 1 : 0),
-                    addRepaintBoundaries: true,
-                    addAutomaticKeepAlives: true,
-                  ),
-                ),
-              ],
+                  const PromotionalBanner(),
+                  const SizedBox(height: 10),
+                  const HomeProductsTileWidget(title: 'Featured'),
+                  const SizedBox(height: 10),
+                  const CompoOfferWidget(),
+                  const SizedBox(height: 10),
+                  const HomeProductsTileWidget(title: 'Latest'),
+                  const SizedBox(height: 10),
+                  const HomeProductsTileWidget(title: 'Bestseller'),
+                  const SizedBox(height: 10),
+                  const ReferFriendWidget(),
+                  const SizedBox(height: 10),
+                  const HomeProductsTileWidget(title: 'Seasonal Collection'),
+                  const SizedBox(height: 10),
+                  const YoutubeVideoplayerWidget(),
+                  const SizedBox(height: 10),
+                  const OurStoreWidget(),
+                  const SizedBox(height: 20),
+                ],
+              ),
             ),
           );
         },

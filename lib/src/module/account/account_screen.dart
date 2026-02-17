@@ -11,8 +11,6 @@ import 'package:biotech_maali/src/other_modules/carrers/carriers_screen.dart';
 import 'package:biotech_maali/src/other_modules/contact_us/contact_us_screen.dart';
 import 'package:biotech_maali/src/other_modules/franchise_enquiry/franchise_enquiry_screen.dart';
 import 'package:biotech_maali/src/other_modules/our_store/our_store_screen.dart';
-import 'package:biotech_maali/src/other_modules/out_works/our_work_screen.dart';
-import 'package:biotech_maali/src/other_modules/services/services_screen.dart';
 import 'package:biotech_maali/src/payment_and_order/order_history/order_history_screen.dart';
 
 class AccountScreen extends StatefulWidget {

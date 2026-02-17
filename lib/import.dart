@@ -23,3 +23,5 @@ export 'package:timeline_tile/timeline_tile.dart';
 export 'package:dio/dio.dart';
 export 'package:shimmer/shimmer.dart';
 export 'dart:io';
+
+export 'package:new_version_plus/new_version_plus.dart';
