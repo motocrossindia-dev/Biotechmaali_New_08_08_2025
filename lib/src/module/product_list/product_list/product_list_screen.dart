@@ -8,6 +8,7 @@ import 'package:biotech_maali/src/module/wishlist/wishlist_screen.dart';
 import 'package:biotech_maali/src/widgets/login_prompt_dialog.dart';
 import 'package:biotech_maali/src/module/product_list/product_list_shimmer.dart';
 import 'package:biotech_maali/src/widgets/shimmer/product_tile_shimmer.dart';
+import 'package:biotech_maali/src/widgets/no_products_found_widget.dart';
 
 import '../../../../import.dart';
 
@@ -139,8 +140,23 @@ class _ProductListScreenState extends State<ProductListScreen> {
             log("Building product list with ${products.length} products"); // Add this log
 
             if (products.isEmpty) {
-              return const Center(
-                child: Text("No products found"),
+              return NoProductsFoundWidget(
+                title: 'No Products Found',
+                subtitle:
+                    'We couldn\'t find any products in this category.\nPlease check back later or explore other categories.',
+                onRetry: () {
+                  if (widget.isCategory) {
+                    if (widget.title == "OFFERS") {
+                      provider.getOfferProductList(context);
+                    } else {
+                      provider.getCategoryProductList(categoryId: widget.id);
+                    }
+                  } else {
+                    provider.getSubCategoryProductList(
+                        subCategoryId: widget.id);
+                  }
+                },
+                retryButtonText: 'Refresh',
               );
             }
 

@@ -38,17 +38,17 @@ class ReferFriendWidget extends StatelessWidget {
                 child: imageUrl.isNotEmpty
                     ? Image.network(
                         imageUrl,
-                        fit: BoxFit.cover,
+                        fit: BoxFit.fill,
                         errorBuilder: (context, error, stackTrace) {
                           return Image.asset(
                             'assets/png/images/home_screen_img_1.jpg',
-                            fit: BoxFit.cover,
+                            fit: BoxFit.fill,
                           );
                         },
                       )
                     : Image.asset(
                         'assets/png/images/home_screen_img_1.jpg',
-                        fit: BoxFit.cover,
+                        fit: BoxFit.fill,
                       ),
               ),
             ),

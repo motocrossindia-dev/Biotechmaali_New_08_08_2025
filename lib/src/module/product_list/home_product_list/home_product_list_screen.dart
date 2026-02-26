@@ -5,6 +5,7 @@ import 'package:biotech_maali/src/module/wishlist/wishlist_screen.dart';
 import 'package:biotech_maali/src/widgets/login_prompt_dialog.dart';
 import 'package:biotech_maali/src/module/product_list/product_list_shimmer.dart';
 import 'package:biotech_maali/src/module/product_list/home_product_list/widget/home_product_tile_widget.dart';
+import 'package:biotech_maali/src/widgets/no_products_found_widget.dart';
 
 import '../../../../import.dart';
 
@@ -84,6 +85,15 @@ class _HomeProductListScreenState extends State<HomeProductListScreen> {
                   } else if (widget.title == "Seasonal Collection") {
                     products = provider.seasonalProducts;
                   }
+
+                  if (products.isEmpty) {
+                    return NoProductsFoundWidget(
+                      title: 'No ${widget.title} Products',
+                      subtitle:
+                          'We couldn\'t find any ${widget.title.toLowerCase()} products at the moment.\nPlease check back later!',
+                    );
+                  }
+
                   return Column(
                     children: [
                       const CustomBannerWidget(),

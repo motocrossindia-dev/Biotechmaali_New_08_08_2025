@@ -4,6 +4,7 @@ import 'package:biotech_maali/import.dart';
 import 'package:biotech_maali/src/module/cart/model/cart_item_model.dart';
 import 'package:biotech_maali/src/module/product_detail/product_details/product_details_repository.dart';
 import 'package:biotech_maali/src/widgets/add_to_cart.dart';
+import 'package:biotech_maali/src/widgets/delivery_unavailable_dialog.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'cart_repository.dart';
 
@@ -235,7 +236,7 @@ class CartProvider extends ChangeNotifier {
         ),
       );
       Fluttertoast.showToast(
-        msg: "Please complete your profile first",
+        msg: "Please complete your profile.",
         backgroundColor: Colors.red,
       );
     } on AddressNotUpdatedException {
@@ -254,14 +255,35 @@ class CartProvider extends ChangeNotifier {
       );
     } catch (e) {
       log("Error placing order: ${e.toString()}");
-      String errorMessage = "Something went wrong while placing the order";
-      // Remove "Exception:" prefixes from the error message
-      errorMessage = errorMessage.replaceAll('Exception: ', '');
-      errorMessage = errorMessage.replaceAll(':', ',');
-      Fluttertoast.showToast(
-        msg: errorMessage,
-        backgroundColor: Colors.red,
-      );
+      String errorMessage = e.toString().toLowerCase();
+
+      // Check if it's a server error (500)
+      if (errorMessage.contains('status code of 500') ||
+          errorMessage.contains('server error') ||
+          errorMessage.contains('dioexception')) {
+        Fluttertoast.showToast(
+          msg: "Server is temporarily unavailable. Please try again later.",
+          backgroundColor: Colors.red,
+        );
+      }
+      // Check if error is related to delivery/pincode
+      else if (errorMessage.contains('delivery not available') ||
+          errorMessage.contains('pincode')) {
+        // Extract the actual error message
+        String displayMessage = e
+            .toString()
+            .replaceAll('Exception: ', '')
+            .replaceAll('Failed to place order: ', '');
+
+        // Show delivery unavailable dialog
+        DeliveryUnavailableDialog.show(context, displayMessage);
+      } else {
+        // Show generic error toast for other errors
+        Fluttertoast.showToast(
+          msg: "Something went wrong. Please try again.",
+          backgroundColor: Colors.red,
+        );
+      }
     } finally {
       _isPlacingOrder = false;
       notifyListeners();

@@ -8,6 +8,7 @@ import 'package:biotech_maali/src/module/wishlist/wishlist_screen.dart';
 import 'package:biotech_maali/src/widgets/login_prompt_dialog.dart';
 import 'package:biotech_maali/src/module/product_list/product_list_shimmer.dart';
 import 'package:biotech_maali/src/widgets/shimmer/product_tile_shimmer.dart';
+import 'package:biotech_maali/src/widgets/no_products_found_widget.dart';
 
 import '../../../../../import.dart';
 
@@ -139,8 +140,14 @@ class _OfferProductListWidgetState extends State<OfferProductListWidget> {
             log("Building product list with ${products.length} products"); // Add this log
 
             if (products.isEmpty) {
-              return const Center(
-                child: Text("No products found"),
+              return NoProductsFoundWidget(
+                title: 'No Offers Available',
+                subtitle:
+                    'We couldn\'t find any offer products at the moment.\nPlease check back later for exciting deals!',
+                onRetry: () {
+                  provider.getOfferProductList(context);
+                },
+                retryButtonText: 'Refresh',
               );
             }
 

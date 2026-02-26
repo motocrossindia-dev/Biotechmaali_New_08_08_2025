@@ -10,11 +10,28 @@ class ProductSearchProvider extends ChangeNotifier {
   String error = '';
   String? nextPage;
   bool isLoadingMore = false;
-  String lastSearchQuery = 'plant';
+  String lastSearchQuery = '';
+  bool hasSearched = false; // Track if user has performed a search
+  Timer? _debounce;
 
   bool isTyping = false;
 
   bool showBorderAnimation = false;
+
+  // Clear all products and reset state
+  void clearProducts() {
+    // Cancel any pending search request
+    if (_debounce?.isActive ?? false) {
+      _debounce!.cancel();
+    }
+    products = [];
+    error = '';
+    nextPage = null;
+    lastSearchQuery = '';
+    hasSearched = false;
+    isLoading = false;
+    notifyListeners();
+  }
 
   void updateWishList(bool isWishlist, int productId) {
     final productIndex =
@@ -39,8 +56,6 @@ class ProductSearchProvider extends ChangeNotifier {
     }
   }
 
-  Timer? _debounce;
-
   Future<void> searchProducts(String query) async {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
 
@@ -49,6 +64,7 @@ class ProductSearchProvider extends ChangeNotifier {
         isLoading = true;
         error = '';
         lastSearchQuery = query;
+        hasSearched = true;
         notifyListeners();
 
         final response = await _repository.searchProducts(query);

@@ -5,6 +5,7 @@ import 'package:biotech_maali/src/module/product_compo_list/model/product_compo_
 import 'package:biotech_maali/src/module/product_compo_list/product_compo_repository.dart';
 import 'package:biotech_maali/src/module/product_detail/product_details/product_details_repository.dart';
 import 'package:biotech_maali/src/payment_and_order/order_summary/model/order_response_model.dart';
+import 'package:biotech_maali/src/widgets/delivery_unavailable_dialog.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class ProductCompoListProvider extends ChangeNotifier {
@@ -80,7 +81,37 @@ class ProductCompoListProvider extends ChangeNotifier {
         ),
       );
     } catch (e) {
-      _error = "Failed to place order, something went wrong";
+      String errorMessage = e.toString().toLowerCase();
+
+      // Check if it's a server error (500)
+      if (errorMessage.contains('status code of 500') ||
+          errorMessage.contains('server error') ||
+          errorMessage.contains('dioexception')) {
+        _error = "Server is temporarily unavailable. Please try again later.";
+        Fluttertoast.showToast(
+          msg: _error!,
+          backgroundColor: Colors.red,
+        );
+      }
+      // Check if error is related to delivery/pincode
+      else if (errorMessage.contains('delivery not available') ||
+          errorMessage.contains('pincode')) {
+        // Extract the actual error message
+        String displayMessage = e
+            .toString()
+            .replaceAll('Exception: ', '')
+            .replaceAll('Failed to place order: ', '');
+
+        // Show delivery unavailable dialog
+        DeliveryUnavailableDialog.show(context, displayMessage);
+        _error = displayMessage;
+      } else {
+        _error = "Something went wrong. Please try again.";
+        Fluttertoast.showToast(
+          msg: _error!,
+          backgroundColor: Colors.red,
+        );
+      }
     } finally {
       _isLoading = false;
       notifyListeners();

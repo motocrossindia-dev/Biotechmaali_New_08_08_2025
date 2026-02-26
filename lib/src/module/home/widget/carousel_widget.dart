@@ -97,7 +97,7 @@ class CarouselWidget extends StatelessWidget {
                   },
                   child: NetworkImageWidget(
                     imageUrl: imageUrl['image'] ?? '',
-                    fit: BoxFit.cover,
+                    fit: BoxFit.fill,
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height * 0.38,
                     memCacheWidth: 800, // Optimized banner cache size
@@ -107,7 +107,7 @@ class CarouselWidget extends StatelessWidget {
                       decoration: BoxDecoration(
                         image: DecorationImage(
                           image: imageProvider,
-                          fit: BoxFit.cover,
+                          fit: BoxFit.fill,
                         ),
                       ),
                     ),

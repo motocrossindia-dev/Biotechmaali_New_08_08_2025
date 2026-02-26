@@ -8,6 +8,7 @@ import 'package:biotech_maali/src/module/product_list/product_list_shimmer.dart'
 import 'package:biotech_maali/src/module/product_list/home_product_list/widget/home_product_tile_widget.dart';
 import 'package:biotech_maali/src/module/cart/cart_provider.dart';
 import 'package:biotech_maali/src/module/wishlist/whishlist_provider.dart';
+import 'package:biotech_maali/src/widgets/no_products_found_widget.dart';
 
 import '../../../../import.dart';
 
@@ -131,11 +132,14 @@ class _BannerProductListScreenState extends State<BannerProductListScreen> {
           List<BannerProduct> products = provider.products;
 
           if (products.isEmpty) {
-            return const Center(
-              child: Text(
-                'No products available',
-                style: TextStyle(fontSize: 16, color: Colors.grey),
-              ),
+            return NoProductsFoundWidget(
+              title: 'No Products Available',
+              subtitle:
+                  'We couldn\'t find any products for this offer.\nPlease check back later or explore other categories.',
+              onRetry: () {
+                provider.fetchBannerProducts(widget.bannerId, context);
+              },
+              retryButtonText: 'Refresh',
             );
           }
 

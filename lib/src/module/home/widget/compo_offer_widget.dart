@@ -40,17 +40,17 @@ class CompoOfferWidget extends StatelessWidget {
                 child: comboOffer.image != null && comboOffer.image!.isNotEmpty
                     ? Image.network(
                         comboOffer.image!,
-                        fit: BoxFit.cover,
+                        fit: BoxFit.fill,
                         errorBuilder: (context, error, stackTrace) {
                           return Image.asset(
                             'assets/png/images/home_screen_img_2.jpg',
-                            fit: BoxFit.cover,
+                            fit: BoxFit.fill,
                           );
                         },
                       )
                     : Image.asset(
                         'assets/png/images/home_screen_img_2.jpg',
-                        fit: BoxFit.cover,
+                        fit: BoxFit.fill,
                       ),
               ),
             ),
