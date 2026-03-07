@@ -23,18 +23,8 @@ class FiltersProvider extends ChangeNotifier {
   bool get hasMoreData => _nextPageUrl != null;
 
   Future<void> loadFilters(String type) async {
-    String category = "";
-    if (type == "POTS") {
-      category = "pot";
-    } else if (type == "SEEDS") {
-      category = "seed";
-    } else if (type == "PLANTS") {
-      category = "plant";
-    } else if (type == "TOOLS") {
-      category = "tool";
-    } else {
-      category = type.toLowerCase();
-    }
+    // Normalize incoming type (case-insensitive) to API expected singular form
+    String category = _toApiType(type);
 
     try {
       isLoading = true;
@@ -61,6 +51,19 @@ class FiltersProvider extends ChangeNotifier {
       notifyListeners();
       throw Exception('Failed to load filters');
     }
+  }
+
+  // Normalize a UI/display type (like 'Pots' or 'POTS') to the API's expected
+  // singular, lowercase type string (e.g., 'pot').
+  String _toApiType(String type) {
+    final t = type.trim().toLowerCase();
+    if (t == 'pots' || t == 'pot') return 'pot';
+    if (t == 'plants' || t == 'plant') return 'plant';
+    if (t == 'seeds' || t == 'seed') return 'seed';
+    if (t == 'tools' || t == 'tool') return 'tool';
+    if (t == 'plant care' || t == 'plantcare') return 'plantcare';
+    if (t == 'offers' || t == 'offer') return 'offer';
+    return t;
   }
 
   // Toggle filter by ID
@@ -195,8 +198,11 @@ class FiltersProvider extends ChangeNotifier {
 
       log("Applying filters for type: $type");
       final params = getFilterParams(type);
+      // Ensure we pass the singular API type (e.g. 'pot' not 'pots')
+      final String apiType = params['type'] ?? type.toLowerCase();
+      log("API type used for request: $apiType");
       final filterResult = await _repository.applyFilters(
-        type.toLowerCase(),
+        apiType,
         params,
         nextPageUrl: loadMore ? _nextPageUrl : null,
       );
@@ -242,18 +248,19 @@ class FiltersProvider extends ChangeNotifier {
     if (filterResponse!.subcategories != null &&
         filterResponse!.subcategories!.isNotEmpty) {
       String title = "Type of ";
-      switch (type) {
+      final normalized = type.trim().toUpperCase();
+      switch (normalized) {
         case "PLANTS":
-          title += "Plants";
+          title += "Plant";
           break;
         case "POTS":
-          title += "Pots";
+          title += "Pot";
           break;
         case "SEEDS":
-          title += "Seeds";
+          title += "Seed";
           break;
         case "TOOLS":
-          title += "Tools";
+          title += "Tool";
           break;
         default:
           title += type;
@@ -273,7 +280,8 @@ class FiltersProvider extends ChangeNotifier {
         filterResponse!.planterSizes!.isNotEmpty) {
       categories.add({
         "id": "planter_size",
-        "title": type == "POTS" ? "Pot Size" : "Planter Size"
+        "title":
+            type.trim().toUpperCase() == "POTS" ? "Pot Size" : "Planter Size"
       });
     }
 

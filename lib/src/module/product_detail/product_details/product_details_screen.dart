@@ -247,6 +247,19 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                 ProductDetailsRatingWidget(
                                   productRating: productDetail.productRating,
                                 ),
+                                const SizedBox(height: 8),
+                                // Stock indicator
+                                if (!productDetail.product.isBuyable)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 6.0),
+                                    child: Text(
+                                      'Out of stock',
+                                      style: TextStyle(
+                                        color: Colors.red.shade700,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
                               ],
                             ),
                           ),
@@ -586,20 +599,25 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                   )
                                 : CustomizableBorderColoredButton(
                                     title: 'BUY NOW',
-                                    event: () async {
-                                      final settingsProvider =
-                                          context.read<SettingsProvider>();
-                                      bool isAuth = await settingsProvider
-                                          .checkAccessTokenValidity(context);
+                                    // Disable BUY NOW when product is not buyable
+                                    event: productDetail.product.isBuyable
+                                        ? () async {
+                                            final settingsProvider = context
+                                                .read<SettingsProvider>();
+                                            bool isAuth = await settingsProvider
+                                                .checkAccessTokenValidity(
+                                                    context);
 
-                                      if (!isAuth) {
-                                        _showLoginDialog(
-                                            context, productDetail.product.id);
-                                        return;
-                                      }
-                                      provider.placeOrder(
-                                          productDetail.product.id, context);
-                                    },
+                                            if (!isAuth) {
+                                              _showLoginDialog(context,
+                                                  productDetail.product.id);
+                                              return;
+                                            }
+                                            provider.placeOrder(
+                                                productDetail.product.id,
+                                                context);
+                                          }
+                                        : null,
                                   ),
                           ),
                         ),
@@ -611,41 +629,42 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                               title: productDetail.product.isCart
                                   ? "ITEM IN CART"
                                   : 'ADD TO CART',
+                              // Disable Add to Cart when product is not buyable
                               event: productDetail.product.isCart
                                   ? () {
-                                      // Fluttertoast.showToast(
-                                      //   msg: "Item already in cart",
-                                      //   backgroundColor: Colors.black87,
-                                      //   textColor: Colors.white,
-                                      // );
-
                                       showCartMessage(context, false);
                                     }
-                                  : () async {
-                                      bool? isAuthenticated = await context
-                                          .read<SettingsProvider>()
-                                          .checkAccessTokenValidity(context);
-                                      if (isAuthenticated) {
-                                        final productDetailProvider = context
-                                            .read<ProductDetailsProvider>();
-                                        bool result = await context
-                                            .read<CartProvider>()
-                                            .addToCart(
-                                                product.data.product.id,
-                                                productDetailProvider.quantity,
-                                                context);
-                                        if (result) {
-                                          productDetail.product.isCart = true;
-                                          setState(() {
-                                            // Update UI to reflect item added to cart
-                                          });
+                                  : (productDetail.product.isBuyable
+                                      ? () async {
+                                          bool? isAuthenticated = await context
+                                              .read<SettingsProvider>()
+                                              .checkAccessTokenValidity(
+                                                  context);
+                                          if (isAuthenticated) {
+                                            final productDetailProvider =
+                                                context.read<
+                                                    ProductDetailsProvider>();
+                                            bool result = await context
+                                                .read<CartProvider>()
+                                                .addToCart(
+                                                    product.data.product.id,
+                                                    productDetailProvider
+                                                        .quantity,
+                                                    context);
+                                            if (result) {
+                                              productDetail.product.isCart =
+                                                  true;
+                                              setState(() {
+                                                // Update UI to reflect item added to cart
+                                              });
+                                            }
+                                          } else {
+                                            _showLoginDialog(context,
+                                                productDetail.product.id);
+                                            return;
+                                          }
                                         }
-                                      } else {
-                                        _showLoginDialog(
-                                            context, productDetail.product.id);
-                                        return;
-                                      }
-                                    },
+                                      : null),
                             ),
                           ),
                         ),

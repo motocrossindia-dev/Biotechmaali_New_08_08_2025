@@ -18,12 +18,23 @@ class CartProvider extends ChangeNotifier {
   bool _isPlacingOrder = false;
   bool _isDeletingItem = false;
   bool _isShowingCartMessage = false;
+  bool _isRemovingOutOfStock = false;
 
   bool get isPlacingOrder => _isPlacingOrder;
   bool get isDeletingItem => _isDeletingItem;
   List<CartItemModel> get cartItems => _cartItems;
   bool get isLoading => _isLoading;
   bool get isShowingCartMessage => _isShowingCartMessage;
+  bool get isRemovingOutOfStock => _isRemovingOutOfStock;
+
+  // Returns cart items that are out of stock according to their stockStatus
+  List<CartItemModel> get outOfStockItems {
+    return _cartItems
+        .where((item) => item.stockStatus.toLowerCase().contains('out'))
+        .toList();
+  }
+
+  bool get hasOutOfStockItems => outOfStockItems.isNotEmpty;
 
   String get error => _error;
 
@@ -132,6 +143,32 @@ class CartProvider extends ChangeNotifier {
       _deleteLoadingStates[cartId] = false;
       notifyListeners();
     }
+  }
+
+  /// Remove all out of stock items from cart one-by-one by calling delete API
+  /// This calls [deleteCartItem] for each out-of-stock item sequentially.
+  Future<void> removeAllOutOfStockItems(BuildContext context) async {
+    final itemsToRemove =
+        outOfStockItems.toList(); // copy to avoid mutation while iterating
+
+    if (itemsToRemove.isEmpty) return;
+
+    _isRemovingOutOfStock = true;
+    notifyListeners();
+
+    for (final item in itemsToRemove) {
+      try {
+        // await each deletion to ensure one API call per item as requested
+        await deleteCartItem(item.id, context);
+        // small delay to allow UI to reflect changes smoothly
+        await Future.delayed(const Duration(milliseconds: 200));
+      } catch (_) {
+        // continue with others even if one fails
+      }
+    }
+
+    _isRemovingOutOfStock = false;
+    notifyListeners();
   }
 
   Future<bool> addToCart(

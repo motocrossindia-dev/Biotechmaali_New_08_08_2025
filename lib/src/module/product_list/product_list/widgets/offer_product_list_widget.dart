@@ -47,22 +47,32 @@ class _OfferProductListWidgetState extends State<OfferProductListWidget> {
     super.initState();
     _scrollController.addListener(_scrollListener);
 
-    if (widget.isCategory) {
-      if (widget.title == "OFFERS") {
-        context.read<ProductListProdvider>().getOfferProductList(context);
+    // Reset provider state synchronously so the first build shows
+    // the shimmer instead of stale data from a previous category.
+    final provider = context.read<ProductListProdvider>();
+    if (widget.isCategory && widget.title.toLowerCase() == "offers") {
+      provider.resetForNewOfferLoad();
+    } else {
+      provider.resetForNewLoad();
+    }
+    _selectedOption = provider.currentSortOption;
+
+    // Defer the actual API call to after the first frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (widget.isCategory) {
+        if (widget.title.toLowerCase() == "offers") {
+          context.read<ProductListProdvider>().getOfferProductList(context);
+        } else {
+          context.read<ProductListProdvider>().getCategoryProductList(
+              categoryType: ProductListProdvider.toApiType(widget.id));
+        }
       } else {
         context
             .read<ProductListProdvider>()
-            .getCategoryProductList(categoryId: widget.id);
+            .getSubCategoryProductList(subCategoryId: widget.id);
       }
-    } else {
-      context
-          .read<ProductListProdvider>()
-          .getSubCategoryProductList(subCategoryId: widget.id);
-    }
-
-    // Set local _selectedOption to match provider's current sort option
-    _selectedOption = context.read<ProductListProdvider>().currentSortOption;
+    });
   }
 
   void _scrollListener() {
@@ -79,11 +89,12 @@ class _OfferProductListWidgetState extends State<OfferProductListWidget> {
         final provider = context.read<ProductListProdvider>();
         if (!provider.isLoadingMore && provider.hasMoreData) {
           if (widget.isCategory) {
-            if (widget.title == "OFFERS") {
+            if (widget.title.toLowerCase() == "offers") {
               provider.getOfferProductList(context, loadMore: true);
             } else {
               provider.getCategoryProductList(
-                  categoryId: widget.id, loadMore: true);
+                  categoryType: ProductListProdvider.toApiType(widget.id),
+                  loadMore: true);
             }
           } else {
             provider.getSubCategoryProductList(
@@ -154,7 +165,7 @@ class _OfferProductListWidgetState extends State<OfferProductListWidget> {
             return CustomScrollView(
               controller: _scrollController,
               slivers: [
-                widget.title == "OFFERS"
+                widget.title.toLowerCase() == "offers"
                     ? const SliverToBoxAdapter(
                         child: SizedBox(height: 10),
                       )
@@ -189,7 +200,7 @@ class _OfferProductListWidgetState extends State<OfferProductListWidget> {
                             );
                           },
                           child: ProductTileWidget(
-                            isOffer: widget.title == "OFFERS" ? true : false,
+                            isOffer: widget.title.toLowerCase() == "offers",
                             mainProdId: product.id,
                             productTitle: product.name,
                             productImage: product.image,
@@ -228,6 +239,7 @@ class _OfferProductListWidgetState extends State<OfferProductListWidget> {
                                 return;
                               }
                             },
+                            // Disable add to cart when product is not buyable
                             addToCartEvent: product.isCart
                                 ? () {
                                     Navigator.push(
@@ -247,31 +259,33 @@ class _OfferProductListWidgetState extends State<OfferProductListWidget> {
                                       ),
                                     );
                                   }
-                                : () async {
-                                    final settingsProvider =
-                                        context.read<SettingsProvider>();
-                                    bool isAuth = await settingsProvider
-                                        .checkAccessTokenValidity(context);
-                                    if (!isAuth) {
-                                      _showLoginDialog(context);
-                                      return;
-                                    }
-                                    bool result = await context
-                                        .read<CartProvider>()
-                                        .addToCartMainProduct(
-                                          product.id,
-                                          product.isCart,
-                                          context,
-                                        );
+                                : (product.isBuyable
+                                    ? () async {
+                                        final settingsProvider =
+                                            context.read<SettingsProvider>();
+                                        bool isAuth = await settingsProvider
+                                            .checkAccessTokenValidity(context);
+                                        if (!isAuth) {
+                                          _showLoginDialog(context);
+                                          return;
+                                        }
+                                        bool result = await context
+                                            .read<CartProvider>()
+                                            .addToCartMainProduct(
+                                              product.id,
+                                              product.isCart,
+                                              context,
+                                            );
 
-                                    if (result) {
-                                      provider.updateOfferCart(
-                                        product.isCart,
-                                        product.prodId,
-                                        context,
-                                      );
-                                    }
-                                  },
+                                        if (result) {
+                                          provider.updateOfferCart(
+                                            product.isCart,
+                                            product.prodId,
+                                            context,
+                                          );
+                                        }
+                                      }
+                                    : null),
                           ),
                         );
                       },
@@ -300,7 +314,7 @@ class _OfferProductListWidgetState extends State<OfferProductListWidget> {
             );
           },
         ),
-        bottomNavigationBar: widget.title != "OFFERS"
+        bottomNavigationBar: widget.title.toLowerCase() != "offers"
             ? Container(
                 decoration: BoxDecoration(
                   color: cWhiteColor,

@@ -22,7 +22,7 @@ class OrderSummaryProvider extends ChangeNotifier {
   bool _isLoading = false;
   String _error = '';
   int? _selectedAddressId;
-  String selectedDeliveryOption = 'Door Delivery';
+  String selectedDeliveryOption = 'DoorDelivery';
   bool isAddressSelected = false;
   OrderData? _orderData;
   // double totalAmount = 0.0;

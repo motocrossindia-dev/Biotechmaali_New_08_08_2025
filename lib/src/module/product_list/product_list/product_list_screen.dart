@@ -47,22 +47,32 @@ class _ProductListScreenState extends State<ProductListScreen> {
     super.initState();
     _scrollController.addListener(_scrollListener);
 
-    if (widget.isCategory) {
-      if (widget.title == "OFFERS") {
-        context.read<ProductListProdvider>().getOfferProductList(context);
+    // Reset provider state synchronously so the first build shows
+    // the shimmer instead of stale data from a previous category.
+    final provider = context.read<ProductListProdvider>();
+    if (widget.isCategory && widget.title.toLowerCase() == "offers") {
+      provider.resetForNewOfferLoad();
+    } else {
+      provider.resetForNewLoad();
+    }
+    _selectedOption = provider.currentSortOption;
+
+    // Defer the actual API call to after the first frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (widget.isCategory) {
+        if (widget.title.toLowerCase() == "offers") {
+          context.read<ProductListProdvider>().getOfferProductList(context);
+        } else {
+          context.read<ProductListProdvider>().getCategoryProductList(
+              categoryType: ProductListProdvider.toApiType(widget.id));
+        }
       } else {
         context
             .read<ProductListProdvider>()
-            .getCategoryProductList(categoryId: widget.id);
+            .getSubCategoryProductList(subCategoryId: widget.id);
       }
-    } else {
-      context
-          .read<ProductListProdvider>()
-          .getSubCategoryProductList(subCategoryId: widget.id);
-    }
-
-    // Set local _selectedOption to match provider's current sort option
-    _selectedOption = context.read<ProductListProdvider>().currentSortOption;
+    });
   }
 
   void _scrollListener() {
@@ -79,11 +89,12 @@ class _ProductListScreenState extends State<ProductListScreen> {
         final provider = context.read<ProductListProdvider>();
         if (!provider.isLoadingMore && provider.hasMoreData) {
           if (widget.isCategory) {
-            if (widget.title == "OFFERS") {
+            if (widget.title.toLowerCase() == "offers") {
               provider.getOfferProductList(context, loadMore: true);
             } else {
               provider.getCategoryProductList(
-                  categoryId: widget.id, loadMore: true);
+                  categoryType: ProductListProdvider.toApiType(widget.id),
+                  loadMore: true);
             }
           } else {
             provider.getSubCategoryProductList(
@@ -146,10 +157,12 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     'We couldn\'t find any products in this category.\nPlease check back later or explore other categories.',
                 onRetry: () {
                   if (widget.isCategory) {
-                    if (widget.title == "OFFERS") {
+                    if (widget.title.toLowerCase() == "offers") {
                       provider.getOfferProductList(context);
                     } else {
-                      provider.getCategoryProductList(categoryId: widget.id);
+                      provider.getCategoryProductList(
+                          categoryType:
+                              ProductListProdvider.toApiType(widget.id));
                     }
                   } else {
                     provider.getSubCategoryProductList(
@@ -163,7 +176,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
             return CustomScrollView(
               controller: _scrollController,
               slivers: [
-                widget.title == "OFFERS"
+                widget.title.toLowerCase() == "offers"
                     ? const SliverToBoxAdapter(
                         child: SizedBox(height: 10),
                       )
@@ -200,7 +213,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                             );
                           },
                           child: ProductTileWidget(
-                            isOffer: widget.title == "OFFERS" ? true : false,
+                            isOffer: widget.title.toLowerCase() == "offers",
                             mainProdId: product.id,
                             productTitle: product.name,
                             productImage: product.image,
@@ -239,6 +252,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                 return;
                               }
                             },
+                            // Disable add to cart when product not buyable
                             addToCartEvent: product.isCart
                                 ? () {
                                     Navigator.push(
@@ -258,31 +272,33 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                       ),
                                     );
                                   }
-                                : () async {
-                                    final settingsProvider =
-                                        context.read<SettingsProvider>();
-                                    bool isAuth = await settingsProvider
-                                        .checkAccessTokenValidity(context);
-                                    if (!isAuth) {
-                                      _showLoginDialog(context);
-                                      return;
-                                    }
-                                    bool result = await context
-                                        .read<CartProvider>()
-                                        .addToCart(
-                                          product.prodId,
-                                          1,
-                                          context,
-                                        );
+                                : (product.isBuyable
+                                    ? () async {
+                                        final settingsProvider =
+                                            context.read<SettingsProvider>();
+                                        bool isAuth = await settingsProvider
+                                            .checkAccessTokenValidity(context);
+                                        if (!isAuth) {
+                                          _showLoginDialog(context);
+                                          return;
+                                        }
+                                        bool result = await context
+                                            .read<CartProvider>()
+                                            .addToCart(
+                                              product.prodId,
+                                              1,
+                                              context,
+                                            );
 
-                                    if (result) {
-                                      provider.updateCart(
-                                        product.isCart,
-                                        product.prodId,
-                                        context,
-                                      );
-                                    }
-                                  },
+                                        if (result) {
+                                          provider.updateCart(
+                                            product.isCart,
+                                            product.prodId,
+                                            context,
+                                          );
+                                        }
+                                      }
+                                    : null),
                           ),
                         );
                       },
@@ -311,7 +327,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
             );
           },
         ),
-        bottomNavigationBar: widget.title != "OFFERS"
+        bottomNavigationBar: widget.title.toLowerCase() != "offers"
             ? Container(
                 decoration: BoxDecoration(
                   color: cWhiteColor,

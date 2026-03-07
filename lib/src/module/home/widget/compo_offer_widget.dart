@@ -79,7 +79,8 @@ class CompoOfferWidget extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => const ProductCompoListScreen(
-                            title: "", products: []),
+                          title: 'Combo Offers',
+                        ),
                       ),
                     );
                   },

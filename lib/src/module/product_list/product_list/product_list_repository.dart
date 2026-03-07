@@ -6,15 +6,18 @@ import 'package:biotech_maali/src/module/product_list/product_list/model/product
 class ProductListRepository {
   Dio dio = Dio();
 
-  Future<ProductListModel> getCotegoryProductList(String id,
+  Future<ProductListModel> getCotegoryProductList(String categoryType,
       {String? nextPageUrl}) async {
-    log("id : $id");
+    log("categoryType : $categoryType");
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
 
     try {
       Response? response;
-      String url = nextPageUrl ?? "${EndUrl.categoryProductUrl}$id";
+      // Use the new filters API with ?type=<singular_type>
+      // For pagination, use the next URL directly from the response
+      String url = nextPageUrl ??
+          "${EndUrl.categoryFilterProductUrl}?type=$categoryType";
 
       if (token != null) {
         response = await dio.get(
@@ -53,8 +56,6 @@ class ProductListRepository {
 
   Future<ProductListModel> getSubCotegoryProductList(String id,
       {String? nextPageUrl}) async {
-
-        
     log("id : $id");
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');

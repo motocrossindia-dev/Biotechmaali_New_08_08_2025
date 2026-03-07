@@ -85,8 +85,11 @@ class Product {
   final double sellingPrice;
   bool isCart;
   bool isWishlist;
+  final bool inStock;
+  final String stockWord;
   final List<ProductImage> images;
   final String shortDescription;
+  final String description;
   final String mainProductName;
   final int? sizeId;
   final int? planterSizeId;
@@ -97,6 +100,13 @@ class Product {
   final String? whatsIncluded;
   final String? videoLink;
   final bool isPurchased;
+  final String slug;
+  final String? categorySlug;
+  final String? subCategorySlug;
+  final String? metaTitle;
+  final String? metaDescription;
+  final String? metaKeywords;
+  final String? keywords;
 
   Product({
     required this.id,
@@ -106,6 +116,7 @@ class Product {
     required this.isWishlist,
     required this.images,
     required this.shortDescription,
+    required this.description,
     required this.mainProductName,
     this.sizeId,
     this.planterSizeId,
@@ -116,6 +127,15 @@ class Product {
     this.whatsIncluded,
     this.videoLink,
     required this.isPurchased,
+    required this.inStock,
+    required this.stockWord,
+    required this.slug,
+    this.categorySlug,
+    this.subCategorySlug,
+    this.metaTitle,
+    this.metaDescription,
+    this.metaKeywords,
+    this.keywords,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -125,10 +145,17 @@ class Product {
       sellingPrice: _parseDouble(json['selling_price']),
       isCart: json['is_cart'] ?? false,
       isWishlist: json['is_wishlist'] ?? false,
+      // If the API omits stock fields, treat product as available by default
+      inStock:
+          json.containsKey('in_stock') ? (json['in_stock'] ?? false) : true,
+      stockWord: json.containsKey('stock_word')
+          ? (json['stock_word']?.toString() ?? '')
+          : 'InStock',
       images: (json['images'] as List? ?? [])
           .map((e) => ProductImage.fromJson(e))
           .toList(),
       shortDescription: json['short_description'] ?? '',
+      description: json['description'] ?? '',
       mainProductName: json['main_product_name'] ?? '',
       sizeId: _parseNullableId(json['size_id']),
       planterSizeId: _parseNullableId(json['planter_size_id']),
@@ -139,6 +166,13 @@ class Product {
       whatsIncluded: json['whats_included'],
       videoLink: json['vedio_link'], // API uses 'vedio_link'
       isPurchased: json['is_purchased'] ?? false,
+      slug: json['slug'] ?? '',
+      categorySlug: json['category_slug'],
+      subCategorySlug: json['sub_category_slug'],
+      metaTitle: json['meta_title'],
+      metaDescription: json['meta_description'],
+      metaKeywords: json['meta_keywords'],
+      keywords: json['keywords'],
     );
   }
 
@@ -162,6 +196,16 @@ class Product {
       whatsIncluded: whatsIncluded,
       videoLink: videoLink,
       isPurchased: isPurchased,
+      inStock: inStock,
+      stockWord: stockWord,
+      description: description,
+      slug: slug,
+      categorySlug: categorySlug,
+      subCategorySlug: subCategorySlug,
+      metaTitle: metaTitle,
+      metaDescription: metaDescription,
+      metaKeywords: metaKeywords,
+      keywords: keywords,
     );
   }
 
@@ -185,7 +229,22 @@ class Product {
       whatsIncluded: whatsIncluded,
       videoLink: videoLink,
       isPurchased: isPurchased,
+      inStock: inStock,
+      stockWord: stockWord,
+      description: description,
+      slug: slug,
+      categorySlug: categorySlug,
+      subCategorySlug: subCategorySlug,
+      metaTitle: metaTitle,
+      metaDescription: metaDescription,
+      metaKeywords: metaKeywords,
+      keywords: keywords,
     );
+  }
+
+  // Helper: whether product is buyable based on stock_word (case-insensitive)
+  bool get isBuyable {
+    return stockWord.trim().toLowerCase() == 'instock' || inStock == true;
   }
 
   static int _parseId(dynamic value) {

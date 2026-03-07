@@ -7,6 +7,8 @@ class HomeProductModel {
   final bool isTrending;
   bool isCart;
   bool isWishlist;
+  final bool inStock;
+  final String stockWord;
   final ProductRating productRating;
   final String? image;
   final double? sellingPrice;
@@ -22,6 +24,8 @@ class HomeProductModel {
     required this.isTrending,
     required this.isCart,
     required this.isWishlist,
+    required this.inStock,
+    required this.stockWord,
     required this.productRating,
     this.image,
     this.sellingPrice,
@@ -45,6 +49,11 @@ class HomeProductModel {
       isTrending: json['is_trending'] ?? false,
       isCart: json['is_cart'] ?? false,
       isWishlist: json['is_wishlist'] ?? false,
+      inStock:
+          json.containsKey('in_stock') ? (json['in_stock'] ?? false) : true,
+      stockWord: json.containsKey('stock_word')
+          ? (json['stock_word']?.toString() ?? '')
+          : 'InStock',
       productRating: ProductRating.fromJson(json['product_rating'] ?? {}),
       image: json['image'],
       sellingPrice: json['selling_price']?.toDouble(),
@@ -62,12 +71,18 @@ class HomeProductModel {
         'is_trending': isTrending,
         'is_cart': isCart,
         'is_wishlist': isWishlist,
+        'in_stock': inStock,
+        'stock_word': stockWord,
         'product_rating': productRating.toJson(),
         'image': image,
         'selling_price': sellingPrice,
         'mrp': mrp,
         'ribbon': ribbon, // Added ribbon to JSON
       };
+
+  bool get isBuyable {
+    return stockWord.trim().toLowerCase() == 'instock' || inStock == true;
+  }
 }
 
 class ProductRating {

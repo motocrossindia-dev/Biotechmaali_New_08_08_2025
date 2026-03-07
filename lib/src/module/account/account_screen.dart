@@ -869,6 +869,9 @@ class _AccountScreenState extends State<AccountScreen> {
 
 // Replace the existing onPressed handler with this:
 void bottmomSheetLogout(BuildContext context) {
+  // Capture the parent/screen context BEFORE opening the bottom sheet
+  final parentContext = context;
+
   showModalBottomSheet(
     context: context,
     shape: const RoundedRectangleBorder(
@@ -876,7 +879,7 @@ void bottmomSheetLogout(BuildContext context) {
         top: Radius.circular(20),
       ),
     ),
-    builder: (BuildContext context) {
+    builder: (BuildContext sheetContext) {
       return Container(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -900,7 +903,7 @@ void bottmomSheetLogout(BuildContext context) {
               children: [
                 TextButton(
                   onPressed: () {
-                    Navigator.pop(context); // Close bottom sheet
+                    Navigator.pop(sheetContext); // Close bottom sheet
                   },
                   child: const Text(
                     'No',
@@ -912,11 +915,15 @@ void bottmomSheetLogout(BuildContext context) {
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    Navigator.pop(context); // Close bottom sheet
+                    // Close the bottom sheet first using its own context
+                    Navigator.pop(sheetContext);
+
+                    // Use parentContext for everything after the sheet is closed
+                    if (!parentContext.mounted) return;
 
                     // Show loading indicator
                     showDialog(
-                      context: context,
+                      context: parentContext,
                       barrierDismissible: false,
                       builder: (context) => const Center(
                         child: CircularProgressIndicator(),
@@ -930,24 +937,29 @@ void bottmomSheetLogout(BuildContext context) {
                     await DataManager.clearCacheDirectory();
 
                     // Hide loading indicator
-                    Navigator.pop(context);
+                    if (!parentContext.mounted) return;
+                    Navigator.pop(parentContext);
 
                     if (dataCleared) {
+                      if (!parentContext.mounted) return;
+
                       // Reset bottom navigation
-                      final navProvider = context.read<BottomNavProvider>();
+                      final navProvider =
+                          parentContext.read<BottomNavProvider>();
                       navProvider.updateIndex(0);
 
                       // Navigate to login screen
                       Navigator.pushAndRemoveUntil(
-                        context,
+                        parentContext,
                         MaterialPageRoute(
                           builder: (context) => const MobileNumberScreen(),
                         ),
                         (route) => false,
                       );
                     } else {
+                      if (!parentContext.mounted) return;
                       // Show error if data clearing failed
-                      ScaffoldMessenger.of(context).showSnackBar(
+                      ScaffoldMessenger.of(parentContext).showSnackBar(
                         const SnackBar(
                           content:
                               Text('Error during logout. Please try again.'),

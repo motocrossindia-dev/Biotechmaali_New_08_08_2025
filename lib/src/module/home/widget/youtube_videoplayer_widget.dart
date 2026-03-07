@@ -14,6 +14,7 @@ class _YoutubeVideoplayerWidgetState extends State<YoutubeVideoplayerWidget>
   late YoutubePlayerController _controller;
   bool _isInitialized = false;
   bool _isBuffering = false;
+  bool _isDisposed = false;
   String? _videoId;
 
   @override
@@ -53,12 +54,11 @@ class _YoutubeVideoplayerWidgetState extends State<YoutubeVideoplayerWidget>
           useHybridComposition: true,
         ),
       )..addListener(() {
-          if (mounted) {
-            final playerState = _controller.value.playerState;
-            setState(() {
-              _isBuffering = playerState == PlayerState.buffering;
-            });
-          }
+          if (!mounted || _isDisposed) return;
+          final playerState = _controller.value.playerState;
+          setState(() {
+            _isBuffering = playerState == PlayerState.buffering;
+          });
         });
 
       _isInitialized = true;
@@ -67,45 +67,72 @@ class _YoutubeVideoplayerWidgetState extends State<YoutubeVideoplayerWidget>
 
   @override
   void dispose() {
+    _isDisposed = true;
     WidgetsBinding.instance.removeObserver(this);
-    _controller.dispose();
+    if (_isInitialized) {
+      try {
+        _controller.pause();
+      } catch (_) {
+        // Controller may already be disposed by the platform view
+      }
+      try {
+        _controller.dispose();
+      } catch (_) {
+        // Ignore if already disposed
+      }
+    }
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (_isDisposed || !mounted) return;
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.inactive) {
-      if (_isInitialized && _controller.value.isPlaying) {
-        _controller.pause();
+      if (_isInitialized) {
+        try {
+          if (_controller.value.isPlaying) {
+            _controller.pause();
+          }
+        } catch (_) {
+          // Controller may already be disposed
+        }
       }
     }
   }
 
   bool _isWidgetVisible() {
-    if (!_isInitialized) return false;
+    if (!_isInitialized || _isDisposed || !mounted) return false;
 
-    final RenderBox? renderBox = context.findRenderObject() as RenderBox?;
-    if (renderBox == null || !renderBox.attached) return false;
+    try {
+      final RenderBox? renderBox = context.findRenderObject() as RenderBox?;
+      if (renderBox == null || !renderBox.attached) return false;
 
-    final position = renderBox.localToGlobal(Offset.zero);
-    final size = renderBox.size;
-    final screenHeight = MediaQuery.of(context).size.height;
+      final position = renderBox.localToGlobal(Offset.zero);
+      final size = renderBox.size;
+      final screenHeight = MediaQuery.of(context).size.height;
 
-    final visibleHeight = size.height;
-    final topVisible = position.dy + visibleHeight > 0;
-    final bottomVisible = position.dy < screenHeight;
+      final visibleHeight = size.height;
+      final topVisible = position.dy + visibleHeight > 0;
+      final bottomVisible = position.dy < screenHeight;
 
-    return topVisible &&
-        bottomVisible &&
-        (position.dy > -visibleHeight * 0.5 &&
-            position.dy < screenHeight - visibleHeight * 0.5);
+      return topVisible &&
+          bottomVisible &&
+          (position.dy > -visibleHeight * 0.5 &&
+              position.dy < screenHeight - visibleHeight * 0.5);
+    } catch (_) {
+      // Element may be inactive/disposed during navigation
+      return false;
+    }
   }
 
   // Open fullscreen video in portrait mode
   void _openFullscreenVideo() {
+    if (_isDisposed || !mounted || !_isInitialized) return;
     // Pause current video
-    _controller.pause();
+    try {
+      _controller.pause();
+    } catch (_) {}
 
     // Open fullscreen dialog
     Navigator.of(context).push(
@@ -120,12 +147,20 @@ class _YoutubeVideoplayerWidgetState extends State<YoutubeVideoplayerWidget>
     return NotificationListener<ScrollNotification>(
       onNotification: (scrollNotification) {
         if (scrollNotification is ScrollUpdateNotification) {
-          if (_isInitialized && _controller.value.isPlaying) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted && !_isWidgetVisible()) {
-                _controller.pause();
+          if (_isInitialized && !_isDisposed && mounted) {
+            try {
+              if (_controller.value.isPlaying) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted && !_isDisposed && !_isWidgetVisible()) {
+                    try {
+                      _controller.pause();
+                    } catch (_) {}
+                  }
+                });
               }
-            });
+            } catch (_) {
+              // Controller may be disposed
+            }
           }
         }
         return false;

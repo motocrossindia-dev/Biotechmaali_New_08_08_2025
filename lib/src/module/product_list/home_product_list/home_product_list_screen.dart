@@ -166,20 +166,9 @@ class _HomeProductListScreenState extends State<HomeProductListScreen> {
                                     context,
                                   );
                                 },
+                                // Disable add to cart when product not buyable
                                 addToCartEvent: productDetails.isCart
                                     ? () {
-                                        // context
-                                        //     .read<BottomNavProvider>()
-                                        //     .updateIndex(2);
-                                        // Navigator.pushAndRemoveUntil(
-                                        //   context,
-                                        //   MaterialPageRoute(
-                                        //     builder: (context) =>
-                                        //         BottomNavWidget(),
-                                        //   ),
-                                        //   (route) => false,
-                                        // );
-
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -193,24 +182,27 @@ class _HomeProductListScreenState extends State<HomeProductListScreen> {
                                           ),
                                         );
                                       }
-                                    : () async {
-                                        final settingsProvider =
-                                            context.read<SettingsProvider>();
-                                        bool isAuth = await settingsProvider
-                                            .checkAccessTokenValidity(context);
+                                    : (productDetails.isBuyable
+                                        ? () async {
+                                            final settingsProvider = context
+                                                .read<SettingsProvider>();
+                                            bool isAuth = await settingsProvider
+                                                .checkAccessTokenValidity(
+                                                    context);
 
-                                        if (!isAuth) {
-                                          _showLoginDialog(context);
-                                          return;
-                                        }
-                                        context
-                                            .read<HomeProvider>()
-                                            .addToCartMainProduct(
-                                              productDetails.id,
-                                              productDetails.isCart,
-                                              context,
-                                            );
-                                      },
+                                            if (!isAuth) {
+                                              _showLoginDialog(context);
+                                              return;
+                                            }
+                                            context
+                                                .read<HomeProvider>()
+                                                .addToCartMainProduct(
+                                                  productDetails.id,
+                                                  productDetails.isCart,
+                                                  context,
+                                                );
+                                          }
+                                        : null),
                               ),
                             );
                           },

@@ -428,6 +428,35 @@ class ProductTileWidget extends StatelessWidget {
                         rating: rating ?? 0,
                       ),
                     ),
+                    // Out of stock badge (top-left) when addToCartEvent is null
+                    if (home && addToCartEvent == null)
+                      Positioned(
+                        top: 6,
+                        left: 6,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade700,
+                            borderRadius: BorderRadius.circular(6),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.15),
+                                blurRadius: 4,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            'Out of stock',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: isTablet ? 12 : 10,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
 
                     Flexible(
                       child: SizedBox(

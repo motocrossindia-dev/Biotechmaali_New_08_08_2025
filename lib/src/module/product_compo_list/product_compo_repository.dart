@@ -24,18 +24,21 @@ class ProductCompoRepository {
     }
   }
 
-  Future<OrderResponseModel> buyComboProduct(int productId) async {
+  Future<OrderResponseModel> buyComboProduct(int comboId) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString("access_token");
 
-      if (token == null) throw Exception('Authentication token is missing');
+      if (token == null) throw Exception('Please login to continue');
+
+      log('Buying combo - comboId: $comboId');
 
       final response = await _dio.post(
         EndUrl.addSingleProductUrl,
         data: {
           'order_source': 'combo',
-          'combo_id': productId,
+          'combo_id': comboId,
+          'quantity': 1,
         },
         options: Options(
           headers: {
@@ -48,8 +51,10 @@ class ProductCompoRepository {
         ),
       );
 
-      if (response.statusCode == 200) {
-        log('Order response: ${response.data}');
+      log('Combo order response status: ${response.statusCode}');
+      log('Combo order response data: ${response.data}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
         return OrderResponseModel.fromJson(response.data);
       } else if (response.statusCode == 400) {
         final responseData = response.data;
@@ -58,16 +63,32 @@ class ProductCompoRepository {
         } else if (responseData['address_status'] == false) {
           throw AddressNotUpdatedException();
         }
-        throw Exception(responseData['message']);
+        // Extract error message from response
+        String errorMsg =
+            responseData['message'] ?? responseData['error'] ?? 'Order failed';
+        throw Exception(errorMsg);
+      } else if (response.statusCode == 401) {
+        throw Exception('Session expired. Please login again.');
+      } else if (response.statusCode == 404) {
+        throw Exception('Combo offer not found or no longer available.');
       }
 
-      throw Exception('Failed to place order');
+      throw Exception('Failed to place order. Please try again.');
+    } on DioException catch (e) {
+      log("Dio error placing combo order: ${e.toString()}");
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        throw Exception('Connection timeout. Please check your internet.');
+      } else if (e.type == DioExceptionType.connectionError) {
+        throw Exception('No internet connection.');
+      }
+      throw Exception('Network error. Please try again.');
     } catch (e) {
-      log("Place order error: ${e.toString()}");
+      log("Error placing combo order: ${e.toString()}");
       if (e is ProfileNotUpdatedException || e is AddressNotUpdatedException) {
         rethrow;
       }
-      throw Exception('Failed to place order: $e');
+      rethrow;
     }
   }
 }

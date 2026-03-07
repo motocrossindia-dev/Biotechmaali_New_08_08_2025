@@ -1,7 +1,6 @@
 import 'package:biotech_maali/core/config/config.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:timeline_tile/timeline_tile.dart';
 
 class DeliveryTrackingWidget extends StatefulWidget {
   final List<TrackingUpdate> trackingUpdates;
@@ -18,27 +17,29 @@ class DeliveryTrackingWidget extends StatefulWidget {
 class _DeliveryTrackingWidgetState extends State<DeliveryTrackingWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
-  late Animation<double> _lineAnimation;
-  late Animation<double> _contentAnimation;
+  late Animation<double> _animation;
+
+  // Define all possible statuses in correct order with their API keys
+  static const List<Map<String, String>> allStatusDefinitions = [
+    {'key': 'PROCESSING', 'label': 'Processing'},
+    {'key': 'ORDER_CONFIRMED', 'label': 'Order Confirmed'},
+    {'key': 'DISPATCHED', 'label': 'Dispatched'},
+    {'key': 'ON_THE_WAY', 'label': 'On the Way'},
+    {'key': 'OUT_FOR_DELIVERY', 'label': 'Out for Delivery'},
+    {'key': 'DELIVERED', 'label': 'Delivered'},
+  ];
 
   @override
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: const Duration(seconds: 2),
+      duration: const Duration(milliseconds: 800),
       vsync: this,
     );
 
-    // Animation for the line progression
-    _lineAnimation = CurvedAnimation(
+    _animation = CurvedAnimation(
       parent: _animationController,
-      curve: const Interval(0.0, 0.7, curve: Curves.easeInOut),
-    );
-
-    // Animation for the content fade-in
-    _contentAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.5, 1.0, curve: Curves.easeIn),
+      curve: Curves.easeInOut,
     );
 
     _animationController.forward();
@@ -58,37 +59,30 @@ class _DeliveryTrackingWidgetState extends State<DeliveryTrackingWidget>
     return DateFormat('E, dd MMM \'yy').format(timestamp);
   }
 
+  // Normalize status string for comparison
+  String _normalizeStatus(String status) {
+    return status.toUpperCase().replaceAll(' ', '_');
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Define all possible statuses in correct order
-    final List<String> allStatuses = [
-      'Processing',
-      'Order Confirmed',
-      'Dispatched',
-      'On the Way',
-      'Out for Delivery',
-      'Delivered',
-    ];
-
     // Sort tracking updates by timestamp
     final sortedUpdates = List<TrackingUpdate>.from(widget.trackingUpdates)
       ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
-    // Find the current status (most recent update)
-    String currentStatus = 'Processing'; // Default
-    if (sortedUpdates.isNotEmpty) {
-      currentStatus = sortedUpdates.last.status;
-    }
-
-    // Get a map of completed statuses with their timestamps
-    final Map<String, TrackingUpdate> statusMap = {};
+    // Create a map of completed statuses with their data
+    final Map<String, TrackingUpdate> completedStatusMap = {};
     for (var update in sortedUpdates) {
-      statusMap[update.status.toLowerCase()] = update;
+      completedStatusMap[_normalizeStatus(update.status)] = update;
     }
 
-    // Find the index of the current status
-    final currentStatusIndex = allStatuses
-        .indexWhere((s) => s.toLowerCase() == currentStatus.toLowerCase());
+    // Find the highest completed status index
+    int highestCompletedIndex = -1;
+    for (int i = 0; i < allStatusDefinitions.length; i++) {
+      if (completedStatusMap.containsKey(allStatusDefinitions[i]['key'])) {
+        highestCompletedIndex = i;
+      }
+    }
 
     return Material(
       type: MaterialType.transparency,
@@ -113,197 +107,47 @@ class _DeliveryTrackingWidgetState extends State<DeliveryTrackingWidget>
             children: [
               Padding(
                 padding: const EdgeInsets.only(bottom: 16, left: 8, top: 50),
-                child: Material(
-                  color: Colors.transparent,
-                  child: Text(
-                    'Order Tracking',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                          fontSize: 20,
-                        ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                child: Text(
+                  'Order Tracking',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                        fontSize: 20,
+                      ),
                 ),
               ),
               AnimatedBuilder(
-                animation: _animationController,
+                animation: _animation,
                 builder: (context, child) {
                   return ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: allStatuses.length,
+                    itemCount: allStatusDefinitions.length,
                     itemBuilder: (context, index) {
-                      final status = allStatuses[index];
-                      final statusLower = status.toLowerCase();
+                      final statusDef = allStatusDefinitions[index];
+                      final statusKey = statusDef['key']!;
+                      final statusLabel = statusDef['label']!;
 
                       // Check if this status is completed
-                      final isCompleted = statusMap.containsKey(statusLower);
+                      final isCompleted =
+                          completedStatusMap.containsKey(statusKey);
+                      final trackingUpdate = completedStatusMap[statusKey];
 
-                      // Get timestamp if available
-                      final timestamp = isCompleted
-                          ? statusMap[statusLower]!.timestamp
-                          : null;
-
-                      // Determine if this status is active or past
-                      final isActive = index <= currentStatusIndex;
-
-                      // Calculate animation progress for this step
-                      final stepProgress = (index + 1) / allStatuses.length;
-                      final isLineAnimated =
-                          _lineAnimation.value >= stepProgress;
-                      final isContentVisible =
-                          _contentAnimation.value >= stepProgress;
+                      // Determine if this status should be colored (completed or current)
+                      final isActive = index <= highestCompletedIndex;
 
                       final isFirst = index == 0;
-                      final isLast = index == allStatuses.length - 1;
+                      final isLast = index == allStatusDefinitions.length - 1;
 
-                      return TimelineTile(
-                        alignment: TimelineAlign.start,
+                      return _buildTimelineItem(
+                        context: context,
+                        statusLabel: statusLabel,
+                        isCompleted: isCompleted,
+                        isActive: isActive,
                         isFirst: isFirst,
                         isLast: isLast,
-                        indicatorStyle: IndicatorStyle(
-                          width: 28,
-                          height: 28,
-                          color: isCompleted
-                              ? cButtonGreen
-                              : isLineAnimated
-                                  ? Colors.grey.shade300
-                                  : cButtonGreen,
-                          indicatorXY: 0.5,
-                          iconStyle: IconStyle(
-                            color: Colors.white,
-                            iconData: _getStatusIcon(status),
-                            fontSize: 14,
-                          ),
-                        ),
-                        beforeLineStyle: LineStyle(
-                          color: isCompleted
-                              ? cButtonGreen
-                              : isLineAnimated
-                                  ? Colors.grey.shade300
-                                  : cButtonGreen,
-                          thickness: 3,
-                        ),
-                        afterLineStyle: LineStyle(
-                          color: index < currentStatusIndex
-                              ? cButtonGreen
-                              : isLineAnimated
-                                  ? Colors.grey.shade300
-                                  : cButtonGreen,
-                          thickness: 3,
-                        ),
-                        endChild: Opacity(
-                          opacity: isContentVisible ? 1.0 : 0.0,
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            transform: Matrix4.translationValues(
-                                isContentVisible ? 0 : 10, 0, 0),
-                            curve: Curves.easeOut,
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 16.0,
-                              horizontal: 16,
-                            ),
-                            child: Material(
-                              color: Colors.transparent,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Flexible(
-                                        child: Material(
-                                          color: Colors.transparent,
-                                          child: Text(
-                                            status,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                              color: isActive
-                                                  ? Colors.black
-                                                  : Colors.grey.shade500,
-                                            ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ),
-                                      if (timestamp != null) ...[
-                                        const SizedBox(width: 8),
-                                        Flexible(
-                                          child: Material(
-                                            color: Colors.transparent,
-                                            child: Text(
-                                              '${_formatDate(timestamp)} - ${_formatTimestamp(timestamp)}',
-                                              style: TextStyle(
-                                                fontSize: 13,
-                                                color: Colors.grey.shade500,
-                                                fontWeight: FontWeight.normal,
-                                              ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Material(
-                                    color: Colors.transparent,
-                                    child: Text(
-                                      _getStatusDescription(
-                                          status, isCompleted, timestamp),
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: isActive
-                                            ? Colors.grey.shade700
-                                            : Colors.grey.shade400,
-                                        fontWeight: FontWeight.normal,
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  if (status == 'Dispatched' && isCompleted)
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 6),
-                                      child: Material(
-                                        color: Colors.transparent,
-                                        child: Text(
-                                          "Tracking ID: ${widget.trackingUpdates[2].notes}",
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.grey.shade700,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ),
-                                  if (status == 'On the Way' && isCompleted)
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 6),
-                                      child: Material(
-                                        color: Colors.transparent,
-                                        child: Text(
-                                          "Your item has been received in the hub nearest to you",
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.grey.shade700,
-                                          ),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
+                        trackingUpdate: trackingUpdate,
+                        animationValue: _animation.value,
                       );
                     },
                   );
@@ -316,64 +160,188 @@ class _DeliveryTrackingWidgetState extends State<DeliveryTrackingWidget>
     );
   }
 
-  String _getStatusDescription(
-      String status, bool isCompleted, DateTime? timestamp) {
-    final timeString =
-        timestamp != null ? ' at ${_formatTimestamp(timestamp)}' : '';
+  Widget _buildTimelineItem({
+    required BuildContext context,
+    required String statusLabel,
+    required bool isCompleted,
+    required bool isActive,
+    required bool isFirst,
+    required bool isLast,
+    TrackingUpdate? trackingUpdate,
+    required double animationValue,
+  }) {
+    final bulletColor = isActive ? cButtonGreen : Colors.grey.shade300;
+    final lineColor = isActive ? cButtonGreen : Colors.grey.shade300;
 
+    return Opacity(
+      opacity: animationValue,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Timeline column with bullet and line
+            SizedBox(
+              width: 40,
+              child: Column(
+                children: [
+                  // Top line (not for first item)
+                  if (!isFirst)
+                    Container(
+                      width: 3,
+                      height: 8,
+                      color: lineColor,
+                    ),
+                  // Bullet point
+                  Container(
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: bulletColor,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isActive ? cButtonGreen : Colors.grey.shade400,
+                        width: 2,
+                      ),
+                    ),
+                    child: isCompleted
+                        ? const Icon(
+                            Icons.check,
+                            size: 10,
+                            color: Colors.white,
+                          )
+                        : null,
+                  ),
+                  // Bottom line (not for last item)
+                  if (!isLast)
+                    Expanded(
+                      child: Container(
+                        width: 3,
+                        color: lineColor,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            // Content
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 8, bottom: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Status title and timestamp
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            statusLabel,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: isActive
+                                  ? Colors.black87
+                                  : Colors.grey.shade500,
+                            ),
+                          ),
+                        ),
+                        if (trackingUpdate != null)
+                          Text(
+                            _formatTimestamp(trackingUpdate.timestamp),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    // Date
+                    if (trackingUpdate != null)
+                      Text(
+                        _formatDate(trackingUpdate.timestamp),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    const SizedBox(height: 4),
+                    // Description
+                    Text(
+                      _getStatusDescription(statusLabel, isCompleted),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: isActive
+                            ? Colors.grey.shade700
+                            : Colors.grey.shade400,
+                      ),
+                    ),
+                    // Notes if available
+                    if (trackingUpdate?.notes != null &&
+                        trackingUpdate!.notes!.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: cButtonGreen.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            trackingUpdate.notes!,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: cButtonGreen,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _getStatusDescription(String status, bool isCompleted) {
     if (isCompleted) {
       switch (status.toLowerCase()) {
-        case 'order confirmed':
-          return 'Your order has been placed successfully$timeString.';
         case 'processing':
-          return 'Seller has processed your order$timeString.';
+          return 'Your order is being processed.';
+        case 'order confirmed':
+          return 'Your order has been confirmed successfully.';
         case 'dispatched':
-          return 'Your item has been shipped with tracking$timeString.';
+          return 'Your order has been shipped.';
         case 'on the way':
-          return 'Your item is in transit to your location$timeString.';
+          return 'Your order is in transit to your location.';
         case 'out for delivery':
-          return 'Courier partner is delivering your item$timeString.';
+          return 'Your order is out for delivery.';
         case 'delivered':
-          return 'Your item has been successfully delivered$timeString.';
+          return 'Your order has been delivered successfully.';
         default:
-          return 'Status update$timeString.';
+          return 'Status updated.';
       }
     } else {
       switch (status.toLowerCase()) {
-        case 'order confirmed':
-          return 'Waiting for order confirmation.';
         case 'processing':
-          return 'Seller is preparing your order.';
+          return 'Waiting for processing.';
+        case 'order confirmed':
+          return 'Waiting for confirmation.';
         case 'dispatched':
-          return 'Item will be shipped soon.';
+          return 'Waiting to be shipped.';
         case 'on the way':
-          return 'Item will be in transit shortly.';
+          return 'Waiting for transit.';
         case 'out for delivery':
-          return 'Item will be delivered soon.';
+          return 'Waiting for delivery.';
         case 'delivered':
-          return 'Item delivery pending.';
+          return 'Pending delivery.';
         default:
           return 'Status pending.';
       }
-    }
-  }
-
-  IconData _getStatusIcon(String status) {
-    switch (status.toLowerCase()) {
-      case 'delivered':
-        return Icons.check;
-      case 'out for delivery':
-        return Icons.local_shipping;
-      case 'on the way':
-        return Icons.directions_bus_filled;
-      case 'dispatched':
-        return Icons.airplanemode_active;
-      case 'order confirmed':
-        return Icons.assignment_turned_in;
-      case 'processing':
-        return Icons.inventory_2;
-      default:
-        return Icons.info;
     }
   }
 }
@@ -395,36 +363,37 @@ class OrderTrackingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Sample data matching API format
     final List<TrackingUpdate> multipleUpdates = [
       TrackingUpdate(
-        status: 'Processing',
-        timestamp: DateTime.parse('2025-03-24T13:06:17.552955Z'),
+        status: 'PROCESSING',
+        timestamp: DateTime.parse('2026-02-26T17:39:16Z'),
         notes: null,
       ),
       TrackingUpdate(
-        status: 'Order Confirmed',
-        timestamp: DateTime.parse('2025-03-24T13:10:37.862257Z'),
-        notes: '',
+        status: 'ORDER_CONFIRMED',
+        timestamp: DateTime.parse('2026-02-26T18:00:29Z'),
+        notes: 'Payment verified and order confirmed by admin.',
       ),
       TrackingUpdate(
-        status: 'Dispatched',
-        timestamp: DateTime.parse('2025-03-24T13:10:58.971833Z'),
-        notes: 'SF1291398191F',
+        status: 'DISPATCHED',
+        timestamp: DateTime.parse('2026-02-26T18:04:42Z'),
+        notes: 'Payment verified and order confirmed by admin.',
       ),
       TrackingUpdate(
-        status: 'On the Way',
-        timestamp: DateTime.parse('2025-03-24T13:11:21.485856Z'),
-        notes: '',
+        status: 'ON_THE_WAY',
+        timestamp: DateTime.parse('2026-02-26T18:05:46Z'),
+        notes: 'Payment verified and order confirmed by admin.',
       ),
       TrackingUpdate(
-        status: 'Out for Delivery',
-        timestamp: DateTime.parse('2025-03-24T13:11:32.627123Z'),
-        notes: '',
+        status: 'OUT_FOR_DELIVERY',
+        timestamp: DateTime.parse('2026-02-26T18:06:46Z'),
+        notes: 'Payment verified and order confirmed by admin.',
       ),
       TrackingUpdate(
-        status: 'Delivered',
-        timestamp: DateTime.parse('2025-03-24T13:11:46.492016Z'),
-        notes: '',
+        status: 'DELIVERED',
+        timestamp: DateTime.parse('2026-02-26T18:07:47Z'),
+        notes: 'Payment verified and order confirmed by admin.',
       ),
     ];
 
@@ -436,44 +405,6 @@ class OrderTrackingPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {},
-          ),
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.shopping_cart),
-                onPressed: () {},
-              ),
-              Positioned(
-                right: 8,
-                top: 8,
-                child: Container(
-                  padding: const EdgeInsets.all(2),
-                  constraints: const BoxConstraints(
-                    minWidth: 16,
-                    minHeight: 16,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Text(
-                    '4',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

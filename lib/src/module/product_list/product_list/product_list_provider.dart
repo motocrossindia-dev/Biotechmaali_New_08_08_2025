@@ -21,11 +21,37 @@ class ProductListProdvider extends ChangeNotifier {
   bool _isLoadingMore = false;
   String? _nextPageUrl;
 
+  /// Generation counter: incremented on every fresh load so that stale
+  /// API responses from a previous category are silently discarded.
+  int _loadGeneration = 0;
+
   List<Product> get allProducts => _allProducts;
   bool get isLoading => _isLoading;
   String get currentSortOption => _currentSortOption;
   bool get isLoadingMore => _isLoadingMore;
   bool get hasMoreData => _nextPageUrl != null;
+
+  /// Call this synchronously in initState (before the post-frame callback)
+  /// so the very first build sees isLoading=true and empty lists.
+  /// Does NOT call notifyListeners() — safe to use during build phase.
+  void resetForNewLoad() {
+    _loadGeneration++;
+    _isLoading = true;
+    _nextPageUrl = null;
+    _allProducts = [];
+    _originalProducts = [];
+    _currentSortOption = 'Default';
+  }
+
+  /// Same as [resetForNewLoad] but for offer products.
+  void resetForNewOfferLoad() {
+    _loadGeneration++;
+    _isLoading = true;
+    _nextPageUrl = null;
+    _offerProducts = [];
+    _originalOfferProducts = [];
+    _currentSortOption = 'Default';
+  }
 
   Future<void> setFilteredProducts(List<Product> products) async {
     log("Setting filtered products: ${products.length}");
@@ -111,23 +137,46 @@ class ProductListProdvider extends ChangeNotifier {
     }
   }
 
+  /// Converts a category display name (e.g., "PLANTS", "POTS") to the
+  /// singular, lowercase type expected by the API (e.g., "plant", "pot").
+  static String toApiType(String categoryName) {
+    final t = categoryName.trim().toLowerCase();
+    if (t == 'pots' || t == 'pot') return 'pot';
+    if (t == 'plants' || t == 'plant') return 'plant';
+    if (t == 'seeds' || t == 'seed') return 'seed';
+    if (t == 'tools' || t == 'tool') return 'tool';
+    if (t == 'plant care' || t == 'plantcare') return 'plantcare';
+    if (t == 'offers' || t == 'offer') return 'offer';
+    return t;
+  }
+
   Future<void> getCategoryProductList(
-      {String? categoryId, bool loadMore = false}) async {
+      {String? categoryType, bool loadMore = false}) async {
     if (loadMore) {
       if (_isLoadingMore || !hasMoreData) return;
       _isLoadingMore = true;
       notifyListeners();
     } else {
+      _loadGeneration++;
       _isLoading = true;
       _nextPageUrl = null;
       _allProducts = [];
+      _originalProducts = [];
+      notifyListeners();
     }
+
+    // Capture the generation at the start of this request.
+    final int thisGeneration = _loadGeneration;
 
     try {
       final result = await productListRepository.getCotegoryProductList(
-        categoryId!,
+        categoryType!,
         nextPageUrl: loadMore ? _nextPageUrl : null,
       );
+
+      // If a newer load was triggered while we were waiting, discard this
+      // stale response so old products never flash on screen.
+      if (thisGeneration != _loadGeneration) return;
 
       if (loadMore) {
         _allProducts.addAll(result.products);
@@ -142,9 +191,11 @@ class ProductListProdvider extends ChangeNotifier {
     } catch (e) {
       log("error : ${e.toString()}");
     } finally {
-      _isLoading = false;
-      _isLoadingMore = false;
-      notifyListeners();
+      if (thisGeneration == _loadGeneration) {
+        _isLoading = false;
+        _isLoadingMore = false;
+        notifyListeners();
+      }
     }
   }
 
@@ -155,16 +206,23 @@ class ProductListProdvider extends ChangeNotifier {
       _isLoadingMore = true;
       notifyListeners();
     } else {
+      _loadGeneration++;
       _isLoading = true;
       _nextPageUrl = null;
       _allProducts = [];
+      _originalProducts = [];
+      notifyListeners();
     }
+
+    final int thisGeneration = _loadGeneration;
 
     try {
       final result = await productListRepository.getSubCotegoryProductList(
         subCategoryId!,
         nextPageUrl: loadMore ? _nextPageUrl : null,
       );
+
+      if (thisGeneration != _loadGeneration) return;
 
       if (loadMore) {
         _allProducts.addAll(result.products);
@@ -179,9 +237,11 @@ class ProductListProdvider extends ChangeNotifier {
     } catch (e) {
       log("error : ${e.toString()}");
     } finally {
-      _isLoading = false;
-      _isLoadingMore = false;
-      notifyListeners();
+      if (thisGeneration == _loadGeneration) {
+        _isLoading = false;
+        _isLoadingMore = false;
+        notifyListeners();
+      }
     }
   }
 
@@ -192,15 +252,22 @@ class ProductListProdvider extends ChangeNotifier {
       _isLoadingMore = true;
       notifyListeners();
     } else {
+      _loadGeneration++;
       _isLoading = true;
       _nextPageUrl = null;
-      // _allProducts = [];
+      _offerProducts = [];
+      _originalOfferProducts = [];
+      notifyListeners();
     }
+
+    final int thisGeneration = _loadGeneration;
 
     try {
       final result = await productListRepository.getOfferProducts(
         nextPageUrl: loadMore ? _nextPageUrl : null,
       );
+
+      if (thisGeneration != _loadGeneration) return;
 
       if (loadMore) {
         _offerProducts.addAll(result.products);
@@ -227,9 +294,11 @@ class ProductListProdvider extends ChangeNotifier {
         (route) => false,
       );
     } finally {
-      _isLoading = false;
-      _isLoadingMore = false;
-      notifyListeners();
+      if (thisGeneration == _loadGeneration) {
+        _isLoading = false;
+        _isLoadingMore = false;
+        notifyListeners();
+      }
     }
   }
 

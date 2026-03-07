@@ -46,6 +46,8 @@ class Product {
   final String name;
   bool isCart;
   bool isWishlist;
+  final bool inStock;
+  final String stockWord;
   final double mrp;
   final double sellingPrice;
   final String image;
@@ -58,6 +60,8 @@ class Product {
     required this.name,
     required this.isCart,
     required this.isWishlist,
+    required this.inStock,
+    required this.stockWord,
     required this.mrp,
     required this.sellingPrice,
     required this.image,
@@ -72,6 +76,13 @@ class Product {
       name: json['name']?.toString() ?? '',
       isCart: _parseBool(json['is_cart']),
       isWishlist: _parseBool(json['is_wishlist']),
+      // If backend doesn't provide stock fields, assume in-stock so UI
+      // doesn't disable actions incorrectly.
+      inStock:
+          json.containsKey('in_stock') ? (json['in_stock'] ?? false) : true,
+      stockWord: json.containsKey('stock_word')
+          ? (json['stock_word']?.toString() ?? '')
+          : 'InStock',
       mrp: _parseDouble(json['mrp']),
       sellingPrice: _parseDouble(json['selling_price']),
       image: json['image']?.toString() ?? '',
@@ -106,6 +117,10 @@ class Product {
     return false;
   }
 
+  bool get isBuyable {
+    return stockWord.trim().toLowerCase() == 'instock' || inStock == true;
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -113,6 +128,8 @@ class Product {
       'name': name,
       'is_cart': isCart,
       'is_wishlist': isWishlist,
+      'in_stock': inStock,
+      'stock_word': stockWord,
       'mrp': mrp,
       'selling_price': sellingPrice,
       'image': image,

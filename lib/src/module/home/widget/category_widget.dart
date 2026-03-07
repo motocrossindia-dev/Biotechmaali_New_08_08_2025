@@ -4,6 +4,7 @@ import 'package:biotech_maali/src/module/home/model/category_model.dart';
 import 'package:biotech_maali/src/module/product_list/product_list/product_list_screen.dart';
 import 'package:biotech_maali/src/module/product_list/product_list/widgets/offer_product_list_widget.dart';
 import 'package:biotech_maali/src/other_modules/services/services_screen.dart';
+import 'package:biotech_maali/src/widgets/coming_soon_screen.dart';
 import 'package:lottie/lottie.dart';
 
 import '../../../../import.dart';
@@ -90,15 +91,22 @@ class CategoryWidget extends StatelessWidget {
                           builder: (context) => const ServicesScreen(),
                         ),
                       );
-                    } else if (category.name == "GIFTS") {
-                      showComingSoonBottomSheet(context);
+                    } else if (category.name.toLowerCase() == 'gifts') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ComingSoonScreen(
+                            title: category.name,
+                          ),
+                        ),
+                      );
                     } else if (category.name.toLowerCase() == 'offers') {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => OfferProductListWidget(
                             isCategory: true,
-                            title: 'Offers',
+                            title: 'OFFERS',
                             id: category.id.toString(),
                           ),
                         ),
@@ -110,7 +118,7 @@ class CategoryWidget extends StatelessWidget {
                           builder: (context) => ProductListScreen(
                             isCategory: true,
                             title: category.name,
-                            id: category.id.toString(),
+                            id: category.name,
                           ),
                         ),
                       );

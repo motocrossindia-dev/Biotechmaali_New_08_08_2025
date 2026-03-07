@@ -4,6 +4,8 @@ class ProductSearchModel {
   final String name;
   bool isCart;
   bool isWishlist;
+  final bool inStock;
+  final String stockWord;
   final double mrp;
   final double sellingPrice;
   final String image;
@@ -16,6 +18,8 @@ class ProductSearchModel {
     required this.name,
     required this.isCart,
     required this.isWishlist,
+    required this.inStock,
+    required this.stockWord,
     required this.mrp,
     required this.sellingPrice,
     required this.image,
@@ -32,6 +36,11 @@ class ProductSearchModel {
       name: json['name'] ?? '',
       isCart: json['is_cart'] ?? false,
       isWishlist: json['is_wishlist'] ?? false,
+      inStock:
+          json.containsKey('in_stock') ? (json['in_stock'] ?? false) : true,
+      stockWord: json.containsKey('stock_word')
+          ? (json['stock_word']?.toString() ?? '')
+          : 'InStock',
       mrp: json['mrp'] is String
           ? double.parse(json['mrp'])
           : (json['mrp'] as num?)?.toDouble() ?? 0.0,
@@ -42,6 +51,10 @@ class ProductSearchModel {
       productRating: ProductRating.fromJson(json['product_rating'] ?? {}),
       ribbon: json['ribbon'],
     );
+  }
+
+  bool get isBuyable {
+    return stockWord.trim().toLowerCase() == 'instock' || inStock == true;
   }
 }
 
