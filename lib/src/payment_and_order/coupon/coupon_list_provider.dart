@@ -115,6 +115,38 @@ class CouponProvider extends ChangeNotifier {
     _isCouponApplied = false; // Reset flag when coupon is removed
     notifyListeners();
   }
+
+  Future<OrderData?> removeCouponFromOrder(String orderId) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final result = await _repository.removeCoupon(orderId: orderId);
+
+      if (result != null && result.success == true) {
+        _appliedCouponCode = null;
+        _discountAmount = 0;
+        _isCouponApplied = false;
+        _isLoading = false;
+        notifyListeners();
+        return result;
+      } else {
+        _isLoading = false;
+        notifyListeners();
+        return result;
+      }
+    } catch (e) {
+      log("Error removing coupon: $e");
+      _isLoading = false;
+      notifyListeners();
+      Fluttertoast.showToast(
+        msg: "Failed to remove coupon",
+        backgroundColor: cDarkerRed,
+        textColor: cWhiteColor,
+      );
+      return null;
+    }
+  }
 }
 
 void showErrorBottomSheet(BuildContext context, String errorMessage) {

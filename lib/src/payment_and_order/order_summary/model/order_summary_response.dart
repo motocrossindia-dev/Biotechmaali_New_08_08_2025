@@ -54,6 +54,11 @@ class OrderSummaryDetails {
   final String status;
   final String? razorpayOrderId;
   final double couponDiscount;
+  // Shipping fields (from order object when shipping_info is null)
+  final double shippingCharge;
+  final double shippingCgst;
+  final double shippingSgst;
+  final double shippingGst;
 
   OrderSummaryDetails({
     required this.id,
@@ -69,6 +74,10 @@ class OrderSummaryDetails {
     required this.status,
     this.razorpayOrderId,
     required this.couponDiscount,
+    this.shippingCharge = 0.0,
+    this.shippingCgst = 0.0,
+    this.shippingSgst = 0.0,
+    this.shippingGst = 0.0,
   });
 
   factory OrderSummaryDetails.fromJson(Map<String, dynamic> json) {
@@ -86,6 +95,10 @@ class OrderSummaryDetails {
       status: json['status'] ?? '',
       razorpayOrderId: json['razorpay_order_id'],
       couponDiscount: _parseDouble(json['coupon_discount']) ?? 0.0,
+      shippingCharge: _parseDouble(json['shipping_charge']) ?? 0.0,
+      shippingCgst: _parseDouble(json['shipping_cgst']) ?? 0.0,
+      shippingSgst: _parseDouble(json['shipping_sgst']) ?? 0.0,
+      shippingGst: _parseDouble(json['shipping_gst']) ?? 0.0,
     );
   }
 }
@@ -104,6 +117,13 @@ class OrderItem {
   final int productId;
   final String? comboOffer;
   final String productName;
+  // GST fields
+  final double gstAmount;
+  final double cgstAmount;
+  final double sgstAmount;
+  final double taxableAmount;
+  final double subtotal;
+  final double couponDiscountPerItem;
 
   OrderItem({
     required this.id,
@@ -119,6 +139,12 @@ class OrderItem {
     required this.productId,
     this.comboOffer,
     required this.productName,
+    this.gstAmount = 0.0,
+    this.cgstAmount = 0.0,
+    this.sgstAmount = 0.0,
+    this.taxableAmount = 0.0,
+    this.subtotal = 0.0,
+    this.couponDiscountPerItem = 0.0,
   });
 
   factory OrderItem.fromJson(Map<String, dynamic> json) {
@@ -136,6 +162,13 @@ class OrderItem {
       productId: json['product_id'] ?? 0,
       comboOffer: json['combo_offer']?.toString(),
       productName: json['product_name'] ?? '',
+      gstAmount: _parseDouble(json['total_gst_amount']) ?? 0.0,
+      cgstAmount: _parseDouble(json['cgst_amount']) ?? 0.0,
+      sgstAmount: _parseDouble(json['sgst_amount']) ?? 0.0,
+      taxableAmount: _parseDouble(json['taxable_value']) ?? 0.0,
+      subtotal: _parseDouble(json['subtotal']) ?? 0.0,
+      couponDiscountPerItem:
+          _parseDouble(json['coupon_discount_per_item']) ?? 0.0,
     );
   }
 }
@@ -147,6 +180,10 @@ class ShippingInfo {
   final double totalActualWeight;
   final double totalVolumetricWeight;
   final double chargeableWeight;
+  // Shipping GST fields
+  final double shippingCgst;
+  final double shippingSgst;
+  final double shippingGst;
 
   ShippingInfo({
     required this.totalAmount,
@@ -155,6 +192,9 @@ class ShippingInfo {
     required this.totalActualWeight,
     required this.totalVolumetricWeight,
     required this.chargeableWeight,
+    this.shippingCgst = 0.0,
+    this.shippingSgst = 0.0,
+    this.shippingGst = 0.0,
   });
 
   factory ShippingInfo.fromJson(Map<String, dynamic> json) {
@@ -166,6 +206,9 @@ class ShippingInfo {
       totalVolumetricWeight:
           _parseDouble(json['total_volumetric_weight']) ?? 0.0,
       chargeableWeight: _parseDouble(json['chargeable_weight']) ?? 0.0,
+      shippingCgst: _parseDouble(json['shipping_cgst']) ?? 0.0,
+      shippingSgst: _parseDouble(json['shipping_sgst']) ?? 0.0,
+      shippingGst: _parseDouble(json['shipping_gst']) ?? 0.0,
     );
   }
 }

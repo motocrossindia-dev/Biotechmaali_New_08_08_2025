@@ -88,12 +88,31 @@ class ChoosePaymentProvider extends ChangeNotifier {
   // }
 
   void checkPaymentMethod(
-      OrderSummaryResponse orderSummaryResponse, BuildContext context) {
+      OrderSummaryResponse orderSummaryResponse, BuildContext context,
+      {bool isPickUpStore = false}) {
     log("order summary response : ${orderSummaryResponse.data.order.grandTotal}");
     actualWalletBalance = context.read<WalletProvider>().balance;
     _orderSummaryResponse = orderSummaryResponse;
 
+    // Calculate the actual amount based on delivery option
     double totalAmount = orderSummaryResponse.data.order.grandTotal;
+
+    // If Pick Up Store, subtract shipping and shipping GST from total
+    if (isPickUpStore) {
+      final shippingInfo = orderSummaryResponse.data.shippingInfo;
+      final order = orderSummaryResponse.data.order;
+
+      // Get shipping values from shippingInfo or order object
+      final shippingCharge =
+          shippingInfo?.shippingCharge ?? order.shippingCharge;
+      final shippingCgst = shippingInfo?.shippingCgst ?? order.shippingCgst;
+      final shippingSgst = shippingInfo?.shippingSgst ?? order.shippingSgst;
+      final shippingGst = shippingCgst + shippingSgst;
+
+      totalAmount = totalAmount - shippingCharge - shippingGst;
+      log("Pick Up Store - Adjusted total: $totalAmount (subtracted shipping: $shippingCharge + GST: $shippingGst)");
+    }
+
     totalBillAmount = totalAmount;
 
     if (isWalletCheckbox) {
@@ -123,7 +142,9 @@ class ChoosePaymentProvider extends ChangeNotifier {
 
     _orderSummaryResponse = orderSummaryResponse;
 
-    double amoutToPay = orderSummaryResponse.data.order.grandTotal;
+    // Use totalBillAmount which is already adjusted for Pick Up Store in checkPaymentMethod
+    double amoutToPay = totalBillAmount;
+    log("Amount to pay (adjusted): $amoutToPay");
 
     try {
       _isLoading = true;
@@ -145,8 +166,8 @@ class ChoosePaymentProvider extends ChangeNotifier {
       orderId = response["order_id"];
 
       final options = {
-        "key": "rzp_test_y70g5dxx6kOQ7v",
-        // "key": "rzp_live_RH46LqJqM4UlmU",
+        // "key": "rzp_test_y70g5dxx6kOQ7v",
+        "key": "rzp_live_RH46LqJqM4UlmU",
 
         "amount": (amoutToPay * 100).toInt(),
         "name": "Biotech Maali",
@@ -217,10 +238,11 @@ class ChoosePaymentProvider extends ChangeNotifier {
       BuildContext context, OrderSummaryResponse orderSummaryResponse) async {
     log("Initiating partial wallet payment");
 
-    double totalAmount = orderSummaryResponse.data.order.grandTotal;
+    // Use totalBillAmount which is already adjusted for Pick Up Store
+    double totalAmount = totalBillAmount;
     double remainingAmount = totalAmount - actualWalletBalance!;
 
-    log("Total amount: $totalAmount");
+    log("Total amount (adjusted): $totalAmount");
     log("Wallet balance: $actualWalletBalance");
     log("Remaining amount: $remainingAmount");
 
@@ -247,8 +269,8 @@ class ChoosePaymentProvider extends ChangeNotifier {
         orderId = response["order_id"];
 
         final options = {
-          "key": "rzp_test_y70g5dxx6kOQ7v",
-          // "key": "rzp_live_RH46LqJqM4UlmU",
+          // "key": "rzp_test_y70g5dxx6kOQ7v",
+          "key": "rzp_live_RH46LqJqM4UlmU",
           "amount": (remainingAmount * 100).toInt(),
           "name": "Biotech Maali",
           "description":

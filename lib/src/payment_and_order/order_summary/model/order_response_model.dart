@@ -85,6 +85,33 @@ class OrderDetails {
   final int customerId;
   final dynamic appliedCoupon;
 
+  // GST breakdown fields - 0% GST
+  final double cgstAmount0;
+  final double sgstAmount0;
+  final double gstAmount0;
+
+  // GST breakdown fields - 5% GST
+  final double cgstAmount5;
+  final double sgstAmount5;
+  final double gstAmount5;
+
+  // GST breakdown fields - 18% GST
+  final double cgstAmount18;
+  final double sgstAmount18;
+  final double gstAmount18;
+
+  // Coupon details
+  final String? couponType;
+  final double couponValue;
+  final String? discountType;
+  final double discountValue;
+
+  // Shipping details (also available in order object after coupon apply)
+  final double shippingCharge;
+  final double shippingCgst;
+  final double shippingSgst;
+  final double shippingGst;
+
   OrderDetails({
     required this.id,
     required this.orderId,
@@ -105,6 +132,26 @@ class OrderDetails {
     required this.couponDiscount,
     required this.customerId,
     this.appliedCoupon,
+    // GST fields
+    this.cgstAmount0 = 0.0,
+    this.sgstAmount0 = 0.0,
+    this.gstAmount0 = 0.0,
+    this.cgstAmount5 = 0.0,
+    this.sgstAmount5 = 0.0,
+    this.gstAmount5 = 0.0,
+    this.cgstAmount18 = 0.0,
+    this.sgstAmount18 = 0.0,
+    this.gstAmount18 = 0.0,
+    // Coupon details
+    this.couponType,
+    this.couponValue = 0.0,
+    this.discountType,
+    this.discountValue = 0.0,
+    // Shipping details
+    this.shippingCharge = 0.0,
+    this.shippingCgst = 0.0,
+    this.shippingSgst = 0.0,
+    this.shippingGst = 0.0,
   });
 
   factory OrderDetails.fromJson(Map<String, dynamic> json) {
@@ -128,6 +175,28 @@ class OrderDetails {
       couponDiscount: _parseDouble(json['coupon_discount']) ?? 0.0,
       customerId: json['customer_id'] ?? 0,
       appliedCoupon: json['applied_coupon'],
+      // GST breakdown - 0%
+      cgstAmount0: _parseDouble(json['cgst_amount_0']) ?? 0.0,
+      sgstAmount0: _parseDouble(json['sgst_amount_0']) ?? 0.0,
+      gstAmount0: _parseDouble(json['gst_amount_0']) ?? 0.0,
+      // GST breakdown - 5%
+      cgstAmount5: _parseDouble(json['cgst_amount_5']) ?? 0.0,
+      sgstAmount5: _parseDouble(json['sgst_amount_5']) ?? 0.0,
+      gstAmount5: _parseDouble(json['gst_amount_5']) ?? 0.0,
+      // GST breakdown - 18%
+      cgstAmount18: _parseDouble(json['cgst_amount_18']) ?? 0.0,
+      sgstAmount18: _parseDouble(json['sgst_amount_18']) ?? 0.0,
+      gstAmount18: _parseDouble(json['gst_amount_18']) ?? 0.0,
+      // Coupon details
+      couponType: json['coupon_type'],
+      couponValue: _parseDouble(json['coupon_value']) ?? 0.0,
+      discountType: json['discount_type'],
+      discountValue: _parseDouble(json['discount_value']) ?? 0.0,
+      // Shipping details (available in order object after coupon apply)
+      shippingCharge: _parseDouble(json['shipping_charge']) ?? 0.0,
+      shippingCgst: _parseDouble(json['shipping_cgst']) ?? 0.0,
+      shippingSgst: _parseDouble(json['shipping_sgst']) ?? 0.0,
+      shippingGst: _parseDouble(json['shipping_gst']) ?? 0.0,
     );
   }
 }
@@ -147,6 +216,15 @@ class OrderItem {
   final String? comboOffer;
   final String productName;
 
+  // GST fields for product
+  final double gstPercentage;
+  final double cgstAmount;
+  final double sgstAmount;
+  final double gstAmount;
+  final double taxableAmount;
+  final double subtotal; // Final subtotal including GST
+  final double couponDiscountPerItem; // Coupon discount per item
+
   OrderItem({
     required this.id,
     required this.sku,
@@ -161,6 +239,13 @@ class OrderItem {
     required this.productId,
     this.comboOffer,
     required this.productName,
+    this.gstPercentage = 0.0,
+    this.cgstAmount = 0.0,
+    this.sgstAmount = 0.0,
+    this.gstAmount = 0.0,
+    this.taxableAmount = 0.0,
+    this.subtotal = 0.0,
+    this.couponDiscountPerItem = 0.0,
   });
 
   factory OrderItem.fromJson(Map<String, dynamic> json) {
@@ -178,6 +263,25 @@ class OrderItem {
       productId: json['product_id'] ?? 0,
       comboOffer: json['combo_offer']?.toString(),
       productName: json['product_name'] ?? '',
+      // GST fields
+      gstPercentage: _parseDouble(json['gst_percentage']) ??
+          _parseDouble(json['gst']) ??
+          0.0,
+      cgstAmount: _parseDouble(json['cgst_amount']) ??
+          _parseDouble(json['cgst']) ??
+          0.0,
+      sgstAmount: _parseDouble(json['sgst_amount']) ??
+          _parseDouble(json['sgst']) ??
+          0.0,
+      gstAmount: _parseDouble(json['gst_amount']) ??
+          _parseDouble(json['total_gst_amount']) ??
+          0.0,
+      taxableAmount: _parseDouble(json['taxable_amount']) ??
+          _parseDouble(json['taxable_value']) ??
+          0.0,
+      subtotal: _parseDouble(json['subtotal']) ?? 0.0,
+      couponDiscountPerItem:
+          _parseDouble(json['coupon_discount_per_item']) ?? 0.0,
     );
   }
 }
@@ -255,6 +359,14 @@ class ShippingInfo {
   final double totalVolumetricWeight;
   final double chargeableWeight;
 
+  // Shipping GST fields
+  final double shippingCgstValue;
+  final double shippingCgst;
+  final double shippingSgstValue;
+  final double shippingSgst;
+  final double shippingGst;
+  final double finalShipping;
+
   ShippingInfo({
     required this.totalAmount,
     required this.shippingCharge,
@@ -262,6 +374,12 @@ class ShippingInfo {
     required this.totalActualWeight,
     required this.totalVolumetricWeight,
     required this.chargeableWeight,
+    this.shippingCgstValue = 0.0,
+    this.shippingCgst = 0.0,
+    this.shippingSgstValue = 0.0,
+    this.shippingSgst = 0.0,
+    this.shippingGst = 0.0,
+    this.finalShipping = 0.0,
   });
 
   factory ShippingInfo.fromJson(Map<String, dynamic> json) {
@@ -273,6 +391,13 @@ class ShippingInfo {
       totalVolumetricWeight:
           _parseDouble(json['total_volumetric_weight']) ?? 0.0,
       chargeableWeight: _parseDouble(json['chargeable_weight']) ?? 0.0,
+      // Shipping GST
+      shippingCgstValue: _parseDouble(json['shipping_cgst_value']) ?? 0.0,
+      shippingCgst: _parseDouble(json['shipping_cgst']) ?? 0.0,
+      shippingSgstValue: _parseDouble(json['shipping_sgst_value']) ?? 0.0,
+      shippingSgst: _parseDouble(json['shipping_sgst']) ?? 0.0,
+      shippingGst: _parseDouble(json['shipping_gst']) ?? 0.0,
+      finalShipping: _parseDouble(json['final_shipping']) ?? 0.0,
     );
   }
 }

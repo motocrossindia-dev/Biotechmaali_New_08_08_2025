@@ -172,6 +172,22 @@ class _OrderHistoryDetailScreenState extends State<OrderHistoryDetailScreen> {
   }
 
   Widget _buildOrderSummaryContent() {
+    // Get order details from provider
+    final provider = context.read<OrderHistoryDetailProvider>();
+    final order = provider.orderDetails?.data.order;
+
+    // Calculate totals
+    final totalProductGst =
+        (order?.gstAmount5 ?? 0.0) + (order?.gstAmount18 ?? 0.0);
+    final shippingGst = order?.shippingGst ?? 0.0;
+    final hasProductGst = totalProductGst > 0;
+    final hasShippingGst = shippingGst > 0;
+    final isPickUpStore = order?.deliveryOption == 'Pick Up Store' ||
+        order?.deliveryOption == 'PickUpStore';
+    final displayShippingCharge =
+        isPickUpStore ? 0.0 : (order?.shippingCharge ?? 0.0);
+    final displayShippingGst = isPickUpStore ? 0.0 : shippingGst;
+
     return Column(
       children: [
         _buildInfoRow('Order Number', widget.orderNumber),
@@ -179,12 +195,180 @@ class _OrderHistoryDetailScreenState extends State<OrderHistoryDetailScreen> {
         _buildInfoRow('Payment Method', widget.paymentMethod ?? 'Not defined'),
         _buildInfoRow('Delivery Option', widget.deliveryOption),
         const Divider(height: 24),
-        _buildInfoRow('Total Price', '₹${widget.totalPrice.toInt()}'),
-        _buildInfoRow('Discount', '- ₹${widget.totalDiscount.toInt()}',
-            valueColor: Colors.green),
-        _buildInfoRow('Grand Total', '₹${widget.grandTotal.toInt()}',
+
+        // Price
+        _buildInfoRow(
+            'Price (${provider.orderDetails?.data.orderItems.length ?? 0} items)',
+            '₹${(order?.totalPrice ?? widget.totalPrice).toStringAsFixed(2)}'),
+
+        // Discount
+        if ((order?.totalDiscount ?? widget.totalDiscount) > 0)
+          _buildInfoRow('Discount',
+              '-₹${(order?.totalDiscount ?? widget.totalDiscount).toStringAsFixed(2)}',
+              valueColor: Colors.green),
+
+        // Delivery Charges
+        _buildInfoRow(
+          'Delivery Charges',
+          displayShippingCharge > 0
+              ? '₹${displayShippingCharge.toStringAsFixed(2)}'
+              : 'Free',
+          valueColor: displayShippingCharge == 0 ? Colors.green : null,
+        ),
+
+        // Coupon Discount
+        if (order?.couponApplied == true && (order?.couponDiscount ?? 0) > 0)
+          _buildInfoRow(
+            'Coupon Discount',
+            '-₹${order!.couponDiscount.toStringAsFixed(2)}',
+            valueColor: Colors.green,
+          ),
+
+        // Product GST (expandable)
+        if (hasProductGst) ...[
+          const SizedBox(height: 8),
+          _buildGstSection(
+            title: 'Product GST',
+            totalGst: totalProductGst,
+            gst5: order?.gstAmount5 ?? 0.0,
+            cgst5: order?.cgstAmount5 ?? 0.0,
+            sgst5: order?.sgstAmount5 ?? 0.0,
+            gst18: order?.gstAmount18 ?? 0.0,
+            cgst18: order?.cgstAmount18 ?? 0.0,
+            sgst18: order?.sgstAmount18 ?? 0.0,
+          ),
+        ],
+
+        // Shipping GST (expandable)
+        if (hasShippingGst && displayShippingCharge > 0) ...[
+          const SizedBox(height: 8),
+          _buildShippingGstSection(
+            totalGst: displayShippingGst,
+            cgst: order?.shippingCgst ?? 0.0,
+            sgst: order?.shippingSgst ?? 0.0,
+          ),
+        ],
+
+        const Divider(height: 24),
+
+        // Grand Total
+        _buildInfoRow('Grand Total',
+            '₹${(order?.grandTotal ?? widget.grandTotal).toStringAsFixed(2)}',
             isBold: true, valueColor: themeColor),
       ],
+    );
+  }
+
+  Widget _buildGstSection({
+    required String title,
+    required double totalGst,
+    required double gst5,
+    required double cgst5,
+    required double sgst5,
+    required double gst18,
+    required double cgst18,
+    required double sgst18,
+  }) {
+    return ExpansionTile(
+      tilePadding: EdgeInsets.zero,
+      childrenPadding: const EdgeInsets.only(left: 16),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.grey,
+              fontWeight: FontWeight.w500,
+              fontSize: 14,
+            ),
+          ),
+          Text(
+            '₹${totalGst.toStringAsFixed(2)}',
+            style: const TextStyle(fontSize: 14),
+          ),
+        ],
+      ),
+      children: [
+        if (gst5 > 0) ...[
+          _buildGstBreakdownRow('GST @ 5%', '₹${gst5.toStringAsFixed(2)}'),
+          _buildGstBreakdownRow('  CGST 2.5%', '₹${cgst5.toStringAsFixed(2)}',
+              isSubItem: true),
+          _buildGstBreakdownRow('  SGST 2.5%', '₹${sgst5.toStringAsFixed(2)}',
+              isSubItem: true),
+        ],
+        if (gst18 > 0) ...[
+          _buildGstBreakdownRow('GST @ 18%', '₹${gst18.toStringAsFixed(2)}'),
+          _buildGstBreakdownRow('  CGST 9%', '₹${cgst18.toStringAsFixed(2)}',
+              isSubItem: true),
+          _buildGstBreakdownRow('  SGST 9%', '₹${sgst18.toStringAsFixed(2)}',
+              isSubItem: true),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildShippingGstSection({
+    required double totalGst,
+    required double cgst,
+    required double sgst,
+  }) {
+    return ExpansionTile(
+      tilePadding: EdgeInsets.zero,
+      childrenPadding: const EdgeInsets.only(left: 16),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text(
+            'Shipping GST',
+            style: TextStyle(
+              color: Colors.grey,
+              fontWeight: FontWeight.w500,
+              fontSize: 14,
+            ),
+          ),
+          Text(
+            '₹${totalGst.toStringAsFixed(2)}',
+            style: const TextStyle(fontSize: 14),
+          ),
+        ],
+      ),
+      children: [
+        _buildGstBreakdownRow('CGST 9%', '₹${cgst.toStringAsFixed(2)}',
+            isSubItem: true),
+        _buildGstBreakdownRow('SGST 9%', '₹${sgst.toStringAsFixed(2)}',
+            isSubItem: true),
+      ],
+    );
+  }
+
+  Widget _buildGstBreakdownRow(String label, String value,
+      {bool isSubItem = false}) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: isSubItem ? 8 : 0,
+        top: 4,
+        bottom: 4,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: isSubItem ? 12 : 13,
+              color: isSubItem ? Colors.grey : Colors.black87,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: isSubItem ? 12 : 13,
+              color: isSubItem ? Colors.grey : Colors.black87,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

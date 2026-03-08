@@ -113,7 +113,75 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  // Items header
+                                  Text(
+                                    'ITEMS (${provider.orderData!.orderItems.length})',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  // Column headers
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 4),
+                                    child: Row(
+                                      children: [
+                                        const Expanded(
+                                          flex: 3,
+                                          child: Text(
+                                            'ITEMS DESCRIPTION',
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.black54,
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 40,
+                                          child: Text(
+                                            'QTY',
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.black54,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 50,
+                                          child: Text(
+                                            'SAVINGS',
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.black54,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 70,
+                                          child: Text(
+                                            'PRICE',
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.black54,
+                                            ),
+                                            textAlign: TextAlign.end,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const Divider(height: 16),
                                   ListView.builder(
                                     shrinkWrap: true,
                                     physics:
@@ -311,51 +379,109 @@ class OrderItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     log("image :${item.image}");
     log("productId :${item.productId}");
-    return ListTile(
-      onTap: () {
-        // log("Navigating to product details for productId: ${item.productId}");
-        // context.read<ProductDetailsProvider>().fetchProductDetails(
-        //       item.productId,
-        //     );
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => ProductDetailsScreen(
-        //       productId: item.productId,
 
-        //       // isFromCart: true,
-        //     ),
-        //   ),
-        // );
-      },
-      leading: NetworkImageWidget(
-        imageUrl: "${BaseUrl.baseUrlForImages}${item.image}",
-        width: 50,
-        height: 50,
-        fit: BoxFit.cover,
-        errorWidget: (context, url, error) => const Icon(Icons.error),
-      ),
-      title: Text(item.productName),
-      subtitle: Column(
+    // Calculate total GST for this item
+    final totalGst = item.cgstAmount + item.sgstAmount;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Quantity: ${item.quantity}'),
-          Row(
+          // Product Image
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: NetworkImageWidget(
+              imageUrl: "${BaseUrl.baseUrlForImages}${item.image}",
+              width: 60,
+              height: 60,
+              fit: BoxFit.cover,
+              errorWidget: (context, url, error) => Container(
+                width: 60,
+                height: 60,
+                color: Colors.grey.shade200,
+                child: const Icon(Icons.image_not_supported,
+                    color: Colors.grey, size: 24),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+
+          // Product Name
+          Expanded(
+            child: Text(
+              item.productName,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.black87,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 8),
+
+          // Quantity
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade300),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(
+              '${item.quantity}',
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+
+          // Savings (if any discount)
+          SizedBox(
+            width: 50,
+            child: item.discount > 0
+                ? Text(
+                    '-₹${(item.discount * item.quantity).toStringAsFixed(0)}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: cButtonGreen,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    textAlign: TextAlign.center,
+                  )
+                : const Text(
+                    '—',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
+          ),
+          const SizedBox(width: 8),
+
+          // Price Column
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '₹${(item.mrp * item.quantity).toInt()}',
+                '₹${item.total.toStringAsFixed(2)}',
                 style: const TextStyle(
-                  decoration: TextDecoration.lineThrough,
-                  fontSize: 12,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '₹${(item.sellingPrice * item.quantity).toInt()}',
-                style: const TextStyle(
+                  fontSize: 14,
                   fontWeight: FontWeight.bold,
+                  color: Colors.black87,
                 ),
               ),
+              // Show GST amount if applicable
+              if (totalGst > 0)
+                Text(
+                  '+GST ₹${totalGst.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: cButtonGreen,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
             ],
           ),
         ],

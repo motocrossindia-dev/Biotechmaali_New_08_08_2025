@@ -88,4 +88,53 @@ class CouponRepository {
       throw Exception(e.toString()); // Ensure only the actual error is thrown
     }
   }
+
+  Future<OrderData?> removeCoupon({required String orderId}) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("access_token");
+
+    try {
+      final response = await _dio.post(
+        EndUrl.removeCouponUrl,
+        data: {
+          'order_id': int.tryParse(orderId) ?? orderId,
+        },
+        options: Options(
+          headers: {
+            "Authorization": "Bearer $token",
+            "Content-Type": "application/json",
+          },
+          validateStatus: (status) {
+            return status! < 500;
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        log("Remove Coupon Response: ${response.data}");
+        // Handle response - it might have a 'data' wrapper or be direct
+        final responseData = response.data;
+        if (responseData is Map<String, dynamic>) {
+          if (responseData.containsKey('data') &&
+              responseData['data'] is Map<String, dynamic>) {
+            return OrderData.fromJson(responseData['data']);
+          }
+          return OrderData.fromJson(responseData);
+        }
+        return null;
+      } else {
+        log("Remove Coupon Error: ${response.data.toString()}");
+        final responseData = response.data;
+        if (responseData is Map<String, dynamic>) {
+          return OrderData.fromJson(responseData);
+        }
+        return null;
+      }
+    } on DioException catch (e) {
+      throw ('Network Error: ${e.message}');
+    } catch (e) {
+      log("Error removing coupon: ${e.toString()}");
+      throw Exception(e.toString());
+    }
+  }
 }
