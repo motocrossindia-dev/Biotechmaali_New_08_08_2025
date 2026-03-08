@@ -23,8 +23,8 @@ class LoginScreen extends StatelessWidget {
                       sizedBoxHeight50,
                       Image.asset(
                         'assets/png/Gidan Logo.png',
-                        height: 62,
-                        width: 120,
+                        height: 90,
+                        width: 180,
                       ),
                       sizedBoxHeight40,
                       SvgPicture.asset(

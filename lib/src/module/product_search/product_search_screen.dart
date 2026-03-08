@@ -6,6 +6,8 @@ import 'package:biotech_maali/src/module/wishlist/whishlist_provider.dart';
 import 'package:biotech_maali/src/widgets/login_prompt_dialog.dart';
 import 'package:biotech_maali/src/widgets/shimmer/product_tile_shimmer.dart';
 import 'package:biotech_maali/src/widgets/no_products_found_widget.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
+import 'package:biotech_maali/core/services/analytics_helper.dart';
 import 'product_search_provider.dart';
 
 class ProductSearchView extends StatefulWidget {
@@ -21,6 +23,10 @@ class _ProductSearchViewState extends State<ProductSearchView> {
   @override
   void initState() {
     super.initState();
+
+    // Track search screen view
+    AnalyticsService().logScreenView(screenName: ScreenNames.productSearch);
+
     // Add listener to clear products when text is empty
     _searchController.addListener(_onSearchTextChanged);
   }

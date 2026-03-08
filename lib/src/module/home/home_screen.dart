@@ -6,6 +6,8 @@ import 'package:biotech_maali/src/module/home/widget/promotional_banner.dart';
 import 'package:biotech_maali/src/module/home/widget/referral_popup.dart';
 import 'package:biotech_maali/src/module/home/widget/our_store_widget.dart';
 import 'package:biotech_maali/src/widgets/error_message_widget.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
+import 'package:biotech_maali/core/services/analytics_helper.dart';
 import '../../../import.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -21,6 +23,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+
+    // Track home screen view
+    AnalyticsService().logScreenView(screenName: ScreenNames.home);
 
     context.read<ReferFriendProvider>().getReferralDetails();
 

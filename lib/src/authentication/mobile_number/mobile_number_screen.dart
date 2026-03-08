@@ -34,8 +34,8 @@ class MobileNumberScreen extends StatelessWidget {
                             sizedBoxHeight70,
                             Image.asset(
                               'assets/png/Gidan Logo.png',
-                              height: 62,
-                              width: 120,
+                              height: 90,
+                              width: 180,
                             ),
                             const SizedBox(height: 50),
                             SvgPicture.asset(

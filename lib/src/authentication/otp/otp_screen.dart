@@ -37,8 +37,8 @@ class _OtpScreenContent extends StatelessWidget {
                   children: [
                     Image.asset(
                       'assets/png/Gidan Logo.png',
-                      height: 62,
-                      width: 120,
+                      height: 90,
+                      width: 180,
                     ),
                     sizedBoxHeight50,
                     SvgPicture.asset(

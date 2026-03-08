@@ -5,6 +5,8 @@ import 'package:biotech_maali/src/module/cart/widgets/cart_product_tile.dart';
 import 'package:biotech_maali/src/module/cart/widgets/price_detailrow.dart';
 import 'package:biotech_maali/src/module/product_search/product_search_provider.dart';
 import 'package:biotech_maali/src/module/wishlist/whishlist_provider.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
+import 'package:biotech_maali/core/services/analytics_helper.dart';
 import '../../../import.dart';
 
 class CartScreen extends StatefulWidget {
@@ -34,6 +36,10 @@ class _CartScreenState extends State<CartScreen> {
   @override
   void initState() {
     super.initState();
+
+    // Track cart screen view
+    AnalyticsService().logScreenView(screenName: ScreenNames.cart);
+
     context.read<CartProvider>().fetchCartItems();
   }
 

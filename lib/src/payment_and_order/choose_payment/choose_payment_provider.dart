@@ -167,7 +167,7 @@ class ChoosePaymentProvider extends ChangeNotifier {
 
       final options = {
         // "key": "rzp_test_y70g5dxx6kOQ7v",
-        "key": "rzp_live_RH46LqJqM4UlmU",
+        "key": "rzp_live_SOdeeGn6k2XbYX",
 
         "amount": (amoutToPay * 100).toInt(),
         "name": "Biotech Maali",
@@ -270,7 +270,7 @@ class ChoosePaymentProvider extends ChangeNotifier {
 
         final options = {
           // "key": "rzp_test_y70g5dxx6kOQ7v",
-          "key": "rzp_live_RH46LqJqM4UlmU",
+          "key": "rzp_live_SOdeeGn6k2XbYX",
           "amount": (remainingAmount * 100).toInt(),
           "name": "Biotech Maali",
           "description":

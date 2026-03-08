@@ -11,6 +11,8 @@ import 'package:biotech_maali/src/module/product_detail/product_details/widgets/
 import 'package:biotech_maali/src/widgets/add_to_cart.dart';
 import 'package:biotech_maali/src/widgets/login_prompt_dialog.dart';
 import 'package:flutter/services.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
+import 'package:biotech_maali/core/services/analytics_helper.dart';
 import '../../../../import.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
@@ -28,6 +30,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   @override
   void initState() {
     super.initState();
+
+    // Track product details screen view
+    AnalyticsService().logScreenView(screenName: ScreenNames.productDetails);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<ProductDetailsProvider>();
       provider.updateQuantity();

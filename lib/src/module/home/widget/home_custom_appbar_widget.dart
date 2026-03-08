@@ -20,8 +20,8 @@ class CustomAppBarWithSearch extends StatelessWidget
     final isTablet = screenWidth > 600;
 
     // Responsive sizing - Optimized logo size
-    final logoWidth = isTablet ? screenWidth * 0.20 : screenWidth * 0.40;
-    final logoHeight = isTablet ? screenHeight * 0.06 : screenHeight * 0.055;
+    final logoWidth = isTablet ? screenWidth * 0.18 : screenWidth * 0.32;
+    final logoHeight = isTablet ? screenHeight * 0.05 : screenHeight * 0.045;
     final iconSize = isTablet ? 26.0 : 22.0;
     final searchBarHeight = isTablet ? 50.0 : 42.0;
     final horizontalPadding = screenWidth * 0.04;

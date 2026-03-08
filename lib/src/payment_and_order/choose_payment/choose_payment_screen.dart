@@ -3,6 +3,8 @@ import 'package:biotech_maali/src/payment_and_order/choose_payment/choose_paymen
 import 'package:biotech_maali/src/payment_and_order/choose_payment/widgets/gst_update_popup.dart';
 import 'package:biotech_maali/src/payment_and_order/order_summary/model/order_summary_response.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
+import 'package:biotech_maali/core/services/analytics_helper.dart';
 
 import '../../../import.dart';
 
@@ -22,6 +24,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   void initState() {
     super.initState();
+
+    // Track payment screen view
+    AnalyticsService().logScreenView(screenName: ScreenNames.choosePayment);
+
     // Initialize EditProfileProvider to fetch GST data
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<EditProfileProvider>().fetchProfileData();

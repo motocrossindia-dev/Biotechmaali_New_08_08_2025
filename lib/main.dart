@@ -3,6 +3,8 @@ import 'dart:developer';
 import 'import.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,6 +14,12 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+
+  // Initialize Firebase
+  await Firebase.initializeApp();
+
+  // Log app open event
+  AnalyticsService().logAppOpen();
 
   // Check if app was reinstalled and clear old data
   await _handleReinstallCleanup();

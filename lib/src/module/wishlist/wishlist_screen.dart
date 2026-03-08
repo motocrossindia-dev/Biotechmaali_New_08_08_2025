@@ -1,5 +1,7 @@
 import 'package:biotech_maali/src/module/wishlist/whishlist_provider.dart';
 import 'package:biotech_maali/src/module/wishlist/widget/wishlist_product_tile_widget.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
+import 'package:biotech_maali/core/services/analytics_helper.dart';
 
 import '../../../import.dart';
 
@@ -10,6 +12,8 @@ class WishlistScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<WishlistProvider>().fetchWishlist();
+      // Track wishlist screen view
+      AnalyticsService().logScreenView(screenName: ScreenNames.wishlist);
     });
     WishlistProvider();
     return PopScope(

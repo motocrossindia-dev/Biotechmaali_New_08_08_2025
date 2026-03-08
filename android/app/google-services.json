@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "135171503128",
+    "project_id": "biotechmaali-14778",
+    "storage_bucket": "biotechmaali-14778.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:135171503128:android:bad19d9a23df11036e3f6d",
+        "android_client_info": {
+          "package_name": "com.biotechmaali.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBq5zoBl1s2ixWqmdqx3ILL-sjR_UBZ70w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

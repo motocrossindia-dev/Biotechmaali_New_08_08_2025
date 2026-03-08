@@ -1,6 +1,8 @@
 import 'dart:developer';
 import 'package:biotech_maali/src/payment_and_order/order_summary/model/order_response_model.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
+import 'package:biotech_maali/core/services/analytics_helper.dart';
 import '../../../import.dart';
 
 class OrderSummaryScreen extends StatefulWidget {
@@ -18,6 +20,13 @@ class OrderSummaryScreen extends StatefulWidget {
 }
 
 class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Track order summary screen view
+    AnalyticsService().logScreenView(screenName: ScreenNames.orderSummary);
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(

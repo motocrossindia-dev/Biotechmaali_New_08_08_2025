@@ -24,6 +24,7 @@ import 'package:biotech_maali/src/payment_and_order/order_history_detail/order_h
 // import 'package:biotech_maali/src/permission_handle/premission_handle_provider.dart';
 import 'package:biotech_maali/src/splash/splash_provider.dart';
 import 'package:biotech_maali/core/version_check_wrapper.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
 
 import 'import.dart';
 
@@ -103,6 +104,8 @@ class BiotechApp extends StatelessWidget {
               useMaterial3: true,
             ),
             navigatorKey: navigatorKey,
+            // Add analytics observer for automatic screen tracking
+            navigatorObservers: [AnalyticsService().observer],
             home: const VersionCheckWrapper(child: SplashScreen()),
           );
         },

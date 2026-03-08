@@ -59,8 +59,8 @@ class _AccountScreenState extends State<AccountScreen> {
             children: [
               Image.asset(
                 'assets/png/Gidan Logo.png',
-                height: 42,
-                width: 80,
+                height: 45,
+                width: 90,
               ),
             ],
           ),

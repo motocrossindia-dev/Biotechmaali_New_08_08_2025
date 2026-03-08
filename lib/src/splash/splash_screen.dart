@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 import 'package:biotech_maali/src/splash/splash_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
+import 'package:biotech_maali/core/services/analytics_helper.dart';
 import '../../import.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -22,6 +24,9 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
+
+    // Track splash screen view
+    AnalyticsService().logScreenView(screenName: ScreenNames.splash);
 
     _logoController = AnimationController(
       duration: const Duration(milliseconds: 2000), // Increased from 1500
@@ -296,8 +301,8 @@ class _SplashScreenState extends State<SplashScreen>
                                       ),
                                       child: Image.asset(
                                         'assets/png/Gidan Logo.png',
-                                        height: 150,
-                                        width: 280,
+                                        height: 100,
+                                        width: 200,
                                       ),
                                     ),
                                   ),
@@ -431,8 +436,8 @@ class _SplashScreenState extends State<SplashScreen>
               children: [
                 Image.asset(
                   'assets/png/Gidan Logo.png',
-                  height: 101,
-                  width: 194,
+                  height: 70,
+                  width: 140,
                 ),
                 const SizedBox(height: 20),
                 CircularProgressIndicator(

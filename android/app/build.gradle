@@ -3,6 +3,8 @@ plugins {
     id "kotlin-android"
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id "dev.flutter.flutter-gradle-plugin"
+    // Google Services plugin for Firebase
+    id "com.google.gms.google-services"
 }
 
 def localProperties = new Properties()
@@ -15,12 +17,12 @@ if (localPropertiesFile.exists()) {
 
 def flutterVersionCode = localProperties.getProperty("flutter.versionCode")
 if (flutterVersionCode == null) {
-    flutterVersionCode = "85"
+    flutterVersionCode = "87"
 }
 
 def flutterVersionName = localProperties.getProperty("flutter.versionName")
 if (flutterVersionName == null) {
-    flutterVersionName = "1.0.85"
+    flutterVersionName = "1.0.87"
 }
 
 def keystoreProperties = new Properties()
