@@ -1,6 +1,7 @@
 import 'package:biotech_maali/src/module/account/coin/coin_history/coin_history_screen.dart';
 import 'package:biotech_maali/src/module/account/coin/coin_provider.dart';
 import 'package:biotech_maali/src/module/account/refer_friend/refer_friend_provider.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
 
 import '../../../../import.dart';
 
@@ -24,6 +25,10 @@ class _CoinScreenState extends State<CoinScreen> {
       if (mounted && _coinProvider != null && _referFriendProvider != null) {
         _coinProvider!.fetchTransactions();
         _referFriendProvider!.getReferralDetails();
+        // Track coin screen opened with current coins
+        final currentCoins = _referFriendProvider!.totalcoins;
+        AnalyticsService().logScreenView(screenName: 'Coin Screen');
+        AnalyticsService().logCoinScreenOpened(currentCoins: currentCoins);
       }
     });
   }

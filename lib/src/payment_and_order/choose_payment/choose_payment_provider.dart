@@ -5,6 +5,7 @@ import 'package:biotech_maali/src/module/account/wallet/wallet_provider.dart';
 import 'package:biotech_maali/src/payment_and_order/choose_payment/choose_payment_repository.dart';
 import 'package:biotech_maali/src/payment_and_order/choose_payment/widgets/payment_success_popup.dart';
 import 'package:biotech_maali/src/payment_and_order/order_summary/model/order_summary_response.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
@@ -324,6 +325,35 @@ class ChoosePaymentProvider extends ChangeNotifier {
         paymentMethod: paymentMethod,
       );
 
+      // Track successful purchase analytics
+      if (_orderSummaryResponse != null) {
+        final orderData = _orderSummaryResponse!.data;
+        final items = orderData.orderItems
+            .map((p) => {
+                  'id': p.productId.toString(),
+                  'name': p.productName,
+                  'price': p.sellingPrice,
+                  'quantity': p.quantity,
+                })
+            .toList();
+
+        AnalyticsService().logPurchase(
+          transactionId: orderData.order.orderId,
+          totalValue: totalBillAmount,
+          items: items,
+          paymentMethod: paymentMethod,
+        );
+
+        // Track payment method used
+        AnalyticsService().logAddPaymentInfo(
+          paymentType: paymentMethod,
+          value: totalBillAmount,
+        );
+
+        // Update user properties
+        AnalyticsService().setPreferredPayment(paymentMethod);
+      }
+
       if (navigatorKey.currentContext != null) {
         // Use post-frame callback to update wallet
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -357,6 +387,15 @@ class ChoosePaymentProvider extends ChangeNotifier {
   void _handlePaymentError(PaymentFailureResponse response) async {
     _error = response.message ?? 'Payment failed';
     log("Response : ${_error.toString()}");
+
+    // Track payment failure analytics
+    String paymentMethod = isWalletCheckbox ? 'Wallet+UPI' : 'UPI';
+    AnalyticsService().logPaymentFailed(
+      paymentMethod: paymentMethod,
+      errorReason: _error,
+      amount: totalBillAmount,
+      orderId: orderId?.toString(),
+    );
 
     if (isWalletCheckbox) {
       if (actualWalletBalance! < totalBillAmount) {

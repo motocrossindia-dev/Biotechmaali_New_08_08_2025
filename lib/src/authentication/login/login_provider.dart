@@ -4,6 +4,7 @@ import 'package:biotech_maali/import.dart';
 import 'package:biotech_maali/src/module/account/account_provider.dart';
 import 'package:biotech_maali/src/module/account/refer_friend/refer_friend_provider.dart';
 import 'package:biotech_maali/src/module/account/wallet/wallet_provider.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class LoginProvider extends ChangeNotifier {
@@ -24,6 +25,16 @@ class LoginProvider extends ChangeNotifier {
           mobileNumber, _name.text, _referralCode.text);
       // _isLoading = false;
       if (result) {
+        // Track sign up analytics
+        AnalyticsService().logSignUp(method: 'phone');
+        AnalyticsService().setUserType('registered');
+
+        // Track referral applied if code was used
+        if (_referralCode.text.isNotEmpty) {
+          AnalyticsService()
+              .logReferralApplied(referralCode: _referralCode.text);
+        }
+
         prefs.setString("userName", "${name.text} ");
         prefs.setBool("isLogin", true);
         await context.read<EditProfileProvider>().fetchProfileData();

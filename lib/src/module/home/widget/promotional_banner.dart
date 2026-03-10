@@ -1,4 +1,5 @@
 import 'package:biotech_maali/src/module/product_list/product_list/product_list_screen.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
 
 import '../../../../import.dart';
 
@@ -235,6 +236,13 @@ class PromotionalBanner extends StatelessWidget {
   }
 
   void _navigateToOffers(BuildContext context, HomeProvider provider) {
+    // Track banner click analytics
+    AnalyticsService().logBannerClick(
+      bannerId: 'promotional_banner',
+      bannerName: 'Offers Banner',
+      position: 0,
+    );
+
     for (var element in provider.maincategories) {
       if (element.name.toLowerCase() == 'offers') {
         Navigator.push(

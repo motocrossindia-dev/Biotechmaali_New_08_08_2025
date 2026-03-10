@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:biotech_maali/src/module/home/model/category_model.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
 
 import '../../../../import.dart';
 
@@ -40,6 +41,11 @@ class ExploreCategoryWidget extends StatelessWidget {
                 onTap: () {
                   exploreProvider.setSelectedCategory(
                       index, category.id, category.name);
+                  // Track category tap
+                  AnalyticsService().logCategoryTapped(
+                    categoryId: category.id.toString(),
+                    categoryName: category.name,
+                  );
                   log('Selected category: ${category.name}');
                 },
                 child: Container(

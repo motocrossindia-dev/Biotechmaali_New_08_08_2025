@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyCf1WF5U1Ny5NssiXas5-4rrLyEit67x30</string>
+	<string>AIzaSyDO9mK8A8SPi1S3j5vceV_Jdx5vyS_k58M</string>
 	<key>GCM_SENDER_ID</key>
-	<string>135171503128</string>
+	<string>729326871514</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.biotechmaali.app</string>
 	<key>PROJECT_ID</key>
-	<string>biotechmaali-14778</string>
+	<string>gidanstore-439ef</string>
 	<key>STORAGE_BUCKET</key>
-	<string>biotechmaali-14778.firebasestorage.app</string>
+	<string>gidanstore-439ef.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:135171503128:ios:5ea932be34e49f496e3f6d</string>
+	<string>1:729326871514:ios:975961f5b2dbfb53e296e3</string>
 </dict>
 </plist>

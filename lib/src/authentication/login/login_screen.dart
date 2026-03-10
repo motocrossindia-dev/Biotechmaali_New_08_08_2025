@@ -1,9 +1,23 @@
 import 'dart:developer';
+import 'package:biotech_maali/core/services/analytics_service.dart';
+import 'package:biotech_maali/core/services/analytics_helper.dart';
 import '../../../import.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   final String mobileNumber;
   const LoginScreen({required this.mobileNumber, super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Track login screen view
+    AnalyticsService().logScreenView(screenName: ScreenNames.login);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +76,8 @@ class LoginScreen extends StatelessWidget {
                   child: CommonButtonWidget(
                     title: 'LOGIN',
                     event: () {
-                      loginProvider.accountRegister(context, mobileNumber);
+                      loginProvider.accountRegister(
+                          context, widget.mobileNumber);
                       log('message');
                     },
                   ),

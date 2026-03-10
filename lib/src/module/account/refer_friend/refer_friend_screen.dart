@@ -1,5 +1,6 @@
 import 'package:biotech_maali/src/module/account/refer_friend/refer_friend_provider.dart';
 import 'package:biotech_maali/src/module/account/refer_friend/widgets/refer_friend_textformfield.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
 
 import '../../../../import.dart';
 
@@ -14,6 +15,8 @@ class _ReferFriendScreenState extends State<ReferFriendScreen> {
   @override
   void initState() {
     context.read<ReferFriendProvider>().getReferralDetails();
+    AnalyticsService().logScreenView(screenName: 'Refer Friend Screen');
+    AnalyticsService().logReferFriendOpened();
     super.initState();
   }
 

@@ -5,6 +5,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:biotech_maali/core/services/analytics_service.dart';
+import 'package:biotech_maali/core/services/in_app_messaging_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,8 +19,15 @@ void main() async {
   // Initialize Firebase
   await Firebase.initializeApp();
 
-  // Log app open event
+  // Initialize Analytics and enable collection
+  await AnalyticsService().initialize();
+
+  // Initialize In-App Messaging
+  await InAppMessagingService().initialize();
+
+  // Log app open event + trigger FIAM app_open campaign
   AnalyticsService().logAppOpen();
+  InAppMessagingService().triggerAppOpen();
 
   // Check if app was reinstalled and clear old data
   await _handleReinstallCleanup();

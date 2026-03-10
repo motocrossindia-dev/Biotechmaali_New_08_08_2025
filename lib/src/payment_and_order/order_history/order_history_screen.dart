@@ -4,6 +4,7 @@ import 'package:biotech_maali/src/payment_and_order/order_history/order_history_
 import 'package:biotech_maali/src/payment_and_order/order_history_detail/order_history_detail_provider.dart';
 import 'package:biotech_maali/src/payment_and_order/order_history_detail/order_history_detail_screen.dart';
 import 'package:biotech_maali/src/payment_and_order/order_tracking/order_tracking_screen.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
 import '../../../import.dart';
 
 class OrderHistoryScreen extends StatefulWidget {
@@ -18,6 +19,12 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
   void initState() {
     super.initState();
     context.read<OrderHistoryProvider>().fetchOrderHistory();
+    AnalyticsService().logScreenView(screenName: 'Order History Screen');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final orders =
+          context.read<OrderHistoryProvider>().orderHistory?.data.orders ?? [];
+      AnalyticsService().logOrderHistoryOpened(ordersCount: orders.length);
+    });
   }
 
   @override

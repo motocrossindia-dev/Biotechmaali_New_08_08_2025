@@ -1,9 +1,21 @@
 import 'package:biotech_maali/src/module/explore/explore_shimmer.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
 
 import '../../../import.dart';
 
-class ExploreScreen extends StatelessWidget {
+class ExploreScreen extends StatefulWidget {
   const ExploreScreen({super.key});
+
+  @override
+  State<ExploreScreen> createState() => _ExploreScreenState();
+}
+
+class _ExploreScreenState extends State<ExploreScreen> {
+  @override
+  void initState() {
+    super.initState();
+    AnalyticsService().logScreenView(screenName: 'Explore Categories Screen');
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -142,8 +142,11 @@ class AnalyticsEvents {
   // User Actions
   static const String buttonClick = 'button_click';
   static const String bannerClick = 'banner_click';
+  static const String bannerView = 'banner_view';
   static const String categoryClick = 'category_click';
   static const String productClick = 'product_click';
+  static const String bottomNavClick = 'bottom_nav_click';
+  static const String backButtonPress = 'back_button_press';
 
   // Cart
   static const String addToCart = 'add_to_cart';
@@ -158,9 +161,12 @@ class AnalyticsEvents {
 
   // Checkout
   static const String beginCheckout = 'begin_checkout';
+  static const String addShippingInfo = 'add_shipping_info';
   static const String addPaymentInfo = 'add_payment_info';
   static const String purchase = 'purchase';
   static const String purchaseFailed = 'purchase_failed';
+  static const String paymentFailed = 'payment_failed';
+  static const String refund = 'refund';
 
   // Coupon
   static const String applyCoupon = 'apply_coupon';
@@ -168,22 +174,32 @@ class AnalyticsEvents {
 
   // Search
   static const String search = 'search';
+  static const String searchNoResults = 'search_no_results';
+  static const String searchResultClick = 'search_result_click';
+  static const String voiceSearch = 'voice_search';
   static const String searchWithFilters = 'search_with_filters';
+  static const String filterApplied = 'filter_applied';
+  static const String sortApplied = 'sort_applied';
 
   // User
   static const String login = 'login';
   static const String signUp = 'sign_up';
   static const String logout = 'logout';
   static const String updateProfile = 'update_profile';
+  static const String addressAdded = 'address_added';
+  static const String addressDeleted = 'address_deleted';
 
   // Wallet & Coins
   static const String walletTransaction = 'wallet_transaction';
+  static const String walletAddMoney = 'wallet_add_money';
+  static const String walletUsed = 'wallet_used';
   static const String coinsEarned = 'coins_earned';
   static const String coinsRedeemed = 'coins_redeemed';
 
   // Referral
   static const String referralShared = 'referral_shared';
   static const String referralApplied = 'referral_applied';
+  static const String referralSuccess = 'referral_success';
 
   // Rating
   static const String submitRating = 'submit_rating';
@@ -201,4 +217,93 @@ class AnalyticsEvents {
   static const String videoPlay = 'video_play';
   static const String videoPause = 'video_pause';
   static const String videoComplete = 'video_complete';
+
+  // Ads & Promotions
+  static const String adImpression = 'ad_impression';
+  static const String adClick = 'ad_click';
+  static const String adRevenue = 'ad_revenue';
+  static const String promotionView = 'promotion_view';
+  static const String promotionClick = 'promotion_click';
+
+  // Store & Franchise
+  static const String storeView = 'store_view';
+  static const String storeSelected = 'store_selected';
+  static const String franchiseEnquiry = 'franchise_enquiry';
+
+  // Notifications
+  static const String notificationReceived = 'notification_received';
+  static const String notificationClick = 'notification_click';
+
+  // App Lifecycle
+  static const String appOpen = 'app_open';
+  static const String appSource = 'app_source';
+  static const String sessionStart = 'session_start';
+
+  // Performance
+  static const String screenLoadTime = 'screen_load_time';
+
+  // Errors
+  static const String appError = 'app_error';
+  static const String apiError = 'api_error';
+}
+
+/// User property names for consistent tracking
+class UserProperties {
+  UserProperties._();
+
+  static const String userType = 'user_type';
+  static const String preferredPayment = 'preferred_payment';
+  static const String preferredCategory = 'preferred_category';
+  static const String totalOrders = 'total_orders';
+  static const String totalSpent = 'total_spent';
+  static const String userCity = 'user_city';
+  static const String appVersion = 'app_version';
+  static const String registrationDate = 'registration_date';
+}
+
+/// User type values
+class UserType {
+  UserType._();
+
+  static const String guest = 'guest';
+  static const String registered = 'registered';
+  static const String premium = 'premium';
+  static const String newUser = 'new';
+  static const String returning = 'returning';
+}
+
+/// Payment method values for analytics
+class PaymentMethods {
+  PaymentMethods._();
+
+  static const String upi = 'upi';
+  static const String card = 'card';
+  static const String netBanking = 'net_banking';
+  static const String cod = 'cod';
+  static const String wallet = 'wallet';
+  static const String coins = 'coins';
+}
+
+/// Sort type values
+class SortTypes {
+  SortTypes._();
+
+  static const String priceAsc = 'price_low_to_high';
+  static const String priceDesc = 'price_high_to_low';
+  static const String popular = 'popular';
+  static const String newest = 'newest';
+  static const String rating = 'rating';
+  static const String discount = 'discount';
+}
+
+/// Filter type values
+class FilterTypes {
+  FilterTypes._();
+
+  static const String price = 'price';
+  static const String category = 'category';
+  static const String brand = 'brand';
+  static const String rating = 'rating';
+  static const String discount = 'discount';
+  static const String availability = 'availability';
 }

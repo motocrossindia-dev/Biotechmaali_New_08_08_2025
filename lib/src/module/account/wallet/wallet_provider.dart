@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:biotech_maali/src/module/account/wallet/wallet_model.dart';
 import 'package:biotech_maali/src/module/account/wallet/wallet_repository.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
 import 'package:flutter/material.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -94,6 +95,10 @@ class WalletProvider extends ChangeNotifier {
       _isProcessingPayment = true;
       notifyListeners();
 
+      // Track wallet recharge started
+      AnalyticsService()
+          .logWalletRechargeStarted(amount: _selectedAmount.toDouble());
+
       final response =
           await _repository.createWalletOrder(_selectedAmount.toString());
 
@@ -108,7 +113,7 @@ class WalletProvider extends ChangeNotifier {
       }
 
       final options = {
-        "key": "rzp_live_RH46LqJqM4UlmU",
+        "key": "rzp_live_SOdeeGn6k2XbYX",
         "amount": (_selectedAmount * 100).toInt(),
         "name": "Biotech Maali",
         "description": "Wallet Recharge",
@@ -141,6 +146,11 @@ class WalletProvider extends ChangeNotifier {
         razorpayOrderId: response.orderId!,
         razorpaySignature: response.signature!,
       );
+
+      // Track wallet recharge success
+      AnalyticsService()
+          .logWalletRechargeSuccess(amount: _selectedAmount.toDouble());
+
       _amountController.clear();
       _selectedAmount = 0;
 
@@ -161,6 +171,9 @@ class WalletProvider extends ChangeNotifier {
 
   void _handlePaymentError(PaymentFailureResponse response) {
     log("Payment failed: ${response.message}");
+    // Track wallet recharge failed
+    AnalyticsService()
+        .logWalletRechargeFailed(amount: _selectedAmount.toDouble());
     Fluttertoast.showToast(
       msg: "Payment failed",
       textColor: Colors.red,

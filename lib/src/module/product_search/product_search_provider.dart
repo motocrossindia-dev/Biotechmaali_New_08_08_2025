@@ -2,6 +2,7 @@ import 'package:biotech_maali/import.dart';
 import 'package:biotech_maali/src/module/cart/cart_provider.dart';
 import 'package:biotech_maali/src/module/product_search/model/product_search_model.dart';
 import 'package:biotech_maali/src/module/product_search/product_search_repository.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
 
 class ProductSearchProvider extends ChangeNotifier {
   final ProductSearchRepository _repository = ProductSearchRepository();
@@ -70,6 +71,16 @@ class ProductSearchProvider extends ChangeNotifier {
         final response = await _repository.searchProducts(query);
         products = response.products;
         nextPage = response.nextPage;
+
+        // Track search analytics
+        if (products.isEmpty) {
+          AnalyticsService().logSearchNoResults(searchTerm: query);
+        } else {
+          AnalyticsService().logSearch(
+            searchTerm: query,
+            resultsCount: products.length,
+          );
+        }
 
         isLoading = false;
         notifyListeners();

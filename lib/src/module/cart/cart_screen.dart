@@ -7,6 +7,7 @@ import 'package:biotech_maali/src/module/product_search/product_search_provider.
 import 'package:biotech_maali/src/module/wishlist/whishlist_provider.dart';
 import 'package:biotech_maali/core/services/analytics_service.dart';
 import 'package:biotech_maali/core/services/analytics_helper.dart';
+import 'package:biotech_maali/core/services/in_app_messaging_service.dart';
 import '../../../import.dart';
 
 class CartScreen extends StatefulWidget {
@@ -39,6 +40,9 @@ class _CartScreenState extends State<CartScreen> {
 
     // Track cart screen view
     AnalyticsService().logScreenView(screenName: ScreenNames.cart);
+
+    // Trigger FIAM cart campaign
+    InAppMessagingService().triggerCartView();
 
     context.read<CartProvider>().fetchCartItems();
   }

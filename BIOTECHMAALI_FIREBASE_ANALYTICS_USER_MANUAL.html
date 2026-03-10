@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Biotechmaali Firebase Analytics User Manual</title>
+  <style>
+
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <link rel="stylesheet" href="-" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Biotechmaali Firebase Analytics User Manual</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#biotechmaali-firebase-analytics" id="toc-biotechmaali-firebase-analytics">📊 Biotechmaali Firebase
+Analytics</a>
+<ul>
+<li><a href="#user-manual-documentation" id="toc-user-manual-documentation">User Manual &amp;
+Documentation</a></li>
+<li><a href="#table-of-contents" id="toc-table-of-contents">Table of
+Contents</a></li>
+<li><a href="#introduction" id="toc-introduction">1. Introduction</a>
+<ul>
+<li><a href="#what-is-firebase-analytics" id="toc-what-is-firebase-analytics">1.1 What is Firebase
+Analytics?</a></li>
+<li><a href="#benefits-for-biotechmaali" id="toc-benefits-for-biotechmaali">1.2 Benefits for
+Biotechmaali</a></li>
+<li><a href="#whats-implemented" id="toc-whats-implemented">1.3 What’s
+Implemented</a></li>
+</ul></li>
+<li><a href="#getting-started-with-firebase-analytics" id="toc-getting-started-with-firebase-analytics">2. Getting Started with
+Firebase Analytics</a>
+<ul>
+<li><a href="#firebase-project-information" id="toc-firebase-project-information">2.1 Firebase Project
+Information</a></li>
+<li><a href="#access-requirements" id="toc-access-requirements">2.2
+Access Requirements</a></li>
+<li><a href="#team-access-levels" id="toc-team-access-levels">2.3 Team
+Access Levels</a></li>
+</ul></li>
+<li><a href="#accessing-the-firebase-console" id="toc-accessing-the-firebase-console">3. Accessing the Firebase
+Console</a>
+<ul>
+<li><a href="#step-by-step-access" id="toc-step-by-step-access">3.1
+Step-by-Step Access</a></li>
+<li><a href="#navigation-structure" id="toc-navigation-structure">3.2
+Navigation Structure</a></li>
+</ul></li>
+<li><a href="#dashboard-overview" id="toc-dashboard-overview">4.
+Dashboard Overview</a>
+<ul>
+<li><a href="#key-metrics-on-dashboard" id="toc-key-metrics-on-dashboard">4.1 Key Metrics on Dashboard</a></li>
+<li><a href="#time-period-selection" id="toc-time-period-selection">4.2
+Time Period Selection</a></li>
+<li><a href="#comparison-mode" id="toc-comparison-mode">4.3 Comparison
+Mode</a></li>
+</ul></li>
+<li><a href="#events-tracked-in-biotechmaali-app" id="toc-events-tracked-in-biotechmaali-app">5. Events Tracked in
+Biotechmaali App</a>
+<ul>
+<li><a href="#screen-view-events" id="toc-screen-view-events">5.1 Screen
+View Events</a></li>
+<li><a href="#e-commerce-events" id="toc-e-commerce-events">5.2
+E-Commerce Events</a></li>
+<li><a href="#search-events" id="toc-search-events">5.3 Search
+Events</a></li>
+<li><a href="#user-authentication-events" id="toc-user-authentication-events">5.4 User Authentication
+Events</a></li>
+<li><a href="#navigation-events" id="toc-navigation-events">5.5
+Navigation Events</a></li>
+<li><a href="#wallet-coins-events" id="toc-wallet-coins-events">5.6
+Wallet &amp; Coins Events</a></li>
+<li><a href="#referral-events" id="toc-referral-events">5.7 Referral
+Events</a></li>
+<li><a href="#store-franchise-events" id="toc-store-franchise-events">5.8 Store &amp; Franchise
+Events</a></li>
+<li><a href="#error-performance-events" id="toc-error-performance-events">5.9 Error &amp; Performance
+Events</a></li>
+<li><a href="#other-events" id="toc-other-events">5.10 Other
+Events</a></li>
+</ul></li>
+<li><a href="#user-properties" id="toc-user-properties">6. User
+Properties</a>
+<ul>
+<li><a href="#tracked-user-properties" id="toc-tracked-user-properties">6.1 Tracked User Properties</a></li>
+<li><a href="#using-user-properties" id="toc-using-user-properties">6.2
+Using User Properties</a></li>
+</ul></li>
+<li><a href="#creating-custom-reports" id="toc-creating-custom-reports">7. Creating Custom Reports</a>
+<ul>
+<li><a href="#exploration-reports" id="toc-exploration-reports">7.1
+Exploration Reports</a></li>
+<li><a href="#funnel-analysis" id="toc-funnel-analysis">7.2 Funnel
+Analysis</a></li>
+<li><a href="#path-analysis" id="toc-path-analysis">7.3 Path
+Analysis</a></li>
+<li><a href="#segment-comparison" id="toc-segment-comparison">7.4
+Segment Comparison</a></li>
+</ul></li>
+<li><a href="#understanding-audiences" id="toc-understanding-audiences">8. Understanding Audiences</a>
+<ul>
+<li><a href="#built-in-audiences" id="toc-built-in-audiences">8.1
+Built-in Audiences</a></li>
+<li><a href="#creating-custom-audiences" id="toc-creating-custom-audiences">8.2 Creating Custom
+Audiences</a></li>
+<li><a href="#using-audiences" id="toc-using-audiences">8.3 Using
+Audiences</a></li>
+</ul></li>
+<li><a href="#funnels-user-journeys" id="toc-funnels-user-journeys">9.
+Funnels &amp; User Journeys</a>
+<ul>
+<li><a href="#key-funnels-to-monitor" id="toc-key-funnels-to-monitor">9.1 Key Funnels to Monitor</a></li>
+<li><a href="#creating-funnels-in-firebase" id="toc-creating-funnels-in-firebase">9.2 Creating Funnels in
+Firebase</a></li>
+</ul></li>
+<li><a href="#real-time-analytics" id="toc-real-time-analytics">10.
+Real-Time Analytics</a>
+<ul>
+<li><a href="#accessing-real-time-view" id="toc-accessing-real-time-view">10.1 Accessing Real-Time View</a></li>
+<li><a href="#what-you-can-monitor" id="toc-what-you-can-monitor">10.2
+What You Can Monitor</a></li>
+<li><a href="#use-cases" id="toc-use-cases">10.3 Use Cases</a></li>
+</ul></li>
+<li><a href="#export-integration" id="toc-export-integration">11. Export
+&amp; Integration</a>
+<ul>
+<li><a href="#bigquery-export" id="toc-bigquery-export">11.1 BigQuery
+Export</a></li>
+<li><a href="#google-ads-integration" id="toc-google-ads-integration">11.2 Google Ads Integration</a></li>
+<li><a href="#data-studio-reports" id="toc-data-studio-reports">11.3
+Data Studio Reports</a></li>
+<li><a href="#export-data" id="toc-export-data">11.4 Export
+Data</a></li>
+</ul></li>
+<li><a href="#best-practices" id="toc-best-practices">12. Best
+Practices</a>
+<ul>
+<li><a href="#daily-monitoring" id="toc-daily-monitoring">12.1 Daily
+Monitoring</a></li>
+<li><a href="#weekly-analysis" id="toc-weekly-analysis">12.2 Weekly
+Analysis</a></li>
+<li><a href="#monthly-reports" id="toc-monthly-reports">12.3 Monthly
+Reports</a></li>
+<li><a href="#actionable-insights" id="toc-actionable-insights">12.4
+Actionable Insights</a></li>
+</ul></li>
+<li><a href="#glossary" id="toc-glossary">13. Glossary</a></li>
+<li><a href="#support-contact" id="toc-support-contact">14. Support
+&amp; Contact</a>
+<ul>
+<li><a href="#technical-support" id="toc-technical-support">14.1
+Technical Support</a></li>
+<li><a href="#additional-resources" id="toc-additional-resources">14.2
+Additional Resources</a></li>
+<li><a href="#data-privacy-note" id="toc-data-privacy-note">14.3 Data
+Privacy Note</a></li>
+</ul></li>
+<li><a href="#appendix-a-complete-event-reference" id="toc-appendix-a-complete-event-reference">Appendix A: Complete Event
+Reference</a>
+<ul>
+<li><a href="#all-e-commerce-events" id="toc-all-e-commerce-events">All
+E-Commerce Events</a></li>
+<li><a href="#all-search-events" id="toc-all-search-events">All Search
+Events</a></li>
+<li><a href="#all-user-events" id="toc-all-user-events">All User
+Events</a></li>
+<li><a href="#all-navigation-events" id="toc-all-navigation-events">All
+Navigation Events</a></li>
+<li><a href="#all-wallet-loyalty-events" id="toc-all-wallet-loyalty-events">All Wallet &amp; Loyalty
+Events</a></li>
+<li><a href="#all-engagement-events" id="toc-all-engagement-events">All
+Engagement Events</a></li>
+<li><a href="#all-error-events" id="toc-all-error-events">All Error
+Events</a></li>
+</ul></li>
+<li><a href="#appendix-b-key-metrics-dashboard-template" id="toc-appendix-b-key-metrics-dashboard-template">Appendix B: Key
+Metrics Dashboard Template</a>
+<ul>
+<li><a href="#weekly-kpi-dashboard" id="toc-weekly-kpi-dashboard">Weekly
+KPI Dashboard</a></li>
+</ul></li>
+<li><a href="#appendix-c-common-analysis-queries" id="toc-appendix-c-common-analysis-queries">Appendix C: Common Analysis
+Queries</a>
+<ul>
+<li><a href="#finding-top-products" id="toc-finding-top-products">Finding Top Products</a></li>
+<li><a href="#finding-search-gaps" id="toc-finding-search-gaps">Finding
+Search Gaps</a></li>
+<li><a href="#tracking-campaign-performance" id="toc-tracking-campaign-performance">Tracking Campaign
+Performance</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="biotechmaali-firebase-analytics">📊 Biotechmaali Firebase
+Analytics</h1>
+<h2 id="user-manual-documentation">User Manual &amp; Documentation</h2>
+<hr />
+<p><strong>Document Version:</strong> 1.0<br />
+<strong>Date:</strong> March 8, 2026<br />
+<strong>Prepared For:</strong> Biotechmaali Private Limited<br />
+<strong>Application:</strong> Biotechmaali Mobile App (Android &amp;
+iOS)</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol type="1">
+<li><a href="#1-introduction">Introduction</a></li>
+<li><a href="#2-getting-started-with-firebase-analytics">Getting Started
+with Firebase Analytics</a></li>
+<li><a href="#3-accessing-the-firebase-console">Accessing the Firebase
+Console</a></li>
+<li><a href="#4-dashboard-overview">Dashboard Overview</a></li>
+<li><a href="#5-events-tracked-in-biotechmaali-app">Events Tracked in
+Biotechmaali App</a></li>
+<li><a href="#6-user-properties">User Properties</a></li>
+<li><a href="#7-creating-custom-reports">Creating Custom
+Reports</a></li>
+<li><a href="#8-understanding-audiences">Understanding
+Audiences</a></li>
+<li><a href="#9-funnels--user-journeys">Funnels &amp; User
+Journeys</a></li>
+<li><a href="#10-real-time-analytics">Real-Time Analytics</a></li>
+<li><a href="#11-export--integration">Export &amp; Integration</a></li>
+<li><a href="#12-best-practices">Best Practices</a></li>
+<li><a href="#13-glossary">Glossary</a></li>
+<li><a href="#14-support--contact">Support &amp; Contact</a></li>
+</ol>
+<hr />
+<h2 id="introduction">1. Introduction</h2>
+<h3 id="what-is-firebase-analytics">1.1 What is Firebase Analytics?</h3>
+<p>Firebase Analytics (also known as Google Analytics for Firebase) is a
+powerful, free analytics solution that provides insights into user
+behavior within your Biotechmaali mobile application. It helps you
+understand:</p>
+<ul>
+<li><strong>Who</strong> your users are</li>
+<li><strong>What</strong> they do in your app</li>
+<li><strong>When</strong> they are most active</li>
+<li><strong>Where</strong> they drop off in the purchase journey</li>
+<li><strong>Why</strong> users convert or abandon</li>
+</ul>
+<h3 id="benefits-for-biotechmaali">1.2 Benefits for Biotechmaali</h3>
+<table>
+<thead>
+<tr>
+<th>Benefit</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>📈 <strong>User Insights</strong></td>
+<td>Understand customer behavior patterns</td>
+</tr>
+<tr>
+<td>🛒 <strong>E-Commerce Tracking</strong></td>
+<td>Track complete purchase journey</td>
+</tr>
+<tr>
+<td>🎯 <strong>Marketing Optimization</strong></td>
+<td>Measure campaign effectiveness</td>
+</tr>
+<tr>
+<td>🔍 <strong>Search Analysis</strong></td>
+<td>Know what products users search for</td>
+</tr>
+<tr>
+<td>💰 <strong>Revenue Attribution</strong></td>
+<td>Track revenue by source and campaign</td>
+</tr>
+<tr>
+<td>🐛 <strong>Error Monitoring</strong></td>
+<td>Identify app issues quickly</td>
+</tr>
+</tbody>
+</table>
+<h3 id="whats-implemented">1.3 What’s Implemented</h3>
+<p>The Biotechmaali app has been configured with comprehensive analytics
+tracking covering:</p>
+<ul>
+<li>✅ Screen views across 40+ screens</li>
+<li>✅ E-commerce events (view, cart, wishlist, purchase)</li>
+<li>✅ Search behavior analytics</li>
+<li>✅ User authentication tracking</li>
+<li>✅ Payment success and failure tracking</li>
+<li>✅ Navigation pattern analysis</li>
+<li>✅ Banner and promotion clicks</li>
+<li>✅ Wallet and coins usage</li>
+<li>✅ Referral program tracking</li>
+<li>✅ Error and performance monitoring</li>
+</ul>
+<hr />
+<h2 id="getting-started-with-firebase-analytics">2. Getting Started with
+Firebase Analytics</h2>
+<h3 id="firebase-project-information">2.1 Firebase Project
+Information</h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Project Name</strong></td>
+<td>biotechmaali-14778</td>
+</tr>
+<tr>
+<td><strong>Android Package</strong></td>
+<td>com.biotechmaali.app</td>
+</tr>
+<tr>
+<td><strong>iOS Bundle ID</strong></td>
+<td>com.biotechmaali.app</td>
+</tr>
+</tbody>
+</table>
+<h3 id="access-requirements">2.2 Access Requirements</h3>
+<p>To access the Firebase Console, you need:</p>
+<ol type="1">
+<li>A Google account with access to the Biotechmaali Firebase
+project</li>
+<li>Appropriate permissions (Viewer, Editor, or Admin)</li>
+</ol>
+<h3 id="team-access-levels">2.3 Team Access Levels</h3>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Permissions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Admin</strong></td>
+<td>Full access to all settings and data</td>
+</tr>
+<tr>
+<td><strong>Editor</strong></td>
+<td>View and modify analytics, create reports</td>
+</tr>
+<tr>
+<td><strong>Viewer</strong></td>
+<td>View analytics data and reports only</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="accessing-the-firebase-console">3. Accessing the Firebase
+Console</h2>
+<h3 id="step-by-step-access">3.1 Step-by-Step Access</h3>
+<ol type="1">
+<li><strong>Go to Firebase Console</strong>
+<ul>
+<li>Open your browser</li>
+<li>Navigate to: https://console.firebase.google.com</li>
+</ul></li>
+<li><strong>Sign In</strong>
+<ul>
+<li>Sign in with your authorized Google account</li>
+<li>Select the <strong>biotechmaali-14778</strong> project</li>
+</ul></li>
+<li><strong>Navigate to Analytics</strong>
+<ul>
+<li>In the left sidebar, click on <strong>Analytics</strong></li>
+<li>Click on <strong>Dashboard</strong> to view the main overview</li>
+</ul></li>
+</ol>
+<h3 id="navigation-structure">3.2 Navigation Structure</h3>
+<pre><code>Firebase Console
+├── Analytics
+│   ├── Dashboard (Overview)
+│   ├── Realtime (Live data)
+│   ├── Events (All tracked events)
+│   ├── Conversions (Key events)
+│   ├── Audiences (User segments)
+│   ├── Custom Definitions
+│   │   ├── Custom Dimensions
+│   │   └── Custom Metrics
+│   ├── DebugView (Testing)
+│   └── Reports
+│       ├── User Engagement
+│       ├── Acquisition
+│       └── Monetization
+└── Project Settings</code></pre>
+<hr />
+<h2 id="dashboard-overview">4. Dashboard Overview</h2>
+<h3 id="key-metrics-on-dashboard">4.1 Key Metrics on Dashboard</h3>
+<table>
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 35%" />
+<col style="width: 43%" />
+</colgroup>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Description</th>
+<th>Why It Matters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Active Users</strong></td>
+<td>Users active in selected period</td>
+<td>Overall app engagement</td>
+</tr>
+<tr>
+<td><strong>New Users</strong></td>
+<td>First-time app users</td>
+<td>Growth indicator</td>
+</tr>
+<tr>
+<td><strong>Engagement Time</strong></td>
+<td>Average time spent in app</td>
+<td>User interest level</td>
+</tr>
+<tr>
+<td><strong>Total Revenue</strong></td>
+<td>Revenue from purchases</td>
+<td>Business performance</td>
+</tr>
+<tr>
+<td><strong>Sessions</strong></td>
+<td>Number of app sessions</td>
+<td>Usage frequency</td>
+</tr>
+<tr>
+<td><strong>Events</strong></td>
+<td>Total events triggered</td>
+<td>Feature usage</td>
+</tr>
+</tbody>
+</table>
+<h3 id="time-period-selection">4.2 Time Period Selection</h3>
+<p>You can view data for different time periods: - Last 7 days - Last 28
+days - Last 30 days - Last 90 days - Custom date range</p>
+<h3 id="comparison-mode">4.3 Comparison Mode</h3>
+<p>Compare current period with: - Previous period (week-over-week) -
+Same period last year (year-over-year)</p>
+<hr />
+<h2 id="events-tracked-in-biotechmaali-app">5. Events Tracked in
+Biotechmaali App</h2>
+<h3 id="screen-view-events">5.1 Screen View Events</h3>
+<p>Every screen in the app is tracked. When a user visits any screen,
+it’s automatically logged.</p>
+<table>
+<thead>
+<tr>
+<th>Screen Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SplashScreen</code></td>
+<td>App launch screen</td>
+</tr>
+<tr>
+<td><code>LoginScreen</code></td>
+<td>User login page</td>
+</tr>
+<tr>
+<td><code>MobileNumberScreen</code></td>
+<td>Phone number entry</td>
+</tr>
+<tr>
+<td><code>OtpScreen</code></td>
+<td>OTP verification</td>
+</tr>
+<tr>
+<td><code>HomeScreen</code></td>
+<td>Main home page</td>
+</tr>
+<tr>
+<td><code>ExploreScreen</code></td>
+<td>Product exploration</td>
+</tr>
+<tr>
+<td><code>CartScreen</code></td>
+<td>Shopping cart</td>
+</tr>
+<tr>
+<td><code>WishlistScreen</code></td>
+<td>Saved items</td>
+</tr>
+<tr>
+<td><code>AccountScreen</code></td>
+<td>User profile</td>
+</tr>
+<tr>
+<td><code>ProductDetailsScreen</code></td>
+<td>Product detail page</td>
+</tr>
+<tr>
+<td><code>ProductSearchScreen</code></td>
+<td>Search page</td>
+</tr>
+<tr>
+<td><code>OrderSummaryScreen</code></td>
+<td>Checkout summary</td>
+</tr>
+<tr>
+<td><code>ChoosePaymentScreen</code></td>
+<td>Payment selection</td>
+</tr>
+<tr>
+<td><code>OrderHistoryScreen</code></td>
+<td>Past orders</td>
+</tr>
+<tr>
+<td><code>WalletScreen</code></td>
+<td>Digital wallet</td>
+</tr>
+<tr>
+<td><code>ReferFriendScreen</code></td>
+<td>Referral program</td>
+</tr>
+</tbody>
+</table>
+<p><strong>How to Use:</strong> - Go to <strong>Events</strong> → Filter
+by <code>screen_view</code> - See which screens users visit most -
+Identify low-traffic screens that need attention</p>
+<hr />
+<h3 id="e-commerce-events">5.2 E-Commerce Events</h3>
+<p>These events track the complete shopping journey:</p>
+<h4 id="product-viewing">5.2.1 Product Viewing</h4>
+<table>
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 40%" />
+<col style="width: 37%" />
+</colgroup>
+<thead>
+<tr>
+<th>Event</th>
+<th>Description</th>
+<th>Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>view_item</code></td>
+<td>User viewed a product</td>
+<td>product_id, product_name, category, price</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Insight:</strong> Know which products attract the most
+attention.</p>
+<h4 id="cart-events">5.2.2 Cart Events</h4>
+<table>
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 40%" />
+<col style="width: 37%" />
+</colgroup>
+<thead>
+<tr>
+<th>Event</th>
+<th>Description</th>
+<th>Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>add_to_cart</code></td>
+<td>Item added to cart</td>
+<td>product_id, product_name, price, quantity</td>
+</tr>
+<tr>
+<td><code>remove_from_cart</code></td>
+<td>Item removed from cart</td>
+<td>product_id, product_name, price</td>
+</tr>
+<tr>
+<td><code>view_cart</code></td>
+<td>User viewed cart</td>
+<td>items, total_value</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Insight:</strong> Track cart abandonment and popular
+products.</p>
+<h4 id="wishlist-events">5.2.3 Wishlist Events</h4>
+<table>
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 40%" />
+<col style="width: 37%" />
+</colgroup>
+<thead>
+<tr>
+<th>Event</th>
+<th>Description</th>
+<th>Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>add_to_wishlist</code></td>
+<td>Item added to wishlist</td>
+<td>product_id, product_name, category, price</td>
+</tr>
+<tr>
+<td><code>remove_from_wishlist</code></td>
+<td>Item removed from wishlist</td>
+<td>product_id, product_name</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Insight:</strong> Understand product interest vs. purchase
+intent.</p>
+<h4 id="checkout-events">5.2.4 Checkout Events</h4>
+<table>
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 40%" />
+<col style="width: 37%" />
+</colgroup>
+<thead>
+<tr>
+<th>Event</th>
+<th>Description</th>
+<th>Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>begin_checkout</code></td>
+<td>Started checkout</td>
+<td>items, total_value, coupon_code</td>
+</tr>
+<tr>
+<td><code>add_shipping_info</code></td>
+<td>Added delivery address</td>
+<td>shipping_method, address_type</td>
+</tr>
+<tr>
+<td><code>add_payment_info</code></td>
+<td>Selected payment method</td>
+<td>payment_type, value</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Insight:</strong> Identify where users drop off during
+checkout.</p>
+<h4 id="purchase-events">5.2.5 Purchase Events</h4>
+<table>
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 40%" />
+<col style="width: 37%" />
+</colgroup>
+<thead>
+<tr>
+<th>Event</th>
+<th>Description</th>
+<th>Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>purchase</code></td>
+<td>Order completed</td>
+<td>transaction_id, total_value, items, payment_method</td>
+</tr>
+<tr>
+<td><code>payment_failed</code></td>
+<td>Payment unsuccessful</td>
+<td>payment_method, error_reason, amount</td>
+</tr>
+<tr>
+<td><code>refund</code></td>
+<td>Order refunded</td>
+<td>transaction_id, value, reason</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Insight:</strong> Track conversion rate and revenue.</p>
+<hr />
+<h3 id="search-events">5.3 Search Events</h3>
+<p>Track user search behavior:</p>
+<table>
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 40%" />
+<col style="width: 37%" />
+</colgroup>
+<thead>
+<tr>
+<th>Event</th>
+<th>Description</th>
+<th>Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>search</code></td>
+<td>User searched for product</td>
+<td>search_term, results_count</td>
+</tr>
+<tr>
+<td><code>search_no_results</code></td>
+<td>Search returned no results</td>
+<td>search_term</td>
+</tr>
+<tr>
+<td><code>voice_search</code></td>
+<td>User used voice search</td>
+<td>search_term</td>
+</tr>
+<tr>
+<td><code>search_result_click</code></td>
+<td>Clicked on search result</td>
+<td>search_term, product_id, position</td>
+</tr>
+<tr>
+<td><code>filter_applied</code></td>
+<td>Applied search filter</td>
+<td>filter_type, filter_value</td>
+</tr>
+<tr>
+<td><code>sort_applied</code></td>
+<td>Applied sorting</td>
+<td>sort_type</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Insight:</strong> - Find what products users search for -
+Identify gaps in inventory (search_no_results) - Optimize search
+algorithms</p>
+<hr />
+<h3 id="user-authentication-events">5.4 User Authentication Events</h3>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Description</th>
+<th>Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sign_up</code></td>
+<td>New user registered</td>
+<td>method (phone)</td>
+</tr>
+<tr>
+<td><code>login</code></td>
+<td>User logged in</td>
+<td>method (phone)</td>
+</tr>
+<tr>
+<td><code>logout</code></td>
+<td>User logged out</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>profile_update</code></td>
+<td>Profile info updated</td>
+<td>fields_updated</td>
+</tr>
+<tr>
+<td><code>address_added</code></td>
+<td>New address added</td>
+<td>address_type, city, pincode</td>
+</tr>
+<tr>
+<td><code>address_deleted</code></td>
+<td>Address removed</td>
+<td>address_type</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Insight:</strong> Track user registration and account
+activity.</p>
+<hr />
+<h3 id="navigation-events">5.5 Navigation Events</h3>
+<table>
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 40%" />
+<col style="width: 37%" />
+</colgroup>
+<thead>
+<tr>
+<th>Event</th>
+<th>Description</th>
+<th>Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bottom_nav_click</code></td>
+<td>Bottom navigation clicked</td>
+<td>tab_name, from_tab</td>
+</tr>
+<tr>
+<td><code>banner_click</code></td>
+<td>Promotional banner clicked</td>
+<td>banner_id, banner_name, position</td>
+</tr>
+<tr>
+<td><code>banner_view</code></td>
+<td>Banner was displayed</td>
+<td>banner_id, position</td>
+</tr>
+<tr>
+<td><code>category_click</code></td>
+<td>Category selected</td>
+<td>category_id, category_name</td>
+</tr>
+<tr>
+<td><code>button_click</code></td>
+<td>Button clicked</td>
+<td>button_name, screen_name</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Insight:</strong> Understand navigation patterns and banner
+effectiveness.</p>
+<hr />
+<h3 id="wallet-coins-events">5.6 Wallet &amp; Coins Events</h3>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Description</th>
+<th>Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>wallet_transaction</code></td>
+<td>Wallet credit/debit</td>
+<td>type, amount, source</td>
+</tr>
+<tr>
+<td><code>wallet_add_money</code></td>
+<td>Money added to wallet</td>
+<td>amount</td>
+</tr>
+<tr>
+<td><code>wallet_used</code></td>
+<td>Wallet used for payment</td>
+<td>amount</td>
+</tr>
+<tr>
+<td><code>coins_earned</code></td>
+<td>User earned coins</td>
+<td>coins, source</td>
+</tr>
+<tr>
+<td><code>coins_redeemed</code></td>
+<td>Coins used for purchase</td>
+<td>coins, value</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Insight:</strong> Track wallet adoption and reward program
+effectiveness.</p>
+<hr />
+<h3 id="referral-events">5.7 Referral Events</h3>
+<table>
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 40%" />
+<col style="width: 37%" />
+</colgroup>
+<thead>
+<tr>
+<th>Event</th>
+<th>Description</th>
+<th>Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>referral_shared</code></td>
+<td>User shared referral code</td>
+<td>method</td>
+</tr>
+<tr>
+<td><code>referral_applied</code></td>
+<td>Referral code used</td>
+<td>referral_code</td>
+</tr>
+<tr>
+<td><code>referral_success</code></td>
+<td>Referral completed</td>
+<td>referred_user_id, reward_value</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Insight:</strong> Measure referral program success.</p>
+<hr />
+<h3 id="store-franchise-events">5.8 Store &amp; Franchise Events</h3>
+<table>
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 40%" />
+<col style="width: 37%" />
+</colgroup>
+<thead>
+<tr>
+<th>Event</th>
+<th>Description</th>
+<th>Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>store_view</code></td>
+<td>Store page viewed</td>
+<td>store_id, store_name, city</td>
+</tr>
+<tr>
+<td><code>store_selected</code></td>
+<td>Store selected for delivery</td>
+<td>store_id, store_name</td>
+</tr>
+<tr>
+<td><code>franchise_enquiry</code></td>
+<td>Franchise enquiry submitted</td>
+<td>location, city, state</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Insight:</strong> Track store interest and franchise
+inquiries.</p>
+<hr />
+<h3 id="error-performance-events">5.9 Error &amp; Performance
+Events</h3>
+<table>
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 40%" />
+<col style="width: 37%" />
+</colgroup>
+<thead>
+<tr>
+<th>Event</th>
+<th>Description</th>
+<th>Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app_error</code></td>
+<td>App error occurred</td>
+<td>error_type, error_message, screen_name</td>
+</tr>
+<tr>
+<td><code>api_error</code></td>
+<td>API request failed</td>
+<td>endpoint, status_code, error_message</td>
+</tr>
+<tr>
+<td><code>payment_failed</code></td>
+<td>Payment unsuccessful</td>
+<td>payment_method, error_reason</td>
+</tr>
+<tr>
+<td><code>screen_load_time</code></td>
+<td>Screen loading time</td>
+<td>screen_name, load_time_ms</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Insight:</strong> Monitor app health and identify issues.</p>
+<hr />
+<h3 id="other-events">5.10 Other Events</h3>
+<table>
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 40%" />
+<col style="width: 37%" />
+</colgroup>
+<thead>
+<tr>
+<th>Event</th>
+<th>Description</th>
+<th>Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>share</code></td>
+<td>Content shared</td>
+<td>content_type, item_id, method</td>
+</tr>
+<tr>
+<td><code>product_rating</code></td>
+<td>Rating submitted</td>
+<td>product_id, rating, has_review</td>
+</tr>
+<tr>
+<td><code>coupon_applied</code></td>
+<td>Coupon code applied</td>
+<td>coupon_code, discount_value</td>
+</tr>
+<tr>
+<td><code>coupon_removed</code></td>
+<td>Coupon code removed</td>
+<td>coupon_code</td>
+</tr>
+<tr>
+<td><code>video_play</code></td>
+<td>Video played</td>
+<td>video_id, video_title</td>
+</tr>
+<tr>
+<td><code>notification_click</code></td>
+<td>Push notification clicked</td>
+<td>notification_type, action</td>
+</tr>
+<tr>
+<td><code>app_open</code></td>
+<td>App opened</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="user-properties">6. User Properties</h2>
+<p>User properties are attributes that describe segments of your user
+base.</p>
+<h3 id="tracked-user-properties">6.1 Tracked User Properties</h3>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 33%" />
+<col style="width: 41%" />
+</colgroup>
+<thead>
+<tr>
+<th>Property</th>
+<th>Description</th>
+<th>Example Values</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user_type</code></td>
+<td>Type of user</td>
+<td>guest, registered, premium</td>
+</tr>
+<tr>
+<td><code>preferred_payment</code></td>
+<td>Preferred payment method</td>
+<td>upi, card, cod, wallet</td>
+</tr>
+<tr>
+<td><code>preferred_category</code></td>
+<td>Most viewed category</td>
+<td>plants, seeds, tools</td>
+</tr>
+<tr>
+<td><code>total_orders</code></td>
+<td>Number of completed orders</td>
+<td>0, 5, 15, 50+</td>
+</tr>
+<tr>
+<td><code>total_spent</code></td>
+<td>Total amount spent</td>
+<td>0, 500, 5000, 50000</td>
+</tr>
+<tr>
+<td><code>user_city</code></td>
+<td>User’s city</td>
+<td>Bangalore, Mumbai, Delhi</td>
+</tr>
+<tr>
+<td><code>app_version</code></td>
+<td>App version installed</td>
+<td>1.0.0, 1.1.0, 2.0.0</td>
+</tr>
+<tr>
+<td><code>registration_date</code></td>
+<td>When user registered</td>
+<td>2024-01-15</td>
+</tr>
+</tbody>
+</table>
+<h3 id="using-user-properties">6.2 Using User Properties</h3>
+<ol type="1">
+<li><strong>Segment Users</strong>
+<ul>
+<li>Create audiences based on properties</li>
+<li>Example: Users with total_orders &gt; 5</li>
+</ul></li>
+<li><strong>Filter Reports</strong>
+<ul>
+<li>View events only for specific user segments</li>
+<li>Example: Revenue from premium users</li>
+</ul></li>
+<li><strong>Personalization</strong>
+<ul>
+<li>Use for targeted push notifications</li>
+<li>Example: Send offers to users in Mumbai</li>
+</ul></li>
+</ol>
+<hr />
+<h2 id="creating-custom-reports">7. Creating Custom Reports</h2>
+<h3 id="exploration-reports">7.1 Exploration Reports</h3>
+<ol type="1">
+<li>Go to <strong>Analytics</strong> → <strong>Explore</strong></li>
+<li>Click <strong>Create new exploration</strong></li>
+<li>Choose template or start blank</li>
+</ol>
+<h3 id="funnel-analysis">7.2 Funnel Analysis</h3>
+<p>Create funnels to track conversion:</p>
+<p><strong>Example: Purchase Funnel</strong></p>
+<pre><code>Step 1: view_item
+Step 2: add_to_cart
+Step 3: begin_checkout
+Step 4: add_payment_info
+Step 5: purchase</code></pre>
+<h3 id="path-analysis">7.3 Path Analysis</h3>
+<p>Visualize user navigation paths: - See common paths through the app -
+Identify unexpected navigation patterns</p>
+<h3 id="segment-comparison">7.4 Segment Comparison</h3>
+<p>Compare different user segments: - New vs returning users -
+High-value vs low-value customers - Different city users</p>
+<hr />
+<h2 id="understanding-audiences">8. Understanding Audiences</h2>
+<h3 id="built-in-audiences">8.1 Built-in Audiences</h3>
+<p>Firebase automatically creates:</p>
+<table>
+<thead>
+<tr>
+<th>Audience</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>All Users</td>
+<td>Everyone who opened the app</td>
+</tr>
+<tr>
+<td>Purchasers</td>
+<td>Users who made a purchase</td>
+</tr>
+<tr>
+<td>7-Day Active Users</td>
+<td>Users active in last 7 days</td>
+</tr>
+<tr>
+<td>28-Day Active Users</td>
+<td>Users active in last 28 days</td>
+</tr>
+</tbody>
+</table>
+<h3 id="creating-custom-audiences">8.2 Creating Custom Audiences</h3>
+<p><strong>Example: High-Value Customers</strong> - Condition: purchase
+events &gt; 3 in last 30 days - AND total_spent &gt; ₹5000</p>
+<p><strong>Example: Cart Abandoners</strong> - Condition: add_to_cart in
+last 7 days - AND NOT purchase in last 7 days</p>
+<h3 id="using-audiences">8.3 Using Audiences</h3>
+<ol type="1">
+<li><strong>Export to Ads</strong>
+<ul>
+<li>Use for Google Ads remarketing</li>
+<li>Target specific user groups</li>
+</ul></li>
+<li><strong>Push Notifications</strong>
+<ul>
+<li>Send targeted messages via FCM</li>
+</ul></li>
+<li><strong>A/B Testing</strong>
+<ul>
+<li>Test features with specific audiences</li>
+</ul></li>
+</ol>
+<hr />
+<h2 id="funnels-user-journeys">9. Funnels &amp; User Journeys</h2>
+<h3 id="key-funnels-to-monitor">9.1 Key Funnels to Monitor</h3>
+<h4 id="registration-funnel">9.1.1 Registration Funnel</h4>
+<pre><code>app_open → MobileNumberScreen → OtpScreen → HomeScreen (as registered)</code></pre>
+<p><strong>Metrics:</strong> - Registration completion rate - Drop-off
+at each step</p>
+<h4 id="purchase-funnel">9.1.2 Purchase Funnel</h4>
+<pre><code>view_item → add_to_cart → begin_checkout → add_payment_info → purchase</code></pre>
+<p><strong>Metrics:</strong> - Add to cart rate - Checkout completion
+rate - Purchase conversion rate</p>
+<h4 id="search-to-purchase">9.1.3 Search to Purchase</h4>
+<pre><code>search → view_item (from search) → add_to_cart → purchase</code></pre>
+<p><strong>Metrics:</strong> - Search-to-view rate - Search-to-purchase
+rate</p>
+<h3 id="creating-funnels-in-firebase">9.2 Creating Funnels in
+Firebase</h3>
+<ol type="1">
+<li>Go to <strong>Analytics</strong> → <strong>Explore</strong></li>
+<li>Select <strong>Funnel exploration</strong></li>
+<li>Add steps (events)</li>
+<li>View conversion rates</li>
+</ol>
+<hr />
+<h2 id="real-time-analytics">10. Real-Time Analytics</h2>
+<h3 id="accessing-real-time-view">10.1 Accessing Real-Time View</h3>
+<ol type="1">
+<li>Go to <strong>Analytics</strong> → <strong>Realtime</strong></li>
+<li>See live user activity</li>
+</ol>
+<h3 id="what-you-can-monitor">10.2 What You Can Monitor</h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Active Users</td>
+<td>Users currently in app</td>
+</tr>
+<tr>
+<td>Users by Screen</td>
+<td>Which screens are being viewed</td>
+</tr>
+<tr>
+<td>Events by Name</td>
+<td>Events happening now</td>
+</tr>
+<tr>
+<td>Users by Location</td>
+<td>Geographic distribution</td>
+</tr>
+</tbody>
+</table>
+<h3 id="use-cases">10.3 Use Cases</h3>
+<ul>
+<li><strong>Launch Monitoring</strong>: Track activity after new
+release</li>
+<li><strong>Campaign Tracking</strong>: See immediate response to
+promotions</li>
+<li><strong>Issue Detection</strong>: Spot problems quickly</li>
+</ul>
+<hr />
+<h2 id="export-integration">11. Export &amp; Integration</h2>
+<h3 id="bigquery-export">11.1 BigQuery Export</h3>
+<p>For advanced analysis: 1. Go to <strong>Project Settings</strong> →
+<strong>Integrations</strong> 2. Enable BigQuery 3. Query raw event data
+with SQL</p>
+<h3 id="google-ads-integration">11.2 Google Ads Integration</h3>
+<ol type="1">
+<li>Go to <strong>Project Settings</strong> →
+<strong>Integrations</strong></li>
+<li>Link Google Ads account</li>
+<li>Use audiences for remarketing</li>
+</ol>
+<h3 id="data-studio-reports">11.3 Data Studio Reports</h3>
+<ol type="1">
+<li>Create a Data Studio report</li>
+<li>Connect Firebase Analytics as data source</li>
+<li>Build custom dashboards</li>
+</ol>
+<h3 id="export-data">11.4 Export Data</h3>
+<ul>
+<li>Download CSV reports from any exploration</li>
+<li>Schedule automated reports via email</li>
+</ul>
+<hr />
+<h2 id="best-practices">12. Best Practices</h2>
+<h3 id="daily-monitoring">12.1 Daily Monitoring</h3>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Frequency</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Check active users</td>
+<td>Daily</td>
+</tr>
+<tr>
+<td>Monitor purchase events</td>
+<td>Daily</td>
+</tr>
+<tr>
+<td>Review error events</td>
+<td>Daily</td>
+</tr>
+<tr>
+<td>Check search_no_results</td>
+<td>Weekly</td>
+</tr>
+</tbody>
+</table>
+<h3 id="weekly-analysis">12.2 Weekly Analysis</h3>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compare week-over-week metrics</td>
+<td>Identify trends</td>
+</tr>
+<tr>
+<td>Review funnel conversion rates</td>
+<td>Find drop-offs</td>
+</tr>
+<tr>
+<td>Analyze top searched terms</td>
+<td>Product demand</td>
+</tr>
+<tr>
+<td>Check payment failures</td>
+<td>Fix issues</td>
+</tr>
+</tbody>
+</table>
+<h3 id="monthly-reports">12.3 Monthly Reports</h3>
+<table>
+<thead>
+<tr>
+<th>Report</th>
+<th>Include</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Executive Summary</td>
+<td>KPIs, trends, insights</td>
+</tr>
+<tr>
+<td>User Growth Report</td>
+<td>New users, retention</td>
+</tr>
+<tr>
+<td>Revenue Report</td>
+<td>Revenue, ARPU, transactions</td>
+</tr>
+<tr>
+<td>Product Performance</td>
+<td>Top products, views, conversions</td>
+</tr>
+</tbody>
+</table>
+<h3 id="actionable-insights">12.4 Actionable Insights</h3>
+<table>
+<colgroup>
+<col style="width: 52%" />
+<col style="width: 47%" />
+</colgroup>
+<thead>
+<tr>
+<th>Finding</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>High search_no_results for “organic fertilizer”</td>
+<td>Add product to inventory</td>
+</tr>
+<tr>
+<td>Payment failure rate &gt; 5%</td>
+<td>Investigate payment gateway</td>
+</tr>
+<tr>
+<td>Cart abandonment &gt; 70%</td>
+<td>Add cart reminders, simplify checkout</td>
+</tr>
+<tr>
+<td>Low engagement on Explore screen</td>
+<td>Improve UI/UX</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="glossary">13. Glossary</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Event</strong></td>
+<td>User action tracked in app (e.g., add_to_cart)</td>
+</tr>
+<tr>
+<td><strong>Parameter</strong></td>
+<td>Additional data sent with event (e.g., product_id)</td>
+</tr>
+<tr>
+<td><strong>User Property</strong></td>
+<td>Attribute describing user (e.g., user_city)</td>
+</tr>
+<tr>
+<td><strong>Session</strong></td>
+<td>Period of user engagement in app</td>
+</tr>
+<tr>
+<td><strong>Conversion</strong></td>
+<td>Key event you want users to complete</td>
+</tr>
+<tr>
+<td><strong>Funnel</strong></td>
+<td>Series of steps toward a goal</td>
+</tr>
+<tr>
+<td><strong>Audience</strong></td>
+<td>Group of users with shared characteristics</td>
+</tr>
+<tr>
+<td><strong>Attribution</strong></td>
+<td>Determining which source led to conversion</td>
+</tr>
+<tr>
+<td><strong>ARPU</strong></td>
+<td>Average Revenue Per User</td>
+</tr>
+<tr>
+<td><strong>DAU</strong></td>
+<td>Daily Active Users</td>
+</tr>
+<tr>
+<td><strong>MAU</strong></td>
+<td>Monthly Active Users</td>
+</tr>
+<tr>
+<td><strong>Retention</strong></td>
+<td>Users returning to app over time</td>
+</tr>
+<tr>
+<td><strong>Churn</strong></td>
+<td>Users who stop using the app</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="support-contact">14. Support &amp; Contact</h2>
+<h3 id="technical-support">14.1 Technical Support</h3>
+<p>For technical issues with analytics implementation: - Review Firebase
+documentation: https://firebase.google.com/docs/analytics - Check
+DebugView for real-time event testing</p>
+<h3 id="additional-resources">14.2 Additional Resources</h3>
+<table>
+<colgroup>
+<col style="width: 62%" />
+<col style="width: 37%" />
+</colgroup>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Link</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Firebase Analytics Documentation</td>
+<td>https://firebase.google.com/docs/analytics</td>
+</tr>
+<tr>
+<td>Google Analytics Help Center</td>
+<td>https://support.google.com/analytics</td>
+</tr>
+<tr>
+<td>Firebase YouTube Channel</td>
+<td>https://www.youtube.com/<span class="citation" data-cites="Firebase">@Firebase</span></td>
+</tr>
+</tbody>
+</table>
+<h3 id="data-privacy-note">14.3 Data Privacy Note</h3>
+<p>Firebase Analytics: - Does NOT collect personally identifiable
+information by default - Is compliant with GDPR and other privacy
+regulations - Allows users to opt-out of analytics collection</p>
+<hr />
+<h2 id="appendix-a-complete-event-reference">Appendix A: Complete Event
+Reference</h2>
+<h3 id="all-e-commerce-events">All E-Commerce Events</h3>
+<pre><code>view_item
+add_to_cart
+remove_from_cart
+view_cart
+add_to_wishlist
+remove_from_wishlist
+begin_checkout
+add_shipping_info
+add_payment_info
+purchase
+payment_failed
+refund</code></pre>
+<h3 id="all-search-events">All Search Events</h3>
+<pre><code>search
+search_no_results
+voice_search
+search_result_click
+search_with_filters
+filter_applied
+sort_applied</code></pre>
+<h3 id="all-user-events">All User Events</h3>
+<pre><code>sign_up
+login
+logout
+profile_update
+address_added
+address_deleted</code></pre>
+<h3 id="all-navigation-events">All Navigation Events</h3>
+<pre><code>screen_view
+bottom_nav_click
+banner_click
+banner_view
+category_click
+button_click
+back_button_press</code></pre>
+<h3 id="all-wallet-loyalty-events">All Wallet &amp; Loyalty Events</h3>
+<pre><code>wallet_transaction
+wallet_add_money
+wallet_used
+coins_earned
+coins_redeemed
+referral_shared
+referral_applied
+referral_success</code></pre>
+<h3 id="all-engagement-events">All Engagement Events</h3>
+<pre><code>share
+product_rating
+coupon_applied
+coupon_removed
+video_play
+notification_received
+notification_click</code></pre>
+<h3 id="all-error-events">All Error Events</h3>
+<pre><code>app_error
+api_error
+payment_failed</code></pre>
+<hr />
+<h2 id="appendix-b-key-metrics-dashboard-template">Appendix B: Key
+Metrics Dashboard Template</h2>
+<h3 id="weekly-kpi-dashboard">Weekly KPI Dashboard</h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Target</th>
+<th>Current</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Daily Active Users</td>
+<td>10,000</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>New User Registrations</td>
+<td>500/day</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Purchase Conversion Rate</td>
+<td>3%</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Cart Abandonment Rate</td>
+<td>&lt; 70%</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Average Order Value</td>
+<td>₹500</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Payment Failure Rate</td>
+<td>&lt; 2%</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Search-to-Purchase Rate</td>
+<td>5%</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="appendix-c-common-analysis-queries">Appendix C: Common Analysis
+Queries</h2>
+<h3 id="finding-top-products">Finding Top Products</h3>
+<p><strong>Steps:</strong> 1. Go to Events → view_item 2. Click on event
+3. View parameter: product_name 4. Sort by count</p>
+<h3 id="finding-search-gaps">Finding Search Gaps</h3>
+<p><strong>Steps:</strong> 1. Go to Events → search_no_results 2. View
+parameter: search_term 3. Export list of unmatched searches</p>
+<h3 id="tracking-campaign-performance">Tracking Campaign
+Performance</h3>
+<p><strong>Steps:</strong> 1. Add UTM parameters to campaign URLs 2.
+View Acquisition reports 3. Filter by campaign name</p>
+<hr />
+<p><strong>Document End</strong></p>
+<hr />
+<p><em>This document is proprietary to Biotechmaali Private Limited. The
+analytics implementation was completed in March 2026.</em></p>
+<p>© 2026 Biotechmaali Private Limited. All rights reserved.</p>
+</body>
+</html>

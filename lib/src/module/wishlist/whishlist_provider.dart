@@ -3,6 +3,7 @@ import 'package:biotech_maali/import.dart';
 import 'package:biotech_maali/src/widgets/add_to_wishlist.dart';
 import 'package:biotech_maali/src/module/wishlist/model/wishlist_model.dart';
 import 'package:biotech_maali/src/module/wishlist/whishlist_repository.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class WishlistProvider extends ChangeNotifier {
@@ -75,8 +76,21 @@ class WishlistProvider extends ChangeNotifier {
 
   Future<void> removeFromWishlist(int productId, BuildContext context) async {
     try {
+      // Get product details before removal for analytics
+      final productToRemove = _products.firstWhere(
+        (item) => item.id == productId,
+        orElse: () => _products.first,
+      );
+
       bool result = await _wishlistRepository.removeFromWishlist(productId);
       if (result) {
+        // Track remove from wishlist analytics
+        AnalyticsService().logRemoveFromWishlist(
+          productId: productToRemove.productId.toString(),
+          productName: productToRemove.name,
+          price: productToRemove.sellingPrice,
+        );
+
         _products.removeWhere((item) => item.id == productId);
         notifyListeners();
         final homeProvider = context.read<HomeProvider>();

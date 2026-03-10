@@ -5,6 +5,8 @@ import 'package:biotech_maali/src/module/cart/model/cart_item_model.dart';
 import 'package:biotech_maali/src/module/product_detail/product_details/product_details_repository.dart';
 import 'package:biotech_maali/src/widgets/add_to_cart.dart';
 import 'package:biotech_maali/src/widgets/delivery_unavailable_dialog.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
+import 'package:biotech_maali/core/services/in_app_messaging_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'cart_repository.dart';
 
@@ -102,6 +104,12 @@ class CartProvider extends ChangeNotifier {
   }
 
   Future<bool> deleteCartItem(int cartId, BuildContext context) async {
+    // Get item details before deletion for analytics
+    final itemToDelete = _cartItems.firstWhere(
+      (item) => item.id == cartId,
+      orElse: () => _cartItems.first,
+    );
+
     try {
       _isDeletingItem = true;
       _deleteLoadingStates[cartId] = true;
@@ -110,17 +118,19 @@ class CartProvider extends ChangeNotifier {
       final success = await _repository.deleteCartItem(cartId);
 
       if (success == true) {
+        // Track remove from cart analytics
+        AnalyticsService().logRemoveFromCart(
+          productId: itemToDelete.productId.toString(),
+          productName: itemToDelete.name,
+          price: double.tryParse(itemToDelete.mrp) ?? 0,
+          quantity: itemToDelete.quantity,
+        );
+
         _cartItems.removeWhere((item) => item.id == cartId);
         refreshAllProducts(context);
 
         // Show success message after a short delay to ensure UI updates
         await Future.delayed(const Duration(milliseconds: 500));
-
-        // Fluttertoast.showToast(
-        //   msg: "Item removed from cart successfully",
-        //   backgroundColor: Colors.green,
-        //   textColor: Colors.white,
-        // );
       } else {
         Fluttertoast.showToast(
           msg: "Failed to remove item",
@@ -245,10 +255,28 @@ class CartProvider extends ChangeNotifier {
       _isPlacingOrder = true;
       notifyListeners();
 
+      // Track begin checkout analytics
+      final cartItemsForAnalytics = _cartItems
+          .map((item) => {
+                'id': item.productId.toString(),
+                'name': item.name,
+                'price': double.tryParse(item.mrp) ?? 0,
+                'quantity': item.quantity,
+              })
+          .toList();
+
+      AnalyticsService().logBeginCheckout(
+        items: cartItemsForAnalytics,
+        totalValue: totalAmount,
+      );
+
       final orderResponse = await _repository.placeOrderFromCart();
 
       _isPlacingOrder = false;
       Fluttertoast.showToast(msg: "Order initiated successfully");
+
+      // Trigger FIAM order complete campaign (e.g. "Rate us / Reorder")
+      InAppMessagingService().triggerOrderComplete();
 
       context
           .read<OrderSummaryProvider>()

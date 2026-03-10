@@ -9,6 +9,8 @@ import 'package:biotech_maali/src/widgets/login_prompt_dialog.dart';
 import 'package:biotech_maali/src/module/product_list/product_list_shimmer.dart';
 import 'package:biotech_maali/src/widgets/shimmer/product_tile_shimmer.dart';
 import 'package:biotech_maali/src/widgets/no_products_found_widget.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
+import 'package:biotech_maali/core/services/in_app_messaging_service.dart';
 
 import '../../../../import.dart';
 
@@ -60,6 +62,21 @@ class _ProductListScreenState extends State<ProductListScreen> {
     // Defer the actual API call to after the first frame.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+
+      // Track which product list / category was opened
+      AnalyticsService()
+          .logScreenView(screenName: 'Product List - ${widget.title}');
+      AnalyticsService().logProductListViewed(
+        listName: widget.title,
+        listId: widget.id,
+        isCategory: widget.isCategory,
+      );
+
+      // Trigger FIAM offer campaign when OFFERS page is opened
+      if (widget.title.toLowerCase() == "offers") {
+        InAppMessagingService().triggerOfferPageView();
+      }
+
       if (widget.isCategory) {
         if (widget.title.toLowerCase() == "offers") {
           context.read<ProductListProdvider>().getOfferProductList(context);
@@ -489,6 +506,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
                             setState(() {
                               _selectedOption = sortOption;
                             });
+                            // Track sort option applied
+                            AnalyticsService().logSortOptionApplied(
+                              sortOption: sortOption,
+                              listName: widget.title,
+                            );
                             // Call the sorting method in the provider
                             context
                                 .read<ProductListProdvider>()

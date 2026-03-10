@@ -10,6 +10,8 @@ import 'package:biotech_maali/src/widgets/add_to_wishlist.dart';
 import 'package:biotech_maali/src/widgets/delivery_unavailable_dialog.dart';
 import 'package:biotech_maali/src/module/product_detail/product_details/model/product_details_model.dart';
 import 'package:biotech_maali/src/module/product_detail/product_details/product_details_repository.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
+import 'package:biotech_maali/core/services/in_app_messaging_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../../../import.dart';
@@ -147,6 +149,18 @@ class ProductDetailsProvider extends ChangeNotifier {
           await productDetailsRepository.fetchProductDetails(productId);
       _productDetails = details;
 
+      // Track view product analytics
+      AnalyticsService().logScreenView(
+        screenName: 'Product: ${details.data.product.mainProductName}',
+      );
+      AnalyticsService().logViewProduct(
+        productId: details.data.product.id.toString(),
+        productName: details.data.product.mainProductName,
+        price: details.data.product.sellingPrice,
+      );
+      // Trigger FIAM product detail campaign
+      InAppMessagingService().triggerProductDetailView();
+
       log("===== INITIAL PRODUCT DETAILS =====");
       log("Product ID: $productId");
       log("Images count: ${details.data.product.images.length}");
@@ -282,7 +296,18 @@ class ProductDetailsProvider extends ChangeNotifier {
         final productIndex =
             _productAddOn.indexWhere((product) => product.id == productId);
         if (productIndex != -1) {
+          final product = _productAddOn[productIndex];
           _productAddOn[productIndex].isCart = !isCart;
+
+          // Track add to cart analytics
+          if (!isCart) {
+            AnalyticsService().logAddToCart(
+              productId: product.id.toString(),
+              productName: product.name,
+              price: product.sellingPrice,
+              quantity: 1,
+            );
+          }
 
           notifyListeners(); // Notify listeners about the update
         }
@@ -621,6 +646,11 @@ class ProductDetailsProvider extends ChangeNotifier {
 
     if (result) {
       _quantity += newQuantity;
+      AnalyticsService().logQuantityChanged(
+        productId: productId.toString(),
+        productName: _productDetails?.data.product.mainProductName ?? '',
+        newQuantity: _quantity,
+      );
       notifyListeners();
     } else {
       Fluttertoast.showToast(msg: "Item is out of stock");
@@ -634,6 +664,11 @@ class ProductDetailsProvider extends ChangeNotifier {
     if (result == true) {
       if (_quantity > 1) {
         _quantity -= newQuantity;
+        AnalyticsService().logQuantityChanged(
+          productId: productId.toString(),
+          productName: _productDetails?.data.product.mainProductName ?? '',
+          newQuantity: _quantity,
+        );
         notifyListeners();
       }
     }
@@ -656,10 +691,16 @@ class ProductDetailsProvider extends ChangeNotifier {
       _deliveryPincode = result['pincode'];
       _deliveryState = result['state'];
       _isDeliveryAvailable = result['delivery_available'];
+      AnalyticsService().logPincodeCheck(
+        pincode: pincode,
+        isDeliverable: _isDeliveryAvailable ?? false,
+      );
     } catch (e) {
       _pincodeError = "we are not delivering to this area, we will come soon";
       _isDeliveryAvailable = null;
       _deliveryState = null;
+      AnalyticsService()
+          .logPincodeCheck(pincode: pincode, isDeliverable: false);
     } finally {
       _isCheckingPincode = false;
       notifyListeners();

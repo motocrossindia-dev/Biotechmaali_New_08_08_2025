@@ -1,6 +1,7 @@
 import 'package:biotech_maali/src/module/product_list/product_list/product_list_screen.dart';
 import 'package:biotech_maali/src/module/explore/model/subcategory_model.dart';
 import 'package:biotech_maali/src/widgets/error_message_widget.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
 
 import '../../../../import.dart';
 
@@ -81,6 +82,12 @@ class SubCategories extends StatelessWidget {
                   ),
                   child: InkWell(
                     onTap: () {
+                      // Track sub-category tap with parent category context
+                      AnalyticsService().logSubCategoryTapped(
+                        subCategoryId: subcategory.id.toString(),
+                        subCategoryName: subcategory.name,
+                        parentCategoryName: provider.selectedCategoryName,
+                      );
                       Navigator.push(
                         context,
                         MaterialPageRoute(

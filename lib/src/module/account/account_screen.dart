@@ -12,6 +12,7 @@ import 'package:biotech_maali/src/other_modules/contact_us/contact_us_screen.dar
 import 'package:biotech_maali/src/other_modules/franchise_enquiry/franchise_enquiry_screen.dart';
 import 'package:biotech_maali/src/other_modules/our_store/our_store_screen.dart';
 import 'package:biotech_maali/src/payment_and_order/order_history/order_history_screen.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
@@ -28,6 +29,8 @@ class _AccountScreenState extends State<AccountScreen> {
       context.read<WalletProvider>().fetchWalletDetails();
       context.read<AccountProvider>().getUserName();
       context.read<EditProfileProvider>().fetchProfileData();
+      AnalyticsService().logScreenView(screenName: 'Account Screen');
+      AnalyticsService().logAccountScreenViewed();
     });
 
     super.initState();
@@ -132,6 +135,8 @@ class _AccountScreenState extends State<AccountScreen> {
                             children: [
                               InkWell(
                                 onTap: () {
+                                  AnalyticsService()
+                                      .logAccountMenuTap(menuItem: 'My Orders');
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -188,6 +193,9 @@ class _AccountScreenState extends State<AccountScreen> {
                               sizedBoxHeight20,
                               InkWell(
                                 onTap: () {
+                                  AnalyticsService().logAccountMenuTap(
+                                      menuItem: 'My Profile');
+                                  AnalyticsService().logProfileOpened();
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -222,6 +230,9 @@ class _AccountScreenState extends State<AccountScreen> {
                               sizedBoxHeight10,
                               InkWell(
                                 onTap: () {
+                                  AnalyticsService().logAccountMenuTap(
+                                      menuItem: 'Track Order');
+                                  AnalyticsService().logTrackOrderOpened();
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -256,6 +267,9 @@ class _AccountScreenState extends State<AccountScreen> {
                               sizedBoxHeight10,
                               InkWell(
                                 onTap: () {
+                                  AnalyticsService().logAccountMenuTap(
+                                      menuItem: 'Add Address');
+                                  AnalyticsService().logAddressScreenOpened();
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -310,6 +324,8 @@ class _AccountScreenState extends State<AccountScreen> {
                               sizedBoxHeight20,
                               InkWell(
                                 onTap: () {
+                                  AnalyticsService()
+                                      .logAccountMenuTap(menuItem: 'Wallet');
                                   final walletProvider =
                                       context.read<WalletProvider>();
                                   walletProvider.fetchWalletDetails();
@@ -357,6 +373,8 @@ class _AccountScreenState extends State<AccountScreen> {
                               sizedBoxHeight20,
                               InkWell(
                                 onTap: () {
+                                  AnalyticsService()
+                                      .logAccountMenuTap(menuItem: 'Coin');
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -416,6 +434,9 @@ class _AccountScreenState extends State<AccountScreen> {
                               sizedBoxHeight15,
                               InkWell(
                                 onTap: () {
+                                  AnalyticsService().logAccountMenuTap(
+                                      menuItem: 'My Referrals');
+                                  AnalyticsService().logReferFriendOpened();
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -571,6 +592,12 @@ class _AccountScreenState extends State<AccountScreen> {
                                         sizedBoxHeight20,
                                         SubtitleWidget(
                                           onPressedCallBack: () {
+                                            AnalyticsService()
+                                                .logAccountMenuTap(
+                                                    menuItem:
+                                                        'Franchise Enquiry');
+                                            AnalyticsService()
+                                                .logFranchiseScreenOpened();
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
@@ -610,6 +637,11 @@ class _AccountScreenState extends State<AccountScreen> {
                                         sizedBoxHeight15,
                                         SubtitleWidget(
                                           onPressedCallBack: () {
+                                            AnalyticsService()
+                                                .logAccountMenuTap(
+                                                    menuItem: 'Careers');
+                                            AnalyticsService()
+                                                .logCareersOpened();
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
@@ -623,6 +655,11 @@ class _AccountScreenState extends State<AccountScreen> {
                                         sizedBoxHeight15,
                                         SubtitleWidget(
                                           onPressedCallBack: () {
+                                            AnalyticsService()
+                                                .logAccountMenuTap(
+                                                    menuItem: 'Our Stores');
+                                            AnalyticsService()
+                                                .logOurStoresOpened();
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
@@ -636,6 +673,11 @@ class _AccountScreenState extends State<AccountScreen> {
                                         sizedBoxHeight15,
                                         SubtitleWidget(
                                           onPressedCallBack: () {
+                                            AnalyticsService()
+                                                .logAccountMenuTap(
+                                                    menuItem: 'Contact Us');
+                                            AnalyticsService()
+                                                .logContactUsOpened();
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
@@ -932,6 +974,9 @@ void bottmomSheetLogout(BuildContext context) {
 
                     // Clear all user session data using DataManager
                     bool dataCleared = await DataManager.clearUserSession();
+
+                    // Log logout analytics
+                    AnalyticsService().logUserLogout();
 
                     // Also clear any remaining cache
                     await DataManager.clearCacheDirectory();

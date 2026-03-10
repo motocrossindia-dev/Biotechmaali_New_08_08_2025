@@ -1,6 +1,7 @@
 import 'package:biotech_maali/import.dart';
 import 'package:biotech_maali/src/payment_and_order/order_history/model.dart/order_history_model.dart';
 import 'package:biotech_maali/src/payment_and_order/order_history_detail/order_history_detail_shimmer.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
 import 'order_history_detail_provider.dart';
 import 'widgets/order_actions_sheet.dart';
 import 'model/order_history_detail_model.dart';
@@ -47,6 +48,15 @@ class _OrderHistoryDetailScreenState extends State<OrderHistoryDetailScreen> {
     context
         .read<OrderHistoryDetailProvider>()
         .fetchOrderDetails(widget.orderId);
+    // Track order detail view with all order metadata
+    AnalyticsService().logScreenView(screenName: 'Order Detail Screen');
+    AnalyticsService().logOrderDetailViewed(
+      orderId: widget.orderId.toString(),
+      orderNumber: widget.orderNumber,
+      grandTotal: widget.grandTotal,
+      orderStatus: widget.orderStatus,
+      paymentMethod: widget.paymentMethod,
+    );
   }
 
   @override

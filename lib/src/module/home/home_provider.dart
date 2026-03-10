@@ -10,6 +10,7 @@ import 'package:biotech_maali/src/module/home/model/promotional_banner_model.dar
 import 'package:biotech_maali/src/widgets/add_to_cart.dart';
 import 'package:biotech_maali/src/widgets/add_to_wishlist.dart';
 import 'package:biotech_maali/src/widgets/login_prompt_dialog.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../../import.dart';
@@ -248,7 +249,23 @@ class HomeProvider extends ChangeNotifier {
         final productIndex =
             _allProducts.indexWhere((product) => product.id == productId);
         if (productIndex != -1) {
+          final product = _allProducts[productIndex];
           _allProducts[productIndex].isWishlist = !isWishlist;
+
+          // Track wishlist analytics
+          if (!isWishlist) {
+            AnalyticsService().logAddToWishlist(
+              productId: product.id.toString(),
+              productName: product.name,
+              price: product.sellingPrice ?? 0,
+            );
+          } else {
+            AnalyticsService().logRemoveFromWishlist(
+              productId: product.id.toString(),
+              productName: product.name,
+              price: product.sellingPrice ?? 0,
+            );
+          }
 
           notifyListeners(); // Notify listeners about the update
         }
@@ -283,7 +300,18 @@ class HomeProvider extends ChangeNotifier {
         final productIndex =
             _allProducts.indexWhere((product) => product.id == productId);
         if (productIndex != -1) {
+          final product = _allProducts[productIndex];
           _allProducts[productIndex].isCart = !isCart;
+
+          // Track add to cart analytics
+          if (!isCart) {
+            AnalyticsService().logAddToCart(
+              productId: product.id.toString(),
+              productName: product.name,
+              price: product.sellingPrice ?? 0,
+              quantity: 1,
+            );
+          }
 
           notifyListeners(); // Notify listeners about the update
         }

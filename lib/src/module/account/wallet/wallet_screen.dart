@@ -1,12 +1,31 @@
 import 'package:biotech_maali/src/module/account/wallet/wallet_history/wallet_history_screen.dart';
 import 'package:biotech_maali/src/module/account/wallet/wallet_provider.dart';
 import 'package:biotech_maali/src/module/account/wallet/wallet_shimmer.dart';
+import 'package:biotech_maali/core/services/analytics_service.dart';
+import 'package:biotech_maali/core/services/in_app_messaging_service.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../import.dart';
 
-class WalletScreen extends StatelessWidget {
+class WalletScreen extends StatefulWidget {
   const WalletScreen({super.key});
+
+  @override
+  State<WalletScreen> createState() => _WalletScreenState();
+}
+
+class _WalletScreenState extends State<WalletScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final balance = context.read<WalletProvider>().balance;
+      AnalyticsService().logScreenView(screenName: 'Wallet Screen');
+      AnalyticsService().logWalletOpened(currentBalance: balance);
+      // Trigger FIAM wallet campaign
+      InAppMessagingService().triggerWalletView();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
