@@ -141,8 +141,17 @@ class ProductDetailsProvider extends ChangeNotifier {
   }
 
   Future<void> fetchProductDetails(int productId) async {
+    // Guard: if already loading the same product, skip
+    if (_isLoading && _productDetails?.data.product.id == productId) return;
+
     _isLoading = true;
     _error = null;
+    // Clear stale data from the previous product so the new screen
+    // shows the shimmer instead of the old product's content.
+    _productDetails = null;
+    _carouselProductImageList = [];
+    _productAddOn = [];
+    notifyListeners();
 
     try {
       final details =

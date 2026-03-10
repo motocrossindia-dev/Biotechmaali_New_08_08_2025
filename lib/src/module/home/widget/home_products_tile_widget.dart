@@ -132,9 +132,6 @@ class HomeProductsTileWidget extends StatelessWidget {
                             children: [
                               InkWell(
                                 onTap: () {
-                                  context
-                                      .read<ProductDetailsProvider>()
-                                      .fetchProductDetails(productDetails.id);
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(

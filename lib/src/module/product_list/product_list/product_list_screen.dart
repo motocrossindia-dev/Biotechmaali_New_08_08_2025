@@ -216,10 +216,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
                         Product product = products[index];
                         return InkWell(
                           onTap: () {
-                            context
-                                .read<ProductDetailsProvider>()
-                                .fetchProductDetails(product.prodId);
-
                             Navigator.push(
                               context,
                               MaterialPageRoute(

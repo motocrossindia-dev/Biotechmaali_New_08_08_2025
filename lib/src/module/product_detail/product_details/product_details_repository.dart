@@ -63,7 +63,7 @@ class ProductDetailsRepository {
         response = await _dio.get(EndUrl.recentlyViewedProductUrl);
       }
       if (response.statusCode == 200) {
-        log("Product details response: ${response.data}");
+        log("Recently viewed product response: ${response.data}");
         return RecentlyViewedResponse.fromJson(response.data);
       } else {
         log('Failed to get product details: ${response.statusMessage}');

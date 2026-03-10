@@ -187,9 +187,6 @@ class _OfferProductListWidgetState extends State<OfferProductListWidget> {
                         Product product = products[index];
                         return InkWell(
                           onTap: () {
-                            context
-                                .read<ProductDetailsProvider>()
-                                .fetchProductDetails(product.id);
                             Navigator.push(
                               context,
                               MaterialPageRoute(

@@ -71,9 +71,6 @@ class ProductListRecentlyViewedWidget extends StatelessWidget {
                     log('Recently Viewed Product Data: ${productData.sellingPrice.toString()}');
                     return InkWell(
                       onTap: () {
-                        context
-                            .read<ProductDetailsProvider>()
-                            .fetchProductDetails(productData.id);
                         Navigator.push(
                           context,
                           MaterialPageRoute(

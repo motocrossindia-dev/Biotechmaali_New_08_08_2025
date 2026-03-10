@@ -84,9 +84,6 @@ class CarouselWidget extends StatelessWidget {
                     }
 
                     // If productId exists, navigate to product details
-                    context
-                        .read<ProductDetailsProvider>()
-                        .fetchProductDetails(int.parse(productId));
                     Navigator.push(
                       context,
                       MaterialPageRoute(

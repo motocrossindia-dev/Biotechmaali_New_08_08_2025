@@ -165,9 +165,6 @@ class _BannerProductListScreenState extends State<BannerProductListScreen> {
 
                       return InkWell(
                         onTap: () {
-                          context
-                              .read<ProductDetailsProvider>()
-                              .fetchProductDetails(productDetails.prodId);
                           Navigator.push(
                             context,
                             MaterialPageRoute(

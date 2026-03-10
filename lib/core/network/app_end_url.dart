@@ -8,7 +8,7 @@ class EndUrl {
   static String registerWithMobileUrl = "${baseUrl}account/registerWithMobile/";
   static String homeProductsUrl = '${baseUrl}product/homeProducts/';
   static String promotionBannerUrl = "${baseUrl}promotion/banner/";
-  static String getProductDetailsUrl = "${baseUrl}product/defaultProduct/";
+  static String getProductDetailsUrl = "${baseUrl}product/product_detail_view/";
   static String addToCartUrl = "${baseUrl}order/cart/";
   static String getCartProductListUrl = "${baseUrl}order/cart/";
   static String updateCartProductQuantityUrl = "${baseUrl}order/cart/";

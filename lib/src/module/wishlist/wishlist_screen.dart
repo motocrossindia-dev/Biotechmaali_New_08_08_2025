@@ -108,9 +108,6 @@ class WishlistScreen extends StatelessWidget {
                         final product = provider.products[index];
                         return InkWell(
                           onTap: () {
-                            context
-                                .read<ProductDetailsProvider>()
-                                .fetchProductDetails(product.mainProductId);
                             Navigator.push(
                               context,
                               MaterialPageRoute(
