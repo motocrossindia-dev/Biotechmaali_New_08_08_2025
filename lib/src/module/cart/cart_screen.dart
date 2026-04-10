@@ -428,8 +428,8 @@ class _CartScreenState extends State<CartScreen> {
                 cartId: item.id,
                 productTitle: item.name,
                 productImage: item.image,
-                sellingPrice: double.parse(item.sellingPrice.toString()),
-                mrp: double.parse(item.mrp.toString()),
+                sellingPrice: item.sellingPriceWithGst,
+                mrp: item.mrpWithGst,
                 quantity: item.quantity,
                 stockStatus: item.stockStatus,
                 onQuantityChanged: (newQuantity) async {

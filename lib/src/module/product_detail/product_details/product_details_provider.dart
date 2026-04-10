@@ -461,12 +461,20 @@ class ProductDetailsProvider extends ChangeNotifier {
 
       // Preserve ratings and reviews from original product details
       if (_productDetails != null) {
+        // The filter API response does not return GST fields — carry them over
+        // from the original product so prices stay GST-inclusive.
+        final originalGst = _productDetails!.data.product.gst;
+        final filteredProduct =
+            filteredDetails.data.product.gst == null && originalGst != null
+                ? filteredDetails.data.product.copyWithGst(originalGst)
+                : filteredDetails.data.product;
+
         final ProductDetailModel mergedDetails = ProductDetailModel(
           message: filteredDetails.message,
           data: ProductData(
             productAddOns: filteredDetails.data.productAddOns,
             productType: filteredDetails.data.productType,
-            product: filteredDetails.data.product,
+            product: filteredProduct,
             productSizes: filteredDetails.data.productSizes,
             productPlanterSizes: filteredDetails.data.productPlanterSizes,
             productPlanters: filteredDetails.data.productPlanters,

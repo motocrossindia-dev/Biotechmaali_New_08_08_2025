@@ -130,15 +130,18 @@ class _HomeProductListScreenState extends State<HomeProductListScreen> {
                                 productImage: productDetails.image,
                                 tempImage:
                                     'assets/png/products/sample_product.png',
-                                discountAmount: productDetails.sellingPrice
+                                discountAmount: productDetails
+                                            .sellingPriceWithGst
                                             .toString() ==
                                         "null"
                                     ? "0.00"
-                                    : productDetails.sellingPrice.toString(),
+                                    : productDetails.sellingPriceWithGst
+                                        .toString(),
                                 actualAmount:
-                                    productDetails.mrp.toString() == "null"
+                                    productDetails.mrpWithGst.toString() ==
+                                            "null"
                                         ? "0.00"
-                                        : productDetails.mrp.toString(),
+                                        : productDetails.mrpWithGst.toString(),
                                 rating: productDetails.productRating.avgRating,
                                 home: true,
                                 isWishlist: productDetails.isWishlist,

@@ -10,6 +10,10 @@ class CartItemModel {
   final double discount;
   final String shortDescription;
   final String stockStatus;
+  final double? gst;
+  final double? igst;
+  final double? cgst;
+  final double? sgst;
 
   CartItemModel({
     required this.id,
@@ -23,7 +27,18 @@ class CartItemModel {
     required this.discount,
     required this.shortDescription,
     required this.stockStatus,
+    this.gst,
+    this.igst,
+    this.cgst,
+    this.sgst,
   });
+
+  static double? _parseDouble(dynamic value) {
+    if (value == null) return null;
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value);
+    return null;
+  }
 
   factory CartItemModel.fromJson(Map<String, dynamic> json) {
     return CartItemModel(
@@ -40,15 +55,38 @@ class CartItemModel {
       name: json['name'] ?? '',
       image: json['image'] ?? '',
       mrp: json['mrp'].toString(),
-      sellingPrice: json['selling_price'] is String
-          ? double.parse(json['selling_price'])
-          : (json['selling_price'] ?? 0).toDouble(),
-      discount: json['discount'] is String
-          ? double.parse(json['discount'])
-          : (json['discount'] ?? 0).toDouble(),
+      sellingPrice: _parseDouble(json['selling_price']) ?? 0,
+      discount: _parseDouble(json['discount']) ?? 0,
       shortDescription: json['short_description'] ?? '',
       stockStatus: json['stock_status'] ?? '',
+      gst: _parseDouble(json['gst']),
+      igst: _parseDouble(json['igst']),
+      cgst: _parseDouble(json['cgst']),
+      sgst: _parseDouble(json['sgst']),
     );
+  }
+
+  double get effectiveGstRate {
+    if (gst != null && gst! > 0) return gst!;
+    if (igst != null && igst! > 0) return igst!;
+    if ((cgst != null || sgst != null)) {
+      return (cgst ?? 0) + (sgst ?? 0);
+    }
+    return 0.0;
+  }
+
+  double get mrpValue => double.tryParse(mrp) ?? 0.0;
+
+  double get mrpWithGst {
+    final gstRate = effectiveGstRate;
+    if (gstRate <= 0) return mrpValue;
+    return mrpValue + (mrpValue * gstRate / 100);
+  }
+
+  double get sellingPriceWithGst {
+    final gstRate = effectiveGstRate;
+    if (gstRate <= 0) return sellingPrice;
+    return sellingPrice + (sellingPrice * gstRate / 100);
   }
 
   CartItemModel copyWith({
@@ -59,6 +97,10 @@ class CartItemModel {
     String? image,
     double? discount,
     double? sellingPrice,
+    double? gst,
+    double? igst,
+    double? cgst,
+    double? sgst,
   }) {
     return CartItemModel(
       id: id ?? this.id,
@@ -72,6 +114,10 @@ class CartItemModel {
       discount: discount ?? this.discount,
       shortDescription: shortDescription,
       stockStatus: stockStatus,
+      gst: gst ?? this.gst,
+      igst: igst ?? this.igst,
+      cgst: cgst ?? this.cgst,
+      sgst: sgst ?? this.sgst,
     );
   }
 }

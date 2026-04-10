@@ -180,8 +180,8 @@ class _BannerProductListScreenState extends State<BannerProductListScreen> {
                           productImage: productDetails.image,
                           tempImage: 'assets/png/products/sample_product.png',
                           discountAmount:
-                              productDetails.sellingPrice.toString(),
-                          actualAmount: productDetails.mrp.toString(),
+                              productDetails.sellingPriceWithGst.toString(),
+                          actualAmount: productDetails.mrpWithGst.toString(),
                           rating:
                               productDetails.productRating.avgRating.toDouble(),
                           home: true,

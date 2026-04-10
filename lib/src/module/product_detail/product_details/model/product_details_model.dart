@@ -83,6 +83,7 @@ class Product {
   final int id;
   final double mrp;
   final double sellingPrice;
+  final double? gst; // GST percentage e.g. 18.0 means 18%
   bool isCart;
   bool isWishlist;
   final bool inStock;
@@ -112,6 +113,7 @@ class Product {
     required this.id,
     required this.mrp,
     required this.sellingPrice,
+    this.gst,
     required this.isCart,
     required this.isWishlist,
     required this.images,
@@ -143,6 +145,7 @@ class Product {
       id: _parseId(json['id']),
       mrp: _parseDouble(json['mrp']),
       sellingPrice: _parseDouble(json['selling_price']),
+      gst: _resolveGst(json),
       isCart: json['is_cart'] ?? false,
       isWishlist: json['is_wishlist'] ?? false,
       // If the API omits stock fields, treat product as available by default
@@ -176,12 +179,47 @@ class Product {
     );
   }
 
+  // Creating a copy with a specific GST value (used when filter API omits gst)
+  Product copyWithGst(double gstValue) {
+    return Product(
+      id: id,
+      mrp: mrp,
+      sellingPrice: sellingPrice,
+      gst: gstValue,
+      isCart: isCart,
+      isWishlist: isWishlist,
+      images: images,
+      shortDescription: shortDescription,
+      mainProductName: mainProductName,
+      sizeId: sizeId,
+      planterSizeId: planterSizeId,
+      planterId: planterId,
+      weightId: weightId,
+      litreId: litreId,
+      colorId: colorId,
+      whatsIncluded: whatsIncluded,
+      videoLink: videoLink,
+      isPurchased: isPurchased,
+      inStock: inStock,
+      stockWord: stockWord,
+      description: description,
+      slug: slug,
+      categorySlug: categorySlug,
+      subCategorySlug: subCategorySlug,
+      metaTitle: metaTitle,
+      metaDescription: metaDescription,
+      metaKeywords: metaKeywords,
+      keywords: keywords,
+    );
+  }
+
   // Creating a copy with updated wishlist status
   Product copyWithWishlistStatus(bool isWishlist) {
     return Product(
       id: id,
       mrp: mrp,
       sellingPrice: sellingPrice,
+      gst: gst,
       isCart: isCart,
       isWishlist: isWishlist,
       images: images,
@@ -215,6 +253,7 @@ class Product {
       id: id,
       mrp: mrp,
       sellingPrice: sellingPrice,
+      gst: gst,
       isCart: isCart,
       isWishlist: isWishlist,
       images: images,
@@ -247,6 +286,18 @@ class Product {
     return stockWord.trim().toLowerCase() == 'instock' || inStock == true;
   }
 
+  /// MRP inclusive of GST. Falls back to raw mrp if gst is null/zero.
+  double get mrpWithGst {
+    if (gst == null || gst == 0) return mrp;
+    return mrp * (1 + gst! / 100);
+  }
+
+  /// Selling price inclusive of GST. Falls back to raw sellingPrice if gst is null/zero.
+  double get sellingPriceWithGst {
+    if (gst == null || gst == 0) return sellingPrice;
+    return sellingPrice * (1 + gst! / 100);
+  }
+
   static int _parseId(dynamic value) {
     if (value == null) return 0;
     if (value is int) return value;
@@ -267,6 +318,31 @@ class Product {
     if (value is double) return value;
     if (value is String) return double.tryParse(value) ?? 0.0;
     return 0.0;
+  }
+
+  static double? _parseNullableDouble(dynamic value) {
+    if (value == null) return null;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) return double.tryParse(value);
+    return null;
+  }
+
+  /// Tries 'gst' → 'igst' → ('cgst' + 'sgst') in order.
+  /// This handles all API response formats.
+  static double? _resolveGst(Map<String, dynamic> json) {
+    final gst = _parseNullableDouble(json['gst']);
+    if (gst != null && gst > 0) return gst;
+
+    final igst = _parseNullableDouble(json['igst']);
+    if (igst != null && igst > 0) return igst;
+
+    final cgst = _parseNullableDouble(json['cgst']) ?? 0.0;
+    final sgst = _parseNullableDouble(json['sgst']) ?? 0.0;
+    final combined = cgst + sgst;
+    if (combined > 0) return combined;
+
+    return null;
   }
 }
 

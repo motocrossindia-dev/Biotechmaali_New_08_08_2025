@@ -84,10 +84,10 @@ class ProductListRecentlyViewedWidget extends StatelessWidget {
                         productTitle: productData.name,
                         productImage: productData.image,
                         tempImage: 'assets/png/products/sample_product.png',
-                        discountAmount: productData.sellingPrice
-                            .toString(), // Selling price (lower price)
+                        discountAmount: productData.sellingPriceWithGst
+                            .toString(), // Selling price incl. GST
                         actualAmount:
-                            productData.mrp.toString(), // MRP (higher price)
+                            productData.mrpWithGst.toString(), // MRP incl. GST
                         rating: productData.productRating.avgRating,
                         isWishlist: productData.isWishlist,
                         isCart: productData.isCart,

@@ -52,7 +52,8 @@ class Product {
   final double sellingPrice;
   final String image;
   final ProductRating productRating;
-  final String? ribbon; // added based on JSON
+  final String? ribbon;
+  final double? gst; // GST percentage e.g. 18.0 means 18%
 
   Product({
     required this.id,
@@ -67,6 +68,7 @@ class Product {
     required this.image,
     required this.productRating,
     this.ribbon,
+    this.gst,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -89,7 +91,38 @@ class Product {
       productRating: ProductRating.fromJson(
           (json['product_rating'] ?? {}) as Map<String, dynamic>),
       ribbon: json['ribbon']?.toString(),
+      gst: _resolveGst(json),
     );
+  }
+
+  static double? _resolveGst(Map<String, dynamic> json) {
+    double? parse(dynamic v) {
+      if (v == null) return null;
+      if (v is double) return v;
+      if (v is int) return v.toDouble();
+      if (v is String) return double.tryParse(v);
+      return null;
+    }
+
+    final gst = parse(json['gst']);
+    if (gst != null && gst > 0) return gst;
+    final igst = parse(json['igst']);
+    if (igst != null && igst > 0) return igst;
+    final cgst = parse(json['cgst']) ?? 0.0;
+    final sgst = parse(json['sgst']) ?? 0.0;
+    final combined = cgst + sgst;
+    if (combined > 0) return combined;
+    return null;
+  }
+
+  double get mrpWithGst {
+    if (gst == null || gst == 0) return mrp;
+    return mrp * (1 + gst! / 100);
+  }
+
+  double get sellingPriceWithGst {
+    if (gst == null || gst == 0) return sellingPrice;
+    return sellingPrice * (1 + gst! / 100);
   }
 
   // Helper methods for parsing

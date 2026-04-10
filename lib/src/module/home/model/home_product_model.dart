@@ -13,7 +13,9 @@ class HomeProductModel {
   final String? image;
   final double? sellingPrice;
   final double? mrp;
+  final double? gst; // GST percentage e.g. 18.0 means 18%
   final String? ribbon; // Added ribbon field
+  final String? categorySlug; // used to infer GST when API omits it
 
   HomeProductModel({
     required this.id,
@@ -30,7 +32,9 @@ class HomeProductModel {
     this.image,
     this.sellingPrice,
     this.mrp,
+    this.gst,
     this.ribbon, // Added ribbon parameter
+    this.categorySlug,
   });
 
   String? getFullImageUrl() {
@@ -58,8 +62,56 @@ class HomeProductModel {
       image: json['image'],
       sellingPrice: json['selling_price']?.toDouble(),
       mrp: json['mrp']?.toDouble(),
+      categorySlug: json['category_slug']?.toString(),
+      gst: _resolveGst(json),
       ribbon: json['ribbon']?.toString(), // Added ribbon from JSON
     );
+  }
+
+  /// Tries 'gst' → 'igst' → ('cgst' + 'sgst') → category-based fallback.
+  static double? _resolveGst(Map<String, dynamic> json) {
+    double? parse(dynamic v) {
+      if (v == null) return null;
+      if (v is double) return v;
+      if (v is int) return v.toDouble();
+      if (v is String) return double.tryParse(v);
+      return null;
+    }
+
+    final gst = parse(json['gst']);
+    if (gst != null && gst > 0) return gst;
+    final igst = parse(json['igst']);
+    if (igst != null && igst > 0) return igst;
+    final cgst = parse(json['cgst']) ?? 0.0;
+    final sgst = parse(json['sgst']) ?? 0.0;
+    final combined = cgst + sgst;
+    if (combined > 0) return combined;
+
+    // Home product API omits GST — infer from category_slug.
+    // pots / seeds / plant-care accessories → 18%
+    // growing-media (soil, fertiliser) → 5%
+    // plants → 0%
+    final category = json['category_slug']?.toString().toLowerCase() ?? '';
+    final subCategory =
+        json['sub_category_slug']?.toString().toLowerCase() ?? '';
+    if (category == 'plants') return null; // 0% GST on live plants
+    if (subCategory.contains('growing-media')) return 5.0;
+    if (category == 'pots' || category == 'seeds' || category == 'plant-care') {
+      return 18.0;
+    }
+    return null;
+  }
+
+  double get mrpWithGst {
+    if (mrp == null) return 0.0;
+    if (gst == null || gst == 0) return mrp!;
+    return mrp! * (1 + gst! / 100);
+  }
+
+  double get sellingPriceWithGst {
+    if (sellingPrice == null) return 0.0;
+    if (gst == null || gst == 0) return sellingPrice!;
+    return sellingPrice! * (1 + gst! / 100);
   }
 
   Map<String, dynamic> toJson() => {

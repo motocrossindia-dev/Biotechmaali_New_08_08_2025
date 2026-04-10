@@ -44,6 +44,11 @@ class HomeRepository {
 
         final List<dynamic> productsData = responseData['data']['products'];
         log("Home Product Data ============== ${productsData.toString()}");
+        // DEBUG: check first product's GST fields
+        if (productsData.isNotEmpty) {
+          final first = productsData.first as Map<String, dynamic>;
+          log("HOME GST CHECK → id:${first['id']} gst:${first['gst']} igst:${first['igst']} cgst:${first['cgst']} sgst:${first['sgst']}");
+        }
         return productsData
             .map((product) =>
                 HomeProductModel.fromJson(product as Map<String, dynamic>))

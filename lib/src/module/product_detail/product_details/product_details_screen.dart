@@ -209,23 +209,25 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                   children: [
                                     CommonTextWidget(
                                       title:
-                                          '₹${productDetail.product.sellingPrice.toInt()}',
+                                          '₹${productDetail.product.sellingPriceWithGst.toInt()}',
                                       fontSize: isTablet ? 18 : 16,
                                       fontWeight: FontWeight.w600,
                                       color: cProductRate,
                                     ),
-                                    if (productDetail.product.mrp >
-                                        productDetail.product.sellingPrice)
+                                    if (productDetail.product.mrpWithGst >
+                                        productDetail
+                                            .product.sellingPriceWithGst)
                                       CommonTextWidget(
                                         title:
-                                            '₹${productDetail.product.mrp.toInt()}',
+                                            '₹${productDetail.product.mrpWithGst.toInt()}',
                                         fontSize: isTablet ? 14 : 12,
                                         fontWeight: FontWeight.w400,
                                         color: cProductRateCrossed,
                                         lineThrough: TextDecoration.lineThrough,
                                       ),
-                                    if (productDetail.product.mrp >
-                                        productDetail.product.sellingPrice)
+                                    if (productDetail.product.mrpWithGst >
+                                        productDetail
+                                            .product.sellingPriceWithGst)
                                       Container(
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 8, vertical: 4),
@@ -237,8 +239,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                         child: CommonTextWidget(
                                           title: _calculateDiscountPercentage(
                                               productDetail
-                                                  .product.sellingPrice,
-                                              productDetail.product.mrp),
+                                                  .product.sellingPriceWithGst,
+                                              productDetail.product.mrpWithGst),
                                           fontSize: 11,
                                           fontWeight: FontWeight.w500,
                                           color: Colors.white,

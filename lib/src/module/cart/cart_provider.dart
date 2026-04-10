@@ -45,12 +45,15 @@ class CartProvider extends ChangeNotifier {
 
   double get totalAmount {
     return _cartItems.fold(
-        0, (sum, item) => sum + (double.parse(item.mrp) * item.quantity));
+        0.0, (sum, item) => sum + (item.mrpWithGst * item.quantity));
   }
 
   double get totalDiscount {
     return _cartItems.fold(
-        0, (sum, itme) => sum + (itme.discount * itme.quantity));
+        0.0,
+        (sum, item) =>
+            sum +
+            ((item.mrpWithGst - item.sellingPriceWithGst) * item.quantity));
   }
 
   Future<void> fetchCartItems() async {
@@ -260,7 +263,7 @@ class CartProvider extends ChangeNotifier {
           .map((item) => {
                 'id': item.productId.toString(),
                 'name': item.name,
-                'price': double.tryParse(item.mrp) ?? 0,
+                'price': item.mrpWithGst,
                 'quantity': item.quantity,
               })
           .toList();

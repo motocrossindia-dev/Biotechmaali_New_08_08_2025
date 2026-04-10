@@ -147,15 +147,18 @@ class HomeProductsTileWidget extends StatelessWidget {
                                   productImage: productDetails.image,
                                   tempImage:
                                       'assets/png/products/sample_product.png',
-                                  discountAmount: productDetails.sellingPrice
+                                  discountAmount: productDetails
+                                              .sellingPriceWithGst
                                               .toString() ==
                                           "null"
                                       ? "0.00"
-                                      : productDetails.sellingPrice.toString(),
-                                  actualAmount:
-                                      productDetails.mrp.toString() == "null"
-                                          ? "0.00"
-                                          : productDetails.mrp.toString(),
+                                      : productDetails.sellingPriceWithGst
+                                          .toString(),
+                                  actualAmount: productDetails.mrpWithGst
+                                              .toString() ==
+                                          "null"
+                                      ? "0.00"
+                                      : productDetails.mrpWithGst.toString(),
                                   rating:
                                       productDetails.productRating.avgRating,
                                   home: false, // Show favorite button on image

@@ -38,6 +38,7 @@ class RecentlyViewedProduct {
   bool isWishlist;
   final double mrp;
   final double sellingPrice;
+  final double? gst; // GST percentage e.g. 18.0 means 18%
   final String image;
   final ProductRating productRating;
 
@@ -48,6 +49,7 @@ class RecentlyViewedProduct {
     required this.isWishlist,
     required this.mrp,
     required this.sellingPrice,
+    this.gst,
     required this.image,
     required this.productRating,
   });
@@ -60,9 +62,46 @@ class RecentlyViewedProduct {
       isWishlist: json['is_wishlist'] ?? false,
       mrp: (json['mrp'] as num?)?.toDouble() ?? 0.0,
       sellingPrice: (json['selling_price'] as num?)?.toDouble() ?? 0.0,
+      gst: _resolveGst(json),
       image: json['image'] ?? '',
       productRating: ProductRating.fromJson(json['product_rating'] ?? {}),
     );
+  }
+
+  /// MRP inclusive of GST. Falls back to raw mrp if gst is null/zero.
+  double get mrpWithGst {
+    if (gst == null || gst == 0) return mrp;
+    return mrp * (1 + gst! / 100);
+  }
+
+  /// Selling price inclusive of GST. Falls back to raw sellingPrice if gst is null/zero.
+  double get sellingPriceWithGst {
+    if (gst == null || gst == 0) return sellingPrice;
+    return sellingPrice * (1 + gst! / 100);
+  }
+
+  /// Tries 'gst' → 'igst' → ('cgst' + 'sgst') in order.
+  static double? _resolveGst(Map<String, dynamic> json) {
+    double? parse(dynamic v) {
+      if (v == null) return null;
+      if (v is double) return v;
+      if (v is int) return v.toDouble();
+      if (v is String) return double.tryParse(v);
+      return null;
+    }
+
+    final gst = parse(json['gst']);
+    if (gst != null && gst > 0) return gst;
+
+    final igst = parse(json['igst']);
+    if (igst != null && igst > 0) return igst;
+
+    final cgst = parse(json['cgst']) ?? 0.0;
+    final sgst = parse(json['sgst']) ?? 0.0;
+    final combined = cgst + sgst;
+    if (combined > 0) return combined;
+
+    return null;
   }
 }
 
