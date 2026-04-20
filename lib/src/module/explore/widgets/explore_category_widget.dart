@@ -10,7 +10,6 @@ class ExploreCategoryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const baseUrl = BaseUrl.baseUrlForImages;
     final exploreProvider = context.read<ExploreProvider>();
     final exploreProviderWatch = context.watch<ExploreProvider>();
 
@@ -85,7 +84,7 @@ class ExploreCategoryWidget extends StatelessWidget {
                                   padding: const EdgeInsets.all(8.0),
                                   child: Center(
                                     child: NetworkImageWidget(
-                                      imageUrl: '$baseUrl${category.image}',
+                                      imageUrl: category.image,
                                       fit: BoxFit.fill,
                                       placeholder: (context, url) =>
                                           const Center(

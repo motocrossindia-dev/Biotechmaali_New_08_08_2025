@@ -53,12 +53,8 @@ class _CartScreenState extends State<CartScreen> {
       onPopInvoked: (didPop) {
         if (didPop) {
           if (widget.isCategory) {
-            if (widget.title == "OFFERS") {
-              context.read<ProductListProdvider>().getOfferProductList(context);
-            } else {
-              context.read<ProductListProdvider>().getCategoryProductList(
-                  categoryType: ProductListProdvider.toApiType(widget.id));
-            }
+            context.read<ProductListProdvider>().getCategoryProductList(
+                categoryId: widget.id);
           } else if (widget.isSubCategory == true) {
             context
                 .read<ProductListProdvider>()

@@ -3,7 +3,6 @@ import 'package:biotech_maali/import.dart';
 import 'package:biotech_maali/src/module/cart/cart_provider.dart';
 import 'package:biotech_maali/src/module/product_list/product_list/model/product_list_model.dart';
 import 'package:biotech_maali/src/module/product_list/product_list/product_list_repository.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class ProductListProdvider extends ChangeNotifier {
   ProductListRepository productListRepository = ProductListRepository();
@@ -11,10 +10,6 @@ class ProductListProdvider extends ChangeNotifier {
   List<Product> _allProducts = [];
   List<Product> _originalProducts = [];
 
-  List<Product> _offerProducts = [];
-  List<Product> _originalOfferProducts = [];
-  List<Product> get offerProducts => _offerProducts;
-  List<Product> get originalOfferProducts => _originalOfferProducts;
   bool _isLoading = false;
   String _currentSortOption = 'Default';
 
@@ -41,16 +36,8 @@ class ProductListProdvider extends ChangeNotifier {
     _allProducts = [];
     _originalProducts = [];
     _currentSortOption = 'Default';
-  }
-
-  /// Same as [resetForNewLoad] but for offer products.
-  void resetForNewOfferLoad() {
-    _loadGeneration++;
-    _isLoading = true;
-    _nextPageUrl = null;
-    _offerProducts = [];
-    _originalOfferProducts = [];
-    _currentSortOption = 'Default';
+    // No notifyListeners() here — called synchronously in initState,
+    // the first build() will read these values directly.
   }
 
   Future<void> setFilteredProducts(List<Product> products) async {
@@ -78,23 +65,6 @@ class ProductListProdvider extends ChangeNotifier {
     }
   }
 
-  void updateOfferWishList(bool isWishlist, int productId) {
-    final productIndex =
-        _offerProducts.indexWhere((product) => product.prodId == productId);
-    if (productIndex != -1) {
-      _offerProducts[productIndex].isWishlist = !isWishlist;
-
-      // Also update in original list
-      final originalIndex = _originalOfferProducts
-          .indexWhere((product) => product.prodId == productId);
-      if (originalIndex != -1) {
-        _originalOfferProducts[originalIndex].isWishlist = !isWishlist;
-      }
-
-      notifyListeners();
-    }
-  }
-
   Future<void> updateCart(
       bool isCart, int productId, BuildContext context) async {
     final cartProvider = context.read<CartProvider>();
@@ -116,42 +86,10 @@ class ProductListProdvider extends ChangeNotifier {
     }
   }
 
-  Future<void> updateOfferCart(
-      bool isCart, int productId, BuildContext context) async {
-    final cartProvider = context.read<CartProvider>();
-    await cartProvider.fetchCartItems();
-
-    final productIndex =
-        _offerProducts.indexWhere((product) => product.prodId == productId);
-    if (productIndex != -1) {
-      _offerProducts[productIndex].isCart = !isCart;
-
-      // Also update in original list
-      final originalIndex = _originalOfferProducts
-          .indexWhere((product) => product.prodId == productId);
-      if (originalIndex != -1) {
-        _originalOfferProducts[originalIndex].isCart = !isCart;
-      }
-
-      notifyListeners();
-    }
-  }
-
-  /// Converts a category display name (e.g., "PLANTS", "POTS") to the
-  /// singular, lowercase type expected by the API (e.g., "plant", "pot").
-  static String toApiType(String categoryName) {
-    final t = categoryName.trim().toLowerCase();
-    if (t == 'pots' || t == 'pot') return 'pot';
-    if (t == 'plants' || t == 'plant') return 'plant';
-    if (t == 'seeds' || t == 'seed') return 'seed';
-    if (t == 'tools' || t == 'tool') return 'tool';
-    if (t == 'plant care' || t == 'plantcare') return 'plantcare';
-    if (t == 'offers' || t == 'offer') return 'offer';
-    return t;
-  }
-
+  /// Fetches products for a category by its ID.
+  /// All categories (plants, pots, offers, etc.) use this single method.
   Future<void> getCategoryProductList(
-      {String? categoryType, bool loadMore = false}) async {
+      {required String categoryId, bool loadMore = false}) async {
     if (loadMore) {
       if (_isLoadingMore || !hasMoreData) return;
       _isLoadingMore = true;
@@ -170,7 +108,7 @@ class ProductListProdvider extends ChangeNotifier {
 
     try {
       final result = await productListRepository.getCotegoryProductList(
-        categoryType!,
+        categoryId,
         nextPageUrl: loadMore ? _nextPageUrl : null,
       );
 
@@ -236,63 +174,6 @@ class ProductListProdvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       log("error : ${e.toString()}");
-    } finally {
-      if (thisGeneration == _loadGeneration) {
-        _isLoading = false;
-        _isLoadingMore = false;
-        notifyListeners();
-      }
-    }
-  }
-
-  Future<void> getOfferProductList(BuildContext context,
-      {bool loadMore = false}) async {
-    if (loadMore) {
-      if (_isLoadingMore || !hasMoreData) return;
-      _isLoadingMore = true;
-      notifyListeners();
-    } else {
-      _loadGeneration++;
-      _isLoading = true;
-      _nextPageUrl = null;
-      _offerProducts = [];
-      _originalOfferProducts = [];
-      notifyListeners();
-    }
-
-    final int thisGeneration = _loadGeneration;
-
-    try {
-      final result = await productListRepository.getOfferProducts(
-        nextPageUrl: loadMore ? _nextPageUrl : null,
-      );
-
-      if (thisGeneration != _loadGeneration) return;
-
-      if (loadMore) {
-        _offerProducts.addAll(result.products);
-        _originalOfferProducts.addAll(result.products);
-      } else {
-        _offerProducts = result.products;
-        _originalOfferProducts = List.from(result.products);
-      }
-
-      _nextPageUrl = result.nextPage;
-      notifyListeners();
-    } catch (e) {
-      log("error : ${e.toString()}");
-      Fluttertoast.showToast(
-          msg: "Something went wrong",
-          textColor: cWhiteColor,
-          backgroundColor: cBottomNav);
-      context.read<BottomNavProvider>().updateIndex(0);
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const BottomNavWidget(),
-        ),
-        (route) => false,
-      );
     } finally {
       if (thisGeneration == _loadGeneration) {
         _isLoading = false;

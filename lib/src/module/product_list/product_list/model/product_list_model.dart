@@ -54,6 +54,10 @@ class Product {
   final ProductRating productRating;
   final String? ribbon;
   final double? gst; // GST percentage e.g. 18.0 means 18%
+  final List<String>? flags;
+  final bool? isStock;
+  final int? stock;
+  final String? subCategorySlug;
 
   Product({
     required this.id,
@@ -69,6 +73,10 @@ class Product {
     required this.productRating,
     this.ribbon,
     this.gst,
+    this.flags,
+    this.isStock,
+    this.stock,
+    this.subCategorySlug,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -92,6 +100,10 @@ class Product {
           (json['product_rating'] ?? {}) as Map<String, dynamic>),
       ribbon: json['ribbon']?.toString(),
       gst: _resolveGst(json),
+      flags: json['flags'] != null ? List<String>.from(json['flags']) : null,
+      isStock: json['is_stock'] != null ? _parseBool(json['is_stock']) : null,
+      stock: json['stock'] != null ? _parseInt(json['stock']) : null,
+      subCategorySlug: json['sub_category_slug']?.toString(),
     );
   }
 
@@ -168,6 +180,10 @@ class Product {
       'image': image,
       'product_rating': productRating.toJson(),
       'ribbon': ribbon,
+      'flags': flags,
+      'is_stock': isStock,
+      'stock': stock,
+      'sub_category_slug': subCategorySlug,
     };
   }
 }

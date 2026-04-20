@@ -2,9 +2,7 @@ import 'dart:developer';
 
 import 'package:biotech_maali/src/module/home/model/category_model.dart';
 import 'package:biotech_maali/src/module/product_list/product_list/product_list_screen.dart';
-import 'package:biotech_maali/src/module/product_list/product_list/widgets/offer_product_list_widget.dart';
 import 'package:biotech_maali/src/other_modules/services/services_screen.dart';
-import 'package:biotech_maali/src/widgets/coming_soon_screen.dart';
 import 'package:lottie/lottie.dart';
 
 import '../../../../import.dart';
@@ -65,7 +63,6 @@ class CategoryWidget extends StatelessWidget {
       height: 125,
       child: Consumer<HomeProvider>(
         builder: (context, provider, child) {
-          const baseUrl = BaseUrl.baseUrlForImages;
           List<MainCategoryModel> maincategories = provider.maincategories;
 
           // Filter out unpublished categories and sort by order
@@ -84,41 +81,23 @@ class CategoryWidget extends StatelessWidget {
                 child: InkWell(
                   onTap: () {
                     log("category name: ${category.name}");
-                    if (category.name == "SERVICES") {
+                    if (category.slug == 'services') {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => const ServicesScreen(),
                         ),
                       );
-                    } else if (category.name.toLowerCase() == 'gifts') {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ComingSoonScreen(
-                            title: category.name,
-                          ),
-                        ),
-                      );
-                    } else if (category.name.toLowerCase() == 'offers') {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => OfferProductListWidget(
-                            isCategory: true,
-                            title: 'OFFERS',
-                            id: category.id.toString(),
-                          ),
-                        ),
-                      );
                     } else {
+                      // navigate to the same unified ProductListScreen
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => ProductListScreen(
                             isCategory: true,
                             title: category.name,
-                            id: category.name,
+                            id: category.id.toString(),
+                            categoryName: category.slug,
                           ),
                         ),
                       );
@@ -145,7 +124,7 @@ class CategoryWidget extends StatelessWidget {
                                 padding: const EdgeInsets.all(
                                     11), // Add padding to reduce image size
                                 child: NetworkImageWidget(
-                                  imageUrl: '$baseUrl${category.image}',
+                                  imageUrl: category.image,
                                   fit: BoxFit.fill,
                                   width: 48,
                                   height: 48,

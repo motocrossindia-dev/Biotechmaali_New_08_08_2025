@@ -16,6 +16,10 @@ class HomeProductModel {
   final double? gst; // GST percentage e.g. 18.0 means 18%
   final String? ribbon; // Added ribbon field
   final String? categorySlug; // used to infer GST when API omits it
+  final String? subCategorySlug;
+  final List<String>? flags;
+  final bool? isStock;
+  final int? stock;
 
   HomeProductModel({
     required this.id,
@@ -35,6 +39,10 @@ class HomeProductModel {
     this.gst,
     this.ribbon, // Added ribbon parameter
     this.categorySlug,
+    this.subCategorySlug,
+    this.flags,
+    this.isStock,
+    this.stock,
   });
 
   String? getFullImageUrl() {
@@ -63,9 +71,30 @@ class HomeProductModel {
       sellingPrice: json['selling_price']?.toDouble(),
       mrp: json['mrp']?.toDouble(),
       categorySlug: json['category_slug']?.toString(),
+      subCategorySlug: json['sub_category_slug']?.toString(),
       gst: _resolveGst(json),
       ribbon: json['ribbon']?.toString(), // Added ribbon from JSON
+      flags: json['flags'] != null ? List<String>.from(json['flags']) : null,
+      isStock: json['is_stock'] != null ? _parseBool(json['is_stock']) : null,
+      stock: json['stock'] != null ? _parseInt(json['stock']) : null,
     );
+  }
+
+  static bool _parseBool(dynamic value) {
+    if (value is bool) return value;
+    if (value is int) return value != 0;
+    if (value is String) {
+      final v = value.toLowerCase().trim();
+      return v == 'true' || v == '1' || v == 'yes';
+    }
+    return false;
+  }
+
+  static int _parseInt(dynamic value) {
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
   }
 
   /// Tries 'gst' → 'igst' → ('cgst' + 'sgst') → category-based fallback.
@@ -130,6 +159,10 @@ class HomeProductModel {
         'selling_price': sellingPrice,
         'mrp': mrp,
         'ribbon': ribbon, // Added ribbon to JSON
+        'sub_category_slug': subCategorySlug,
+        'flags': flags,
+        'is_stock': isStock,
+        'stock': stock,
       };
 
   bool get isBuyable {

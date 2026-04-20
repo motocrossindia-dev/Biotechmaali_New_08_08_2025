@@ -38,12 +38,12 @@ class FilterResponseModel {
         .toList();
   }
 
-  // Parse planters with id and name
-  List<FilterOption>? get planters {
+  // Parse planters with id (string) and name
+  List<FilterStringOption>? get planters {
     final planterList = filters['planter'] as List?;
     if (planterList == null) return null;
     return planterList
-        .map((item) => FilterOption.fromJson(item as Map<String, dynamic>))
+        .map((item) => FilterStringOption.fromJson(item as Map<String, dynamic>))
         .toList();
   }
 
@@ -56,16 +56,70 @@ class FilterResponseModel {
         .toList();
   }
 
-  // Parse weights with id and name
+  // Parse weights with id and name (API key is 'weight')
   List<FilterOption>? get weights {
-    final weightList = filters['weights'] as List?;
+    final weightList = filters['weight'] as List?;
     if (weightList == null) return null;
     return weightList
         .map((item) => FilterOption.fromJson(item as Map<String, dynamic>))
         .toList();
   }
 
-  // Parse litre sizes with id and name
+  // Parse volumes with id and name
+  List<FilterOption>? get volumes {
+    final volumeList = filters['volume'] as List?;
+    if (volumeList == null) return null;
+    return volumeList
+        .map((item) => FilterOption.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
+
+  // Parse space and light options
+  List<FilterOption>? get spaceAndLight {
+    final list = filters['space_and_light'] as List?;
+    if (list == null) return null;
+    return list
+        .map((item) => FilterOption.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
+
+  // Parse special filters (with optional icon)
+  List<SpecialFilterOption>? get specialFilters {
+    final list = filters['special_filters'] as List?;
+    if (list == null) return null;
+    return list
+        .map((item) => SpecialFilterOption.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
+
+  // Parse care guides (with icon url, title, subtitle)
+  List<CareGuideOption>? get careGuides {
+    final list = filters['care_guides'] as List?;
+    if (list == null) return null;
+    return list
+        .map((item) => CareGuideOption.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
+
+  // Parse flags (e.g. is_best_seller, is_featured, etc.)
+  List<FlagOption>? get flags {
+    final list = filters['flags'] as List?;
+    if (list == null) return null;
+    return list
+        .map((item) => FlagOption.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
+
+  // Parse rating options
+  List<RatingOption>? get ratingOptions {
+    final list = filters['rating_options'] as List?;
+    if (list == null) return null;
+    return list
+        .map((item) => RatingOption.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
+
+  // Parse litre sizes with id and name (legacy)
   List<FilterOption>? get litreSizes {
     final litreList = filters['litre_size'] as List?;
     if (litreList == null) return null;
@@ -85,54 +139,112 @@ class FilterResponseModel {
       max: (price['price_max'] ?? price['max'])?.toDouble() ?? 9999.0,
     );
   }
-
-  // Helper method to get available filter categories dynamically
-  List<String> getAvailableCategories() {
-    List<String> categories = [];
-    if (subcategories != null && subcategories!.isNotEmpty) {
-      categories.add('subcategories');
-    }
-    if (filters['price'] != null) categories.add('price');
-    if (sizes != null && sizes!.isNotEmpty) categories.add('size');
-    if (planterSizes != null && planterSizes!.isNotEmpty) {
-      categories.add('planter_size');
-    }
-    if (planters != null && planters!.isNotEmpty) categories.add('planter');
-    if (colors != null && colors!.isNotEmpty) categories.add('color');
-    if (weights != null && weights!.isNotEmpty) categories.add('weights');
-    if (litreSizes != null && litreSizes!.isNotEmpty) {
-      categories.add('litre_size');
-    }
-    return categories;
-  }
 }
 
-// Model for filter options with id and name
+// Model for filter options with integer id and name
 class FilterOption {
   final int id;
   final String name;
-  bool isSelected;
 
-  FilterOption({
-    required this.id,
-    required this.name,
-    this.isSelected = false,
-  });
+  FilterOption({required this.id, required this.name});
 
   factory FilterOption.fromJson(Map<String, dynamic> json) {
     return FilterOption(
       id: json['id'] as int,
       name: json['name'] as String,
-      isSelected: false,
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'isSelected': isSelected,
-    };
+  Map<String, dynamic> toJson() => {'id': id, 'name': name};
+}
+
+// Model for filter options with string id (e.g., planter)
+class FilterStringOption {
+  final String id;
+  final String name;
+
+  FilterStringOption({required this.id, required this.name});
+
+  factory FilterStringOption.fromJson(Map<String, dynamic> json) {
+    return FilterStringOption(
+      id: json['id']?.toString() ?? '',
+      name: json['name'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {'id': id, 'name': name};
+}
+
+// Model for special filters with optional icon
+class SpecialFilterOption {
+  final int id;
+  final String name;
+  final String? icon;
+
+  SpecialFilterOption({required this.id, required this.name, this.icon});
+
+  factory SpecialFilterOption.fromJson(Map<String, dynamic> json) {
+    return SpecialFilterOption(
+      id: json['id'] as int,
+      name: json['name'] as String,
+      icon: json['icon'] as String?,
+    );
+  }
+}
+
+// Model for care guide options
+class CareGuideOption {
+  final int id;
+  final String title;
+  final String subtitle;
+  final String? icon;
+
+  CareGuideOption({
+    required this.id,
+    required this.title,
+    required this.subtitle,
+    this.icon,
+  });
+
+  factory CareGuideOption.fromJson(Map<String, dynamic> json) {
+    return CareGuideOption(
+      id: json['id'] as int,
+      title: json['title'] as String,
+      subtitle: json['subtitle'] as String? ?? '',
+      icon: json['icon'] as String?,
+    );
+  }
+}
+
+// Model for flag options (e.g. is_best_seller)
+class FlagOption {
+  final int id;
+  final String name; // e.g. 'is_best_seller'
+  final String label; // e.g. 'Best Seller'
+
+  FlagOption({required this.id, required this.name, required this.label});
+
+  factory FlagOption.fromJson(Map<String, dynamic> json) {
+    return FlagOption(
+      id: json['id'] as int,
+      name: json['name'] as String,
+      label: json['label'] as String,
+    );
+  }
+}
+
+// Model for rating options
+class RatingOption {
+  final String label;
+  final double value;
+
+  RatingOption({required this.label, required this.value});
+
+  factory RatingOption.fromJson(Map<String, dynamic> json) {
+    return RatingOption(
+      label: json['label'] as String,
+      value: (json['value'] as num).toDouble(),
+    );
   }
 }
 

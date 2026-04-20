@@ -48,41 +48,49 @@ class CategoryData {
 
 class MainCategoryModel {
   final int id;
+  final String? type;
   final String name;
   final String image;
   final bool isPublished;
   final int order;
+  final String slug;
 
   MainCategoryModel({
     required this.id,
+    this.type,
     required this.name,
     required this.image,
     required this.isPublished,
     required this.order,
+    required this.slug,
   });
 
   factory MainCategoryModel.fromJson(Map<String, dynamic> json) {
     return MainCategoryModel(
       id: json['id'] as int,
+      type: json['type'] as String?,
       name: json['name'] as String,
       image: json['image'] as String,
       isPublished: json['is_published'] as bool,
       order: json['order'] as int,
+      slug: json['slug'] ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'type': type,
       'name': name,
       'image': image,
       'is_published': isPublished,
       'order': order,
+      'slug': slug,
     };
   }
 
   @override
   String toString() {
-    return 'Category(id: $id, name: $name, image: $image, isPublished: $isPublished, order: $order)';
+    return 'Category(id: $id, type: $type, name: $name, image: $image, isPublished: $isPublished, order: $order, slug: $slug)';
   }
 }

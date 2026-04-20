@@ -1,5 +1,5 @@
 import 'package:biotech_maali/import.dart';
-import 'package:biotech_maali/src/module/product_list/product_list/widgets/offer_product_list_widget.dart';
+import 'package:biotech_maali/src/module/product_list/product_list/product_list_screen.dart';
 
 class CustomBannerWidget extends StatelessWidget {
   const CustomBannerWidget({super.key});
@@ -178,10 +178,11 @@ class CustomBannerWidget extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => OfferProductListWidget(
+            builder: (context) => ProductListScreen(
               isCategory: true,
-              title: "OFFERS",
+              title: element.name,
               id: element.id.toString(),
+              categoryName: element.slug,
             ),
           ),
         );

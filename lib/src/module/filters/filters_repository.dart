@@ -6,83 +6,59 @@ class FiltersRepository {
   final Dio _dio = Dio();
   final String baseUrl = 'https://backend.gidan.store';
 
-  // New API endpoint for getting filters
+  /// Fetches available filter options for the given category type
   Future<FilterResponseModel> getFilters(String type) async {
-    log("Fetching filters for type: $type");
+    log('Fetching filters — type: $type');
     try {
+      final queryParams = type.isNotEmpty ? {'type': type} : null;
       final response = await _dio.get(
         '$baseUrl/filters/filters_n/',
-        queryParameters: {'type': type},
+        queryParameters: queryParams,
       );
-
-      log("status code : ${response.statusCode.toString()}");
-      log("Filter response data: ${response.data.toString()}");
+      log('Filter response status: ${response.statusCode}');
       return FilterResponseModel.fromJson(response.data);
     } catch (e) {
-      log("Error fetching filters: $e");
+      log('Error fetching filters: $e');
       throw Exception('Failed to load filters');
     }
   }
 
-  // New API endpoint for applying filters
+  /// Applies filters using main_productsFilter with the given params
   Future<ProductListModel> applyFilters(
-    String type,
-    Map<String, dynamic> filters, {
+    Map<String, dynamic> params, {
     String? nextPageUrl,
   }) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
 
     try {
-      String url = nextPageUrl ?? '$baseUrl/filters/main_productsFilter/';
+      final String url =
+          nextPageUrl ?? '$baseUrl/filters/main_productsFilter/';
 
-      // Build query parameters - handle Lists for multiple values
-      Map<String, dynamic> queryParams = {};
+      log('Filter query URL: $url');
+      log('Filter query params: $params');
 
-      filters.forEach((key, value) {
-        if (value is List && value.isNotEmpty) {
-          // For lists, Dio will automatically create multiple params
-          // e.g., subcategory_id=28&subcategory_id=29
-          queryParams[key] = value;
-        } else if (value != null && value != '') {
-          queryParams[key] = value;
-        } else {
-          // Send empty string for parameters that should be present
-          queryParams[key] = '';
-        }
-      });
+      final options = token != null
+          ? Options(headers: {
+              'Authorization': 'Bearer $token',
+              'Content-Type': 'application/json',
+            })
+          : null;
 
-      log("Filter query URL: $url");
-      log("Filter query params: $queryParams");
-
-      Response? response;
-
-      if (token != null) {
-        response = await _dio.get(
-          url,
-          queryParameters: nextPageUrl != null ? null : queryParams,
-          options: Options(
-            headers: {
-              "Authorization": "Bearer $token",
-              "Content-Type": "application/json"
-            },
-          ),
-        );
-      } else {
-        response = await _dio.get(
-          url,
-          queryParameters: nextPageUrl != null ? null : queryParams,
-        );
-      }
+      final response = await _dio.get(
+        url,
+        queryParameters: nextPageUrl != null ? null : params,
+        options: options,
+      );
 
       if (response.statusCode == 200) {
-        log("Filter applied response: ${response.data}");
+        log('Filter applied — products received');
         return ProductListModel.fromJson(response.data);
       } else {
-        throw Exception('Failed to apply filters');
+        throw Exception('Failed to apply filters: ${response.statusCode}');
       }
     } catch (e) {
-      log("Error applying filters: $e");
+      log('Error applying filters: $e');
       throw Exception('Error applying filters: $e');
     }
   }

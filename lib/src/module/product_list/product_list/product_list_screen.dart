@@ -10,7 +10,6 @@ import 'package:biotech_maali/src/module/product_list/product_list_shimmer.dart'
 import 'package:biotech_maali/src/widgets/shimmer/product_tile_shimmer.dart';
 import 'package:biotech_maali/src/widgets/no_products_found_widget.dart';
 import 'package:biotech_maali/core/services/analytics_service.dart';
-import 'package:biotech_maali/core/services/in_app_messaging_service.dart';
 
 import '../../../../import.dart';
 
@@ -49,21 +48,17 @@ class _ProductListScreenState extends State<ProductListScreen> {
     super.initState();
     _scrollController.addListener(_scrollListener);
 
-    // Reset provider state synchronously so the first build shows
-    // the shimmer instead of stale data from a previous category.
+    // Reset provider state synchronously so the very first build()
+    // sees isLoading=true and empty lists — prevents stale-data flash.
     final provider = context.read<ProductListProdvider>();
-    if (widget.isCategory && widget.title.toLowerCase() == "offers") {
-      provider.resetForNewOfferLoad();
-    } else {
-      provider.resetForNewLoad();
-    }
+    provider.resetForNewLoad();
     _selectedOption = provider.currentSortOption;
 
     // Defer the actual API call to after the first frame.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
 
-      // Track which product list / category was opened
+      // Analytics
       AnalyticsService()
           .logScreenView(screenName: 'Product List - ${widget.title}');
       AnalyticsService().logProductListViewed(
@@ -72,18 +67,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
         isCategory: widget.isCategory,
       );
 
-      // Trigger FIAM offer campaign when OFFERS page is opened
-      if (widget.title.toLowerCase() == "offers") {
-        InAppMessagingService().triggerOfferPageView();
-      }
-
+      // All categories (plants, pots, offers, etc.) use the same API
       if (widget.isCategory) {
-        if (widget.title.toLowerCase() == "offers") {
-          context.read<ProductListProdvider>().getOfferProductList(context);
-        } else {
-          context.read<ProductListProdvider>().getCategoryProductList(
-              categoryType: ProductListProdvider.toApiType(widget.id));
-        }
+        context.read<ProductListProdvider>().getCategoryProductList(
+            categoryId: widget.id);
       } else {
         context
             .read<ProductListProdvider>()
@@ -99,20 +86,15 @@ class _ProductListScreenState extends State<ProductListScreen> {
         // Handle filtered products pagination
         final filterProvider = context.read<FiltersProvider>();
         if (!filterProvider.isLoadingMore && filterProvider.hasMoreData) {
-          filterProvider.applyFilters(widget.title, context, loadMore: true);
+          filterProvider.applyFilters(context, loadMore: true);
         }
       } else {
         // Handle regular products pagination
         final provider = context.read<ProductListProdvider>();
         if (!provider.isLoadingMore && provider.hasMoreData) {
           if (widget.isCategory) {
-            if (widget.title.toLowerCase() == "offers") {
-              provider.getOfferProductList(context, loadMore: true);
-            } else {
-              provider.getCategoryProductList(
-                  categoryType: ProductListProdvider.toApiType(widget.id),
-                  loadMore: true);
-            }
+            provider.getCategoryProductList(
+                categoryId: widget.id, loadMore: true);
           } else {
             provider.getSubCategoryProductList(
                 subCategoryId: widget.id, loadMore: true);
@@ -165,7 +147,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
             }
 
             List<Product> products = provider.allProducts;
-            log("Building product list with ${products.length} products"); // Add this log
+            log("Building product list with ${products.length} products");
 
             if (products.isEmpty) {
               return NoProductsFoundWidget(
@@ -174,13 +156,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     'We couldn\'t find any products in this category.\nPlease check back later or explore other categories.',
                 onRetry: () {
                   if (widget.isCategory) {
-                    if (widget.title.toLowerCase() == "offers") {
-                      provider.getOfferProductList(context);
-                    } else {
-                      provider.getCategoryProductList(
-                          categoryType:
-                              ProductListProdvider.toApiType(widget.id));
-                    }
+                    provider.getCategoryProductList(categoryId: widget.id);
                   } else {
                     provider.getSubCategoryProductList(
                         subCategoryId: widget.id);
@@ -193,13 +169,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
             return CustomScrollView(
               controller: _scrollController,
               slivers: [
-                widget.title.toLowerCase() == "offers"
-                    ? const SliverToBoxAdapter(
-                        child: SizedBox(height: 10),
-                      )
-                    : const SliverToBoxAdapter(
-                        child: CustomBannerWidget(),
-                      ),
+                const SliverToBoxAdapter(
+                  child: CustomBannerWidget(),
+                ),
                 SliverPadding(
                   padding: const EdgeInsets.all(8.0),
                   sliver: SliverGrid(
@@ -208,8 +180,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       crossAxisCount: 2,
                       crossAxisSpacing: 15.0,
                       mainAxisSpacing: 15.0,
-                      childAspectRatio:
-                          0.62, // INCREASED from 0.48 - makes cards shorter
+                      childAspectRatio: 0.62,
                     ),
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
@@ -226,7 +197,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                             );
                           },
                           child: ProductTileWidget(
-                            isOffer: widget.title.toLowerCase() == "offers",
+                            isOffer: false,
                             mainProdId: product.id,
                             productTitle: product.name,
                             productImage: product.image,
@@ -240,10 +211,15 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                     ? "0.00"
                                     : product.mrpWithGst.toString(),
                             rating: product.productRating.avgRating,
+                            numRatings: product.productRating.numRatings,
+                            flags: product.flags,
+                            isStock: product.isStock ?? product.inStock,
+                            stock: product.stock,
+                            subCategorySlug: product.subCategorySlug,
                             home: true,
                             isWishlist: product.isWishlist,
                             isCart: product.isCart,
-                            ribbon: product.ribbon, // Pass the ribbon value
+                            ribbon: product.ribbon,
                             addToFavouriteEvent: () async {
                               final settingsProvider =
                                   context.read<SettingsProvider>();
@@ -341,108 +317,102 @@ class _ProductListScreenState extends State<ProductListScreen> {
             );
           },
         ),
-        bottomNavigationBar: widget.title.toLowerCase() != "offers"
-            ? Container(
-                decoration: BoxDecoration(
-                  color: cWhiteColor,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 4,
-                      offset: const Offset(0, -2),
+        bottomNavigationBar: Container(
+            decoration: BoxDecoration(
+              color: cWhiteColor,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 4,
+                  offset: const Offset(0, -2),
+                ),
+              ],
+            ),
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0, vertical: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Material(
+                      color: Colors.transparent,
+                      child: SizedBox(
+                        height: 55,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(8),
+                          splashColor: cButtonGreen.withOpacity(0.3),
+                          highlightColor: cButtonGreen.withOpacity(0.1),
+                          onTap: () {
+                            log('Sort button tapped');
+                            _showSortByOverlay(context);
+                          },
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.only(left: 8.0, right: 8),
+                            child: Row(
+                              children: [
+                                SvgPicture.asset(
+                                    'assets/svg/icons/sort_icon.svg'),
+                                sizedBoxWidth10,
+                                const CommonTextWidget(
+                                  title: 'SORT BY',
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w400,
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Material(
+                      color: Colors.transparent,
+                      child: SizedBox(
+                        height: 55,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(8),
+                          splashColor: cButtonGreen.withOpacity(0.3),
+                          highlightColor: cButtonGreen.withOpacity(0.1),
+                          onTap: () {
+                            log('Filter button tapped');
+                            showFilterBottomSheet(
+                              context,
+                              categoryId: widget.id,
+                              // categoryName holds the type slug (e.g. "plants", "plant-care")
+                              categoryType: widget.categoryName ?? '',
+                            ).then((value) {
+                              if (value == true) {
+                                setState(() {
+                                  _isFiltered = true;
+                                });
+                              }
+                            });
+                          },
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.only(left: 8.0, right: 8),
+                            child: Row(
+                              children: [
+                                SvgPicture.asset(
+                                    'assets/svg/icons/filter_icon.svg'),
+                                sizedBoxWidth10,
+                                const CommonTextWidget(
+                                  title: 'FILTER',
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w400,
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
-                child: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Material(
-                          color: Colors.transparent,
-                          child: SizedBox(
-                            height: 55,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(8),
-                              splashColor: cButtonGreen.withOpacity(0.3),
-                              highlightColor: cButtonGreen.withOpacity(0.1),
-                              onTap: () {
-                                log('Sort button tapped');
-                                _showSortByOverlay(context);
-                              },
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 8.0, right: 8),
-                                child: Row(
-                                  children: [
-                                    SvgPicture.asset(
-                                        'assets/svg/icons/sort_icon.svg'),
-                                    sizedBoxWidth10,
-                                    const CommonTextWidget(
-                                      title: 'SORT BY',
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w400,
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Material(
-                          color: Colors.transparent,
-                          child: SizedBox(
-                            height: 55,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(8),
-                              splashColor: cButtonGreen.withOpacity(0.3),
-                              highlightColor: cButtonGreen.withOpacity(0.1),
-                              onTap: () {
-                                log('Filter button tapped');
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => FilterScreen(
-                                      type: widget.isCategory == false
-                                          ? widget.categoryName!
-                                          : widget.title,
-                                    ),
-                                  ),
-                                ).then((value) {
-                                  if (value != null) {
-                                    setState(() {
-                                      _isFiltered = true;
-                                    });
-                                  }
-                                });
-                              },
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 8.0, right: 8),
-                                child: Row(
-                                  children: [
-                                    SvgPicture.asset(
-                                        'assets/svg/icons/filter_icon.svg'),
-                                    sizedBoxWidth10,
-                                    const CommonTextWidget(
-                                      title: 'FILTER',
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w400,
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              )
-            : sizedBoxHeight0);
+              ),
+            ),
+          ));
   }
 
   void _showSortByOverlay(BuildContext context) {

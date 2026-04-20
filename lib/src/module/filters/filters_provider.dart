@@ -9,39 +9,60 @@ class FiltersProvider extends ChangeNotifier {
   final FiltersRepository _repository = FiltersRepository();
   FilterResponseModel? filterResponse;
 
-  // Store selected filter IDs instead of values
+  // ── Selection state ────────────────────────────────────────────────────────
+
+  /// Single-selected type string from available_types chips (e.g. "plants")
+  String? selectedType;
+
+  /// Integer-ID filters: category → [id1, id2, ...]
   Map<String, List<int>> selectedFilterIds = {};
 
-  bool isLoading = false;
-  String selectedCategory = "";
+  /// String-ID filters (planter has string IDs like "Nursery Bag")
+  Map<String, List<String>> selectedFilterStringIds = {};
+
+  /// Selected flag IDs (integer)
+  Set<int> selectedFlagIds = {};
+
+  /// Selected minimum rating value (null = not selected)
+  double? selectedRating;
+
+  // ── Price state ────────────────────────────────────────────────────────────
+
+  /// Initial price range loaded from the API
+  PriceRange? _initialPriceRange;
+
   RangeValues _currentRangeValues = const RangeValues(0, 9999);
   RangeValues get currentRangeValues => _currentRangeValues;
 
+  bool get isPriceChanged {
+    final pr = _initialPriceRange;
+    if (pr == null) return false;
+    return _currentRangeValues.start > pr.min ||
+        _currentRangeValues.end < pr.max;
+  }
+
+  // ── Loading ────────────────────────────────────────────────────────────────
+
+  bool isLoading = false;
   bool _isLoadingMore = false;
   String? _nextPageUrl;
   bool get isLoadingMore => _isLoadingMore;
   bool get hasMoreData => _nextPageUrl != null;
 
-  Future<void> loadFilters(String type) async {
-    // Normalize incoming type (case-insensitive) to API expected singular form
-    String category = _toApiType(type);
+  // ── Load filter options with category type ────────────────────────────────
 
+  /// [type] is the category slug e.g. "plants", "pots", "plant-care"
+  Future<void> loadFilters(String type) async {
     try {
       isLoading = true;
       notifyListeners();
 
-      filterResponse = await _repository.getFilters(category);
+      filterResponse = await _repository.getFilters(type);
 
-      // Initialize range values after getting filter response
       if (filterResponse != null) {
-        final priceRange = filterResponse!.priceRange;
-        _currentRangeValues = RangeValues(priceRange.min, priceRange.max);
-
-        // Set default selected category based on available filters
-        final availableCategories = _getDisplayCategories(type);
-        if (availableCategories.isNotEmpty) {
-          selectedCategory = availableCategories[0]["title"]!;
-        }
+        final pr = filterResponse!.priceRange;
+        _initialPriceRange = pr;
+        _currentRangeValues = RangeValues(pr.min, pr.max);
       }
 
       isLoading = false;
@@ -53,178 +74,220 @@ class FiltersProvider extends ChangeNotifier {
     }
   }
 
-  // Normalize a UI/display type (like 'Pots' or 'POTS') to the API's expected
-  // singular, lowercase type string (e.g., 'pot').
-  String _toApiType(String type) {
-    final t = type.trim().toLowerCase();
-    if (t == 'pots' || t == 'pot') return 'pot';
-    if (t == 'plants' || t == 'plant') return 'plant';
-    if (t == 'seeds' || t == 'seed') return 'seed';
-    if (t == 'tools' || t == 'tool') return 'tool';
-    if (t == 'plant care' || t == 'plantcare') return 'plantcare';
-    if (t == 'offers' || t == 'offer') return 'offer';
-    return t;
+  // ── Type (single-select) ──────────────────────────────────────────────────
+
+  void selectType(String type) {
+    if (selectedType == type) {
+      selectedType = null;
+    } else {
+      selectedType = type;
+    }
+    
+    // Clear other selections since options will change entirely
+    selectedFilterIds.clear();
+    selectedFilterStringIds.clear();
+    selectedFlagIds.clear();
+    selectedRating = null;
+    
+    notifyListeners();
+
+    // Refetch filter options with the new type
+    loadFilters(selectedType ?? '');
   }
 
-  // Toggle filter by ID
+  bool isTypeSelected(String type) => selectedType == type;
+
+  // ── Integer-ID filters ────────────────────────────────────────────────────
+
   void toggleFilterById(String category, int id) {
-    if (!selectedFilterIds.containsKey(category)) {
-      selectedFilterIds[category] = [];
-    }
-
-    if (selectedFilterIds[category]!.contains(id)) {
-      selectedFilterIds[category]!.remove(id);
-    } else {
-      selectedFilterIds[category]!.add(id);
-    }
-
-    if (selectedFilterIds[category]!.isEmpty) {
+    if (selectedFilterIds[category]?.contains(id) ?? false) {
       selectedFilterIds.remove(category);
+    } else {
+      selectedFilterIds[category] = [id];
     }
-
     notifyListeners();
   }
 
-  // Check if a filter option is selected
   bool isFilterSelected(String category, int id) {
     return selectedFilterIds[category]?.contains(id) ?? false;
   }
 
-  void setSelectedCategory(String category) {
-    selectedCategory = category;
+  // ── String-ID filters (planter) ───────────────────────────────────────────
+
+  void toggleFilterByStringId(String category, String id) {
+    if (selectedFilterStringIds[category]?.contains(id) ?? false) {
+      selectedFilterStringIds.remove(category);
+    } else {
+      selectedFilterStringIds[category] = [id];
+    }
     notifyListeners();
   }
 
-  void setPriceRange(RangeValues values) {
-    // Ensure values are within bounds
-    final min = filterResponse?.priceRange.min ?? 0;
-    final max = filterResponse?.priceRange.max ?? 9999;
+  bool isStringFilterSelected(String category, String id) {
+    return selectedFilterStringIds[category]?.contains(id) ?? false;
+  }
 
+  // ── Flag filters (integer IDs) ────────────────────────────────────────────
+
+  void toggleFlagById(int id) {
+    if (selectedFlagIds.contains(id)) {
+      selectedFlagIds.remove(id);
+    } else {
+      selectedFlagIds.clear();
+      selectedFlagIds.add(id);
+    }
+    notifyListeners();
+  }
+
+  bool isFlagSelected(int id) => selectedFlagIds.contains(id);
+
+  // ── Rating ────────────────────────────────────────────────────────────────
+
+  void selectRating(double value) {
+    selectedRating = selectedRating == value ? null : value;
+    notifyListeners();
+  }
+
+  // ── Price range ───────────────────────────────────────────────────────────
+
+  void setPriceRange(RangeValues values) {
+    final pr = _initialPriceRange;
+    final min = pr?.min ?? 0;
+    final max = pr?.max ?? 9999;
     _currentRangeValues = RangeValues(
-      values.start.clamp(min, max),
-      values.end.clamp(min, max),
+      values.start.clamp(min, max).toDouble(),
+      values.end.clamp(min, max).toDouble(),
     );
     notifyListeners();
   }
 
+  // ── Reset ─────────────────────────────────────────────────────────────────
+
   void resetAllFilters() {
+    selectedType = null;
     selectedFilterIds.clear();
-    // Reset price range to initial filter values
-    if (filterResponse != null) {
-      final priceRange = filterResponse!.priceRange;
-      _currentRangeValues = RangeValues(priceRange.min, priceRange.max);
+    selectedFilterStringIds.clear();
+    selectedFlagIds.clear();
+    selectedRating = null;
+    if (_initialPriceRange != null) {
+      final pr = _initialPriceRange!;
+      _currentRangeValues = RangeValues(pr.min, pr.max);
     }
     notifyListeners();
   }
 
-  Map<String, dynamic> getFilterParams(String type) {
-    // Convert type to singular form for API
-    String apiType = type.toLowerCase();
-    if (apiType == 'pots') apiType = 'pot';
-    if (apiType == 'plants') apiType = 'plant';
-    if (apiType == 'seeds') apiType = 'seed';
-    if (apiType == 'tools') apiType = 'tool';
+  // ── Build API params ──────────────────────────────────────────────────────
 
+  Map<String, dynamic> getFilterParams() {
     final Map<String, dynamic> params = {
-      'category_id': '',
-      'type': apiType,
-      'search': '',
-      'min_price': '',
-      'max_price': '',
-      'is_featured': 'unknown',
-      'is_best_seller': 'unknown',
-      'is_seasonal_collection': 'unknown',
-      'is_trending': 'unknown',
-      'ordering': '',
+      'mobile_app': 'true',
     };
 
-    // Map selected IDs to appropriate parameter names
-    // Store as List for multiple values
-    for (var entry in selectedFilterIds.entries) {
-      final category = entry.key;
-      final ids = entry.value; // Keep as List<int>
-
-      switch (category) {
-        case 'subcategories':
-          params['subcategory_id'] = ids;
-          break;
-        case 'color':
-          params['color_id'] = ids;
-          break;
-        case 'size':
-          params['size_id'] = ids;
-          break;
-        case 'planter_size':
-          params['planter_size_id'] = ids;
-          break;
-        case 'planter':
-          params['planter_id'] = ids;
-          break;
-        case 'weights':
-          params['weight_id'] = ids;
-          break;
-        case 'litre_size':
-          params['litre_id'] = ids;
-          break;
-      }
+    // Type — only if user selected one from the chips
+    if (selectedType != null && selectedType!.isNotEmpty) {
+      params['type'] = selectedType;
     }
 
-    // Add price range if changed from default
-    final priceRange = filterResponse?.priceRange;
-    if (priceRange != null) {
-      if (_currentRangeValues.start > priceRange.min ||
-          _currentRangeValues.end < priceRange.max) {
-        params['min_price'] = _currentRangeValues.start.round().toString();
-        params['max_price'] = _currentRangeValues.end.round().toString();
-      }
+    // Price — included automatically when applying if user moved the slider
+    if (isPriceChanged) {
+      params['min_price'] = _currentRangeValues.start.round().toString();
+      params['max_price'] = _currentRangeValues.end.round().toString();
     }
 
-    log("Generated filter params: $params");
+    // Subcategory IDs
+    _addIntIds(params, 'subcategories', 'subcategory_id');
+
+    // Color IDs
+    _addIntIds(params, 'color', 'color_id');
+
+    // Size IDs
+    _addIntIds(params, 'size', 'size_id');
+
+    // Planter size IDs
+    _addIntIds(params, 'planter_size', 'planter_size_id');
+
+    // Planter string IDs
+    if ((selectedFilterStringIds['planter'] ?? []).isNotEmpty) {
+      params['planter_id'] = selectedFilterStringIds['planter'];
+    }
+
+    // Weight IDs
+    _addIntIds(params, 'weights', 'weight_id');
+
+    // Volume / litre IDs
+    _addIntIds(params, 'volume', 'litre_id');
+
+    // Space and light IDs
+    _addIntIds(params, 'space_and_light', 'space_and_light_id');
+
+    // Special filter IDs
+    _addIntIds(params, 'special_filters', 'special_filter_id');
+
+    // Care guide IDs
+    _addIntIds(params, 'care_guides', 'care_guide_id');
+
+    // Flag IDs
+    if (selectedFlagIds.isNotEmpty) {
+      params['flag'] = selectedFlagIds.toList();
+    }
+
+    // Min rating
+    if (selectedRating != null) {
+      params['min_rating'] = selectedRating.toString();
+    }
+
+    log('Filter params built: $params');
     return params;
   }
 
-  Future<List<Product>> applyFilters(String type, BuildContext context,
-      {bool loadMore = false}) async {
+  void _addIntIds(
+    Map<String, dynamic> params,
+    String internalKey,
+    String apiKey,
+  ) {
+    final ids = selectedFilterIds[internalKey];
+    if (ids != null && ids.isNotEmpty) {
+      params[apiKey] = ids;
+    }
+  }
+
+  // ── Apply filters ─────────────────────────────────────────────────────────
+
+  Future<List<Product>> applyFilters(
+    BuildContext context, {
+    bool loadMore = false,
+  }) async {
     try {
       if (loadMore) {
         if (_isLoadingMore || !hasMoreData) return [];
         _isLoadingMore = true;
       } else {
         isLoading = true;
-        // Reset pagination on fresh filter
         _nextPageUrl = null;
       }
       notifyListeners();
 
-      log("Applying filters for type: $type");
-      final params = getFilterParams(type);
-      // Ensure we pass the singular API type (e.g. 'pot' not 'pots')
-      final String apiType = params['type'] ?? type.toLowerCase();
-      log("API type used for request: $apiType");
+      final params = getFilterParams();
       final filterResult = await _repository.applyFilters(
-        apiType,
         params,
         nextPageUrl: loadMore ? _nextPageUrl : null,
       );
 
-      log("Filter result message: ${filterResult.message}");
-      log("Products count: ${filterResult.products.length}");
-      log("Next page URL: ${filterResult.nextPage}");
+      log('Products returned: ${filterResult.products.length}');
+      log('Next page: ${filterResult.nextPage}');
 
       _nextPageUrl = filterResult.nextPage;
-      final List<Product> products = filterResult.products;
+      final products = filterResult.products;
 
       if (!loadMore) {
-        // Reset products on fresh filter
         context.read<ProductListProdvider>().setFilteredProducts(products);
       } else {
-        // Append products on pagination
         context.read<ProductListProdvider>().appendProducts(products);
       }
 
       return products;
     } catch (e) {
-      log("Filter error: $e");
+      log('Filter apply error: $e');
       rethrow;
     } finally {
       isLoading = false;
@@ -238,77 +301,19 @@ class FiltersProvider extends ChangeNotifier {
     _isLoadingMore = false;
   }
 
-  // Helper method to get display categories based on type and available data
-  List<Map<String, String>> _getDisplayCategories(String type) {
-    List<Map<String, String>> categories = [];
-
-    if (filterResponse == null) return categories;
-
-    // Add categories dynamically based on available data
-    if (filterResponse!.subcategories != null &&
-        filterResponse!.subcategories!.isNotEmpty) {
-      String title = "Type of ";
-      final normalized = type.trim().toUpperCase();
-      switch (normalized) {
-        case "PLANTS":
-          title += "Plant";
-          break;
-        case "POTS":
-          title += "Pot";
-          break;
-        case "SEEDS":
-          title += "Seed";
-          break;
-        case "TOOLS":
-          title += "Tool";
-          break;
-        default:
-          title += type;
-      }
-      categories.add({"id": "subcategories", "title": title});
+  /// Total active filter count — shown as badge on Apply button
+  int get activeFilterCount {
+    int count = 0;
+    if (selectedType != null) count++;
+    for (final ids in selectedFilterIds.values) {
+      count += ids.length;
     }
-
-    if (filterResponse!.priceRange.max > 0) {
-      categories.add({"id": "price", "title": "Price"});
+    for (final ids in selectedFilterStringIds.values) {
+      count += ids.length;
     }
-
-    if (filterResponse!.sizes != null && filterResponse!.sizes!.isNotEmpty) {
-      categories.add({"id": "size", "title": "Size"});
-    }
-
-    if (filterResponse!.planterSizes != null &&
-        filterResponse!.planterSizes!.isNotEmpty) {
-      categories.add({
-        "id": "planter_size",
-        "title":
-            type.trim().toUpperCase() == "POTS" ? "Pot Size" : "Planter Size"
-      });
-    }
-
-    if (filterResponse!.planters != null &&
-        filterResponse!.planters!.isNotEmpty) {
-      categories.add({"id": "planter", "title": "Planter"});
-    }
-
-    if (filterResponse!.colors != null && filterResponse!.colors!.isNotEmpty) {
-      categories.add({"id": "color", "title": "Color"});
-    }
-
-    if (filterResponse!.weights != null &&
-        filterResponse!.weights!.isNotEmpty) {
-      categories.add({"id": "weights", "title": "Weights"});
-    }
-
-    if (filterResponse!.litreSizes != null &&
-        filterResponse!.litreSizes!.isNotEmpty) {
-      categories.add({"id": "litre_size", "title": "Litre Size"});
-    }
-
-    return categories;
-  }
-
-  // Public method to get categories
-  List<Map<String, String>> getDisplayCategories(String type) {
-    return _getDisplayCategories(type);
+    count += selectedFlagIds.length;
+    if (selectedRating != null) count++;
+    if (isPriceChanged) count++;
+    return count;
   }
 }

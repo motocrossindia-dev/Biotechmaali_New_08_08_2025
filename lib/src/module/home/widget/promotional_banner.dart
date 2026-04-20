@@ -252,6 +252,7 @@ class PromotionalBanner extends StatelessWidget {
               isCategory: true,
               title: "OFFERS",
               id: element.id.toString(),
+              categoryName: element.slug,
             ),
           ),
         );
