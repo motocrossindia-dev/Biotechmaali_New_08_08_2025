@@ -186,17 +186,26 @@ class ProductTileWidget extends StatelessWidget {
                           child: Container(
                             width: 120,
                             padding: EdgeInsets.symmetric(
-                              vertical: isTablet ? 6 : isSmallPhone ? 3 : 4,
+                              vertical: isTablet
+                                  ? 6
+                                  : isSmallPhone
+                                      ? 3
+                                      : 4,
                             ),
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFE55B5B).withOpacity(0.85), // Muted red slightly transparent
+                              color: const Color(0xFFE55B5B).withOpacity(
+                                  0.85), // Muted red slightly transparent
                             ),
                             child: Text(
                               ribbon!.toUpperCase(),
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: isTablet ? 12 : isSmallPhone ? 8 : 10,
+                                fontSize: isTablet
+                                    ? 12
+                                    : isSmallPhone
+                                        ? 8
+                                        : 10,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 1.5,
                               ),
@@ -211,8 +220,16 @@ class ProductTileWidget extends StatelessWidget {
                         left: 0,
                         child: Container(
                           padding: EdgeInsets.symmetric(
-                            horizontal: isTablet ? 10 : isSmallPhone ? 6 : 8,
-                            vertical: isTablet ? 6 : isSmallPhone ? 3 : 4,
+                            horizontal: isTablet
+                                ? 10
+                                : isSmallPhone
+                                    ? 6
+                                    : 8,
+                            vertical: isTablet
+                                ? 6
+                                : isSmallPhone
+                                    ? 3
+                                    : 4,
                           ),
                           decoration: BoxDecoration(
                             color: cButtonGreen,
@@ -224,7 +241,11 @@ class ProductTileWidget extends StatelessWidget {
                             '$discountPercentage% OFF',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: isTablet ? 12 : isSmallPhone ? 9 : 11,
+                              fontSize: isTablet
+                                  ? 12
+                                  : isSmallPhone
+                                      ? 9
+                                      : 11,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -239,7 +260,11 @@ class ProductTileWidget extends StatelessWidget {
                           onTap: addToFavouriteEvent,
                           borderRadius: BorderRadius.circular(20),
                           child: Container(
-                            padding: EdgeInsets.all(isTablet ? 6.0 : isSmallPhone ? 4.0 : 5.0),
+                            padding: EdgeInsets.all(isTablet
+                                ? 6.0
+                                : isSmallPhone
+                                    ? 4.0
+                                    : 5.0),
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.9),
                               borderRadius: BorderRadius.circular(20),
@@ -266,7 +291,11 @@ class ProductTileWidget extends StatelessWidget {
                                       child: Icon(
                                         Icons.favorite,
                                         color: Colors.red,
-                                        size: isTablet ? 14 : isSmallPhone ? 9 : 11,
+                                        size: isTablet
+                                            ? 14
+                                            : isSmallPhone
+                                                ? 9
+                                                : 11,
                                       ),
                                     ),
                                   )
@@ -286,7 +315,9 @@ class ProductTileWidget extends StatelessWidget {
 
             // Content section with fixed spacing
             Expanded(
-              flex: isTablet ? 4 : 5, // More space for content to prevent overflow
+              flex: isTablet
+                  ? 4
+                  : 5, // More space for content to prevent overflow
               child: Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: isTablet
@@ -306,7 +337,11 @@ class ProductTileWidget extends StatelessWidget {
                         formattedSubCategory,
                         style: TextStyle(
                           color: const Color(0xFF758572),
-                          fontSize: isTablet ? 12 : isSmallPhone ? 9 : 10,
+                          fontSize: isTablet
+                              ? 12
+                              : isSmallPhone
+                                  ? 9
+                                  : 10,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 1.2,
                         ),
@@ -322,7 +357,11 @@ class ProductTileWidget extends StatelessWidget {
                         productTitle,
                         style: TextStyle(
                           color: Colors.black87,
-                          fontSize: isTablet ? 18 : isSmallPhone ? 14 : 16,
+                          fontSize: isTablet
+                              ? 18
+                              : isSmallPhone
+                                  ? 14
+                                  : 16,
                           fontWeight: FontWeight.w500,
                           height: 1.2, // Tighter line height
                         ),
@@ -336,12 +375,13 @@ class ProductTileWidget extends StatelessWidget {
                     // Rating
                     Row(
                       children: [
-                        const Icon(Icons.star, color: Color(0xFFF3B456), size: 16),
+                        const Icon(Icons.star,
+                            color: Color(0xFFF3B456), size: 16),
                         const SizedBox(width: 4),
                         Text(
                           rating?.toStringAsFixed(1) ?? '0.0',
                           style: TextStyle(
-                            fontWeight: FontWeight.w700, 
+                            fontWeight: FontWeight.w700,
                             fontSize: isTablet ? 14 : 12,
                             color: Colors.black87,
                           ),
@@ -350,7 +390,7 @@ class ProductTileWidget extends StatelessWidget {
                         Text(
                           '(${numRatings ?? 0})',
                           style: TextStyle(
-                            fontWeight: FontWeight.w400, 
+                            fontWeight: FontWeight.w400,
                             fontSize: isTablet ? 14 : 12,
                             color: Colors.grey[500],
                           ),
@@ -378,13 +418,18 @@ class ProductTileWidget extends StatelessWidget {
                                     fit: BoxFit.scaleDown,
                                     alignment: Alignment.centerLeft,
                                     child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
                                       children: [
                                         if (hasDiscount) ...[
                                           Text(
                                             '₹${_formatPrice(discountAmount!)}',
                                             style: TextStyle(
-                                              fontSize: isTablet ? 24 : isSmallPhone ? 18 : 22,
+                                              fontSize: isTablet
+                                                  ? 24
+                                                  : isSmallPhone
+                                                      ? 18
+                                                      : 22,
                                               fontWeight: FontWeight.w800,
                                               color: Colors.black87,
                                               height: 1.0,
@@ -392,14 +437,20 @@ class ProductTileWidget extends StatelessWidget {
                                           ),
                                           const SizedBox(width: 8),
                                           Padding(
-                                            padding: const EdgeInsets.only(bottom: 2.0),
+                                            padding: const EdgeInsets.only(
+                                                bottom: 2.0),
                                             child: Text(
                                               '₹${_formatPrice(actualAmount)}',
                                               style: TextStyle(
-                                                fontSize: isTablet ? 14 : isSmallPhone ? 11 : 13,
+                                                fontSize: isTablet
+                                                    ? 14
+                                                    : isSmallPhone
+                                                        ? 11
+                                                        : 13,
                                                 fontWeight: FontWeight.w600,
                                                 color: const Color(0xFF8B9289),
-                                                decoration: TextDecoration.lineThrough,
+                                                decoration:
+                                                    TextDecoration.lineThrough,
                                                 height: 1.0,
                                               ),
                                             ),
@@ -408,7 +459,11 @@ class ProductTileWidget extends StatelessWidget {
                                           Text(
                                             '₹${_formatPrice(actualAmount)}',
                                             style: TextStyle(
-                                              fontSize: isTablet ? 24 : isSmallPhone ? 18 : 22,
+                                              fontSize: isTablet
+                                                  ? 24
+                                                  : isSmallPhone
+                                                      ? 18
+                                                      : 22,
                                               fontWeight: FontWeight.w800,
                                               color: Colors.black87,
                                               height: 1.0,
@@ -424,8 +479,13 @@ class ProductTileWidget extends StatelessWidget {
                                     Text(
                                       'Save ₹${((double.tryParse(actualAmount) ?? 0) - (double.tryParse(discountAmount!) ?? 0)).toInt()}',
                                       style: TextStyle(
-                                        color: const Color(0xFFD64436), // Red color for Save
-                                        fontSize: isTablet ? 13 : isSmallPhone ? 10 : 12,
+                                        color: const Color(
+                                            0xFFD64436), // Red color for Save
+                                        fontSize: isTablet
+                                            ? 13
+                                            : isSmallPhone
+                                                ? 10
+                                                : 12,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -434,14 +494,22 @@ class ProductTileWidget extends StatelessWidget {
                               ),
                             ),
                             // Add button
-                            if (home && isStock == true && addToCartEvent != null) ...[
+                            if (home &&
+                                isStock == true &&
+                                addToCartEvent != null) ...[
                               const SizedBox(width: 6),
                               InkWell(
                                 onTap: addToCartEvent,
-                                borderRadius: BorderRadius.circular(10), // Matched image roundness
+                                borderRadius: BorderRadius.circular(
+                                    10), // Matched image roundness
                                 child: Container(
-                                  height: isTablet ? 36 : isSmallPhone ? 28 : 32,
-                                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                                  height: isTablet
+                                      ? 36
+                                      : isSmallPhone
+                                          ? 28
+                                          : 32,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 14),
                                   decoration: BoxDecoration(
                                     color: const Color(0xFF3F6331),
                                     borderRadius: BorderRadius.circular(10),
@@ -451,7 +519,8 @@ class ProductTileWidget extends StatelessWidget {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Icon(
-                                        Icons.shopping_cart_outlined, // Outlined cart icon
+                                        Icons
+                                            .shopping_cart_outlined, // Outlined cart icon
                                         color: Colors.white,
                                         size: isTablet ? 16 : 14,
                                       ),
@@ -460,7 +529,11 @@ class ProductTileWidget extends StatelessWidget {
                                         isCart ? "Cart" : 'Add',
                                         style: TextStyle(
                                           color: Colors.white,
-                                          fontSize: isTablet ? 14 : isSmallPhone ? 11 : 13,
+                                          fontSize: isTablet
+                                              ? 14
+                                              : isSmallPhone
+                                                  ? 11
+                                                  : 13,
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
@@ -487,12 +560,15 @@ class ProductTileWidget extends StatelessWidget {
                                   ),
                                   alignment: Alignment.centerLeft,
                                   child: FractionallySizedBox(
-                                    widthFactor: stock! >= 20 ? 1.0 : (stock! / 20.0).clamp(0.0, 1.0),
+                                    widthFactor: stock! >= 20
+                                        ? 1.0
+                                        : (stock! / 20.0).clamp(0.0, 1.0),
                                     child: AnimatedStockBar(
                                       stock: stock!,
                                       baseColor: stock! > 20
                                           ? const Color(0xFF00B251)
-                                          : ((stock! / 20.0).clamp(0.0, 1.0) > 0.5 
+                                          : ((stock! / 20.0).clamp(0.0, 1.0) >
+                                                  0.5
                                               ? const Color(0xFFF3B456)
                                               : const Color(0xFFD64436)),
                                     ),
@@ -506,14 +582,21 @@ class ProductTileWidget extends StatelessWidget {
                                 style: TextStyle(
                                   color: stock! > 20
                                       ? const Color(0xFF00B251)
-                                      : const Color(0xFFD64436), // Red color typically for "Only X left!"
-                                  fontSize: isTablet ? 12 : isSmallPhone ? 9 : 11,
+                                      : const Color(
+                                          0xFFD64436), // Red color typically for "Only X left!"
+                                  fontSize: isTablet
+                                      ? 12
+                                      : isSmallPhone
+                                          ? 9
+                                          : 11,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],
                           ),
-                        ] else if (isStock == false || stock == 0 || (home && addToCartEvent == null)) ...[
+                        ] else if (isStock == false ||
+                            stock == 0 ||
+                            (home && addToCartEvent == null)) ...[
                           const SizedBox(height: 10),
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -532,7 +615,11 @@ class ProductTileWidget extends StatelessWidget {
                                 'OUT OF STOCK',
                                 style: TextStyle(
                                   color: const Color(0xFFD64436),
-                                  fontSize: isTablet ? 12 : isSmallPhone ? 9 : 11,
+                                  fontSize: isTablet
+                                      ? 12
+                                      : isSmallPhone
+                                          ? 9
+                                          : 11,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -564,7 +651,7 @@ class ProductTileWidget extends StatelessWidget {
 
 class AnimatedFlagBadge extends StatefulWidget {
   final List<String> flags;
-  
+
   const AnimatedFlagBadge({required this.flags, super.key});
 
   @override
@@ -598,20 +685,19 @@ class _AnimatedFlagBadgeState extends State<AnimatedFlagBadge> {
   @override
   Widget build(BuildContext context) {
     if (widget.flags.isEmpty) return const SizedBox.shrink();
-    
+
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 500),
       transitionBuilder: (Widget child, Animation<double> animation) {
         return FadeTransition(
-          opacity: animation, 
-          child: SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0.0, -0.5),
-              end: Offset.zero,
-            ).animate(animation),
-            child: child,
-          )
-        );
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0.0, -0.5),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
+            ));
       },
       child: Container(
         key: ValueKey<int>(_currentIndex),
@@ -648,7 +734,8 @@ class AnimatedStockBar extends StatefulWidget {
   State<AnimatedStockBar> createState() => _AnimatedStockBarState();
 }
 
-class _AnimatedStockBarState extends State<AnimatedStockBar> with SingleTickerProviderStateMixin {
+class _AnimatedStockBarState extends State<AnimatedStockBar>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
@@ -732,7 +819,8 @@ class ProductImageWithLongPress extends StatefulWidget {
   });
 
   @override
-  State<ProductImageWithLongPress> createState() => _ProductImageWithLongPressState();
+  State<ProductImageWithLongPress> createState() =>
+      _ProductImageWithLongPressState();
 }
 
 class _ProductImageWithLongPressState extends State<ProductImageWithLongPress> {
@@ -751,13 +839,17 @@ class _ProductImageWithLongPressState extends State<ProductImageWithLongPress> {
         // Safe robust decoding for arrays that might lack quotes in raw mode
         source = source.substring(1, source.length - 1);
         final parts = source.split(',');
-        return parts.map((e) {
-          var s = e.trim();
-          if ((s.startsWith("'") && s.endsWith("'")) || (s.startsWith('"') && s.endsWith('"'))) {
-            if (s.length >= 2) s = s.substring(1, s.length - 1);
-          }
-          return s;
-        }).where((e) => e.isNotEmpty).toList();
+        return parts
+            .map((e) {
+              var s = e.trim();
+              if ((s.startsWith("'") && s.endsWith("'")) ||
+                  (s.startsWith('"') && s.endsWith('"'))) {
+                if (s.length >= 2) s = s.substring(1, s.length - 1);
+              }
+              return s;
+            })
+            .where((e) => e.isNotEmpty)
+            .toList();
       }
       return [source];
     }
@@ -775,7 +867,7 @@ class _ProductImageWithLongPressState extends State<ProductImageWithLongPress> {
     if (_isLongPressed && images.length > 1) {
       currentImage = images[1];
     }
-    
+
     // The model already resolves relative → full URL.
     // If still relative (edge case), prefix here as a safety net.
     final imageUrl = currentImage.startsWith('http')
@@ -788,7 +880,7 @@ class _ProductImageWithLongPressState extends State<ProductImageWithLongPress> {
       onLongPressCancel: () => setState(() => _isLongPressed = false),
       child: NetworkImageWidget(
         imageUrl: imageUrl,
-        fit: BoxFit.cover,
+        fit: BoxFit.fitHeight,
         width: 200,
         height: 200,
         memCacheWidth: 300,
@@ -833,4 +925,3 @@ class _ProductImageWithLongPressState extends State<ProductImageWithLongPress> {
     );
   }
 }
-
