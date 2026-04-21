@@ -140,4 +140,42 @@ class ProductListRepository {
       throw Exception('Error fetching products: $e');
     }
   }
+  Future<ProductListModel> getOfferProductList(
+      {String? nextPageUrl}) async {
+    log("Fetching offer products");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+    try {
+      Response? response;
+      String url = nextPageUrl ?? EndUrl.getOfferproductList;
+
+      if (token != null) {
+        response = await dio.get(
+          url,
+          options: Options(
+            headers: {
+              "Authorization": "Bearer $token",
+              "Content-Type": "Application/json"
+            },
+          ),
+        );
+      } else {
+        response = await dio.get(url);
+      }
+
+      if (response.statusCode == 200) {
+        log("Offer products response: ${response.data.toString()}");
+        return ProductListModel.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load offer products: ${response.statusCode}');
+      }
+    } catch (e) {
+      if (e is DioException) {
+        log('Dio error: ${e.message}');
+        throw Exception('Network error fetching offer products: ${e.message}');
+      }
+      log('General error: $e');
+      throw Exception('Error fetching offer products: $e');
+    }
+  }
 }

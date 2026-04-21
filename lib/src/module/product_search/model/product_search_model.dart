@@ -12,6 +12,11 @@ class ProductSearchModel {
   final ProductRating productRating;
   final String? ribbon;
   final double? gst; // GST percentage e.g. 18.0 means 18%
+  final String? slug;
+  final List<String>? flags;
+  final bool? isStock;
+  final int? stock;
+  final String? subCategorySlug;
 
   ProductSearchModel({
     required this.id,
@@ -27,6 +32,11 @@ class ProductSearchModel {
     required this.productRating,
     this.ribbon,
     this.gst,
+    this.slug,
+    this.flags,
+    this.isStock,
+    this.stock,
+    this.subCategorySlug,
   });
 
   factory ProductSearchModel.fromJson(Map<String, dynamic> json) {
@@ -53,6 +63,19 @@ class ProductSearchModel {
       productRating: ProductRating.fromJson(json['product_rating'] ?? {}),
       ribbon: json['ribbon'],
       gst: _resolveGst(json),
+      slug: json['slug']?.toString(),
+      flags: json['flags'] != null ? List<String>.from(json['flags']) : null,
+      isStock: json['is_stock'] != null
+          ? (json['is_stock'] is bool
+              ? json['is_stock'] as bool
+              : json['is_stock'] != 0)
+          : null,
+      stock: json['stock'] != null
+          ? (json['stock'] is int
+              ? json['stock'] as int
+              : int.tryParse(json['stock'].toString()))
+          : null,
+      subCategorySlug: json['sub_category_slug']?.toString(),
     );
   }
 
@@ -76,15 +99,9 @@ class ProductSearchModel {
     return null;
   }
 
-  double get mrpWithGst {
-    if (gst == null || gst == 0) return mrp;
-    return mrp * (1 + gst! / 100);
-  }
+  double get mrpWithGst => mrp;
 
-  double get sellingPriceWithGst {
-    if (gst == null || gst == 0) return sellingPrice;
-    return sellingPrice * (1 + gst! / 100);
-  }
+  double get sellingPriceWithGst => sellingPrice;
 
   bool get isBuyable {
     return stockWord.trim().toLowerCase() == 'instock' || inStock == true;

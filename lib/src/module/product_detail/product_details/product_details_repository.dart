@@ -8,7 +8,7 @@ import '../../../../import.dart';
 class ProductDetailsRepository {
   final Dio _dio = Dio();
 
-  Future<ProductDetailModel> fetchProductDetails(int productId) async {
+  Future<ProductDetailModel> fetchProductDetails(String slug) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("access_token");
     log("tokenin home : $token");
@@ -17,7 +17,7 @@ class ProductDetailsRepository {
 
       if (token != null) {
         response = await _dio.get(
-          '${EndUrl.getProductDetailsUrl}$productId',
+          '${EndUrl.getProductDetailsUrl}$slug/',
           options: Options(
             headers: {
               "Authorization": "Bearer $token",
@@ -26,7 +26,7 @@ class ProductDetailsRepository {
           ),
         );
       } else {
-        response = await _dio.get('${EndUrl.getProductDetailsUrl}$productId');
+        response = await _dio.get('${EndUrl.getProductDetailsUrl}$slug/');
       }
 
       if (response.statusCode == 200) {
@@ -76,7 +76,7 @@ class ProductDetailsRepository {
   }
 
   Future<ProductDetailModel> filterProduct(
-      {required int productId,
+      {required String slug,
       int? sizeId,
       int? planterSizeId,
       int? planterId,
@@ -97,13 +97,13 @@ class ProductDetailsRepository {
       };
 
       log("Filter params: $queryParams");
-      log("Product id: $productId");
+      log("Slug: $slug");
 
       Response? response;
 
       if (token != null) {
         response = await _dio.get(
-          '${EndUrl.filterProductUrl}$productId',
+          '${EndUrl.getProductDetailsUrl}$slug/',
           queryParameters: queryParams,
           options: Options(
             headers: {
@@ -114,17 +114,13 @@ class ProductDetailsRepository {
         );
       } else {
         response = await _dio.get(
-          '${EndUrl.filterProductUrl}$productId',
+          '${EndUrl.getProductDetailsUrl}$slug/',
           queryParameters: queryParams,
         );
       }
 
       if (response.statusCode == 200) {
         log("Filter response: ${response.data}");
-        sizeId = null;
-        planterSizeId = null;
-        planterId = null;
-        colorId = null;
         ProductDetailModel model = ProductDetailModel.fromJson(response.data);
         log("produt littre = ${model.data.productLitres}");
         return ProductDetailModel.fromJson(response.data);

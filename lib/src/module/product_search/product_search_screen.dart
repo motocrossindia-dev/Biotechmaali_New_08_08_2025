@@ -124,7 +124,7 @@ class _ProductSearchViewState extends State<ProductSearchView> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => ProductDetailsScreen(
-                              productId: product.id,
+                              slug: product.slug ?? '',
                             ),
                           ),
                         );
@@ -140,6 +140,11 @@ class _ProductSearchViewState extends State<ProductSearchView> {
                         mainProdId: product.id,
                         discountAmount: product.sellingPriceWithGst.toString(),
                         rating: product.productRating.avgRating,
+                        numRatings: product.productRating.numRatings,
+                        flags: product.flags,
+                        isStock: product.isStock,
+                        stock: product.stock,
+                        subCategorySlug: product.subCategorySlug,
                         ribbon: product.ribbon,
                         addToFavouriteEvent: () async {
                           final settingsProvider =

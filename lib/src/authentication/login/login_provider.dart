@@ -41,17 +41,17 @@ class LoginProvider extends ChangeNotifier {
         await context.read<ReferFriendProvider>().getReferralDetails();
         await context.read<WalletProvider>().fetchWalletDetails();
         await context.read<AccountProvider>().getUserName();
-        int productId = prefs.getInt("productId") ?? 0;
-        log("Product ID: $productId");
+        String productSlug = prefs.getString('productSlug') ?? '';
+        log("Product Slug: $productSlug");
 
-        if (productId != 0) {
-          prefs.remove("productId");
+        if (productSlug.isNotEmpty) {
+          prefs.remove('productSlug');
           context.read<BottomNavProvider>().updateIndex(0);
           navigatorKey.currentState?.pushAndRemoveUntil(
             MaterialPageRoute(
               builder: (context) => BottomNavWidget(
                 isProductDetailsScreen: true,
-                productId: productId,
+                productSlug: productSlug,
               ),
             ),
             (route) => false,

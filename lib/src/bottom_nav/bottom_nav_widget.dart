@@ -11,9 +11,9 @@ import '../../import.dart';
 
 class BottomNavWidget extends StatefulWidget {
   final bool isProductDetailsScreen;
-  final int productId;
+  final String productSlug;
   const BottomNavWidget(
-      {this.productId = 0, this.isProductDetailsScreen = false, super.key});
+      {this.productSlug = '', this.isProductDetailsScreen = false, super.key});
 
   @override
   State<BottomNavWidget> createState() => _BottomNavWidgetState();
@@ -33,14 +33,14 @@ class _BottomNavWidgetState extends State<BottomNavWidget> {
           .getCurrentLocationFromBottomNav(context);
     });
     if (widget.isProductDetailsScreen) {
-      // If this widget is created from ProductDetailsScreen, show the login dialog
+      // If this widget is created after login, navigate back to product details
       WidgetsBinding.instance.addPostFrameCallback(
         (_) {
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) =>
-                  ProductDetailsScreen(productId: widget.productId),
+                  ProductDetailsScreen(slug: widget.productSlug),
             ),
           );
         },

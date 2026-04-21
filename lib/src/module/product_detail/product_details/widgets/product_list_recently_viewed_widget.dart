@@ -71,13 +71,16 @@ class ProductListRecentlyViewedWidget extends StatelessWidget {
                     log('Recently Viewed Product Data: ${productData.sellingPrice.toString()}');
                     return InkWell(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                ProductDetailsScreen(productId: productData.id),
-                          ),
-                        );
+                        if (productData.slug != null &&
+                            productData.slug!.isNotEmpty) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProductDetailsScreen(
+                                  slug: productData.slug!),
+                            ),
+                          );
+                        }
                       },
                       child: RecentlyViewedProductTile(
                         mainProdId: productData.id,

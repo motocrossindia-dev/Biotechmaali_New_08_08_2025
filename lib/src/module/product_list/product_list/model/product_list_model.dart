@@ -1,3 +1,5 @@
+import 'package:biotech_maali/core/network/app_base_url.dart';
+
 class ProductListModel {
   final String message;
   final List<Product> products;
@@ -58,6 +60,7 @@ class Product {
   final bool? isStock;
   final int? stock;
   final String? subCategorySlug;
+  final String? slug;
 
   Product({
     required this.id,
@@ -77,6 +80,7 @@ class Product {
     this.isStock,
     this.stock,
     this.subCategorySlug,
+    this.slug,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -95,7 +99,7 @@ class Product {
           : 'InStock',
       mrp: _parseDouble(json['mrp']),
       sellingPrice: _parseDouble(json['selling_price']),
-      image: json['image']?.toString() ?? '',
+      image: _parseImageField(json['image']),
       productRating: ProductRating.fromJson(
           (json['product_rating'] ?? {}) as Map<String, dynamic>),
       ribbon: json['ribbon']?.toString(),
@@ -104,6 +108,7 @@ class Product {
       isStock: json['is_stock'] != null ? _parseBool(json['is_stock']) : null,
       stock: json['stock'] != null ? _parseInt(json['stock']) : null,
       subCategorySlug: json['sub_category_slug']?.toString(),
+      slug: json['slug']?.toString(),
     );
   }
 
@@ -127,15 +132,9 @@ class Product {
     return null;
   }
 
-  double get mrpWithGst {
-    if (gst == null || gst == 0) return mrp;
-    return mrp * (1 + gst! / 100);
-  }
+  double get mrpWithGst => mrp;
 
-  double get sellingPriceWithGst {
-    if (gst == null || gst == 0) return sellingPrice;
-    return sellingPrice * (1 + gst! / 100);
-  }
+  double get sellingPriceWithGst => sellingPrice;
 
   // Helper methods for parsing
   static int _parseInt(dynamic value) {
@@ -162,6 +161,27 @@ class Product {
     return false;
   }
 
+  /// Parses the image field which can be:
+  /// - A List<dynamic> of URLs (filter API) → kept as stringified list for the widget
+  /// - A single full URL String → returned as-is
+  /// - A single relative path String → prefixed with base URL
+  static String _parseImageField(dynamic raw) {
+    if (raw == null) return '';
+    if (raw is List) {
+      // Widget's _getImages() handles "[url1, url2]" format already
+      // Just return the toString — do NOT prefix base URL here
+      return raw.toString();
+    }
+    final str = raw.toString();
+    return _resolveImageUrl(str);
+  }
+
+  static String _resolveImageUrl(String path) {
+    if (path.isEmpty) return path;
+    if (path.startsWith('http')) return path;
+    return '${BaseUrl.baseUrlForImages}$path';
+  }
+
   bool get isBuyable {
     return stockWord.trim().toLowerCase() == 'instock' || inStock == true;
   }
@@ -184,6 +204,7 @@ class Product {
       'is_stock': isStock,
       'stock': stock,
       'sub_category_slug': subCategorySlug,
+      'slug': slug,
     };
   }
 }

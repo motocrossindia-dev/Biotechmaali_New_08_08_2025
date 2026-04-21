@@ -168,7 +168,7 @@ class _BannerProductListScreenState extends State<BannerProductListScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => ProductDetailsScreen(
-                                productId: productDetails.prodId,
+                                slug: productDetails.slug ?? '',
                               ),
                             ),
                           );

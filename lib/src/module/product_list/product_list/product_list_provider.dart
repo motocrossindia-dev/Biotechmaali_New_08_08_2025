@@ -272,4 +272,47 @@ class ProductListProdvider extends ChangeNotifier {
       }
     }
   }
+  Future<void> getOfferProductList({bool loadMore = false}) async {
+    if (loadMore) {
+      if (_isLoadingMore || !hasMoreData) return;
+      _isLoadingMore = true;
+      notifyListeners();
+    } else {
+      _loadGeneration++;
+      _isLoading = true;
+      _nextPageUrl = null;
+      _allProducts = [];
+      _originalProducts = [];
+      notifyListeners();
+    }
+
+    final int thisGeneration = _loadGeneration;
+
+    try {
+      final result = await productListRepository.getOfferProductList(
+        nextPageUrl: loadMore ? _nextPageUrl : null,
+      );
+
+      if (thisGeneration != _loadGeneration) return;
+
+      if (loadMore) {
+        _allProducts.addAll(result.products);
+        _originalProducts.addAll(result.products);
+      } else {
+        _allProducts = result.products;
+        _originalProducts = List.from(result.products);
+      }
+
+      _nextPageUrl = result.nextPage;
+      notifyListeners();
+    } catch (e) {
+      log("error fetching offers: ${e.toString()}");
+    } finally {
+      if (thisGeneration == _loadGeneration) {
+        _isLoading = false;
+        _isLoadingMore = false;
+        notifyListeners();
+      }
+    }
+  }
 }

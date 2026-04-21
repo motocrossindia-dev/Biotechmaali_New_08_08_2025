@@ -70,9 +70,12 @@ class _ProductListScreenState extends State<ProductListScreen> {
       );
 
       // All categories (plants, pots, offers, etc.) use the same API
+      // except 'offers' which has its own dedicated endpoint
       if (widget.flagId != null) {
         context.read<ProductListProdvider>().getFlagProductList(
             flagId: widget.flagId!);
+      } else if (widget.categoryName?.toLowerCase() == 'offers') {
+        context.read<ProductListProdvider>().getOfferProductList();
       } else if (widget.isCategory) {
         context.read<ProductListProdvider>().getCategoryProductList(
             categoryId: widget.id);
@@ -100,6 +103,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
           if (widget.flagId != null) {
             provider.getFlagProductList(
                 flagId: widget.flagId!, loadMore: true);
+          } else if (widget.categoryName?.toLowerCase() == 'offers') {
+            provider.getOfferProductList(loadMore: true);
           } else if (widget.isCategory) {
             provider.getCategoryProductList(
                 categoryId: widget.id, loadMore: true);
@@ -197,7 +202,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => ProductDetailsScreen(
-                                  productId: product.id,
+                                  slug: product.slug ?? '',
                                 ),
                               ),
                             );

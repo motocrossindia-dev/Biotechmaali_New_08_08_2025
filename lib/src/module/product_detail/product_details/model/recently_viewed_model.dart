@@ -41,6 +41,7 @@ class RecentlyViewedProduct {
   final double? gst; // GST percentage e.g. 18.0 means 18%
   final String image;
   final ProductRating productRating;
+  final String? slug;
 
   RecentlyViewedProduct({
     required this.id,
@@ -52,6 +53,7 @@ class RecentlyViewedProduct {
     this.gst,
     required this.image,
     required this.productRating,
+    this.slug,
   });
 
   factory RecentlyViewedProduct.fromJson(Map<String, dynamic> json) {
@@ -65,20 +67,13 @@ class RecentlyViewedProduct {
       gst: _resolveGst(json),
       image: json['image'] ?? '',
       productRating: ProductRating.fromJson(json['product_rating'] ?? {}),
+      slug: json['slug']?.toString(),
     );
   }
 
-  /// MRP inclusive of GST. Falls back to raw mrp if gst is null/zero.
-  double get mrpWithGst {
-    if (gst == null || gst == 0) return mrp;
-    return mrp * (1 + gst! / 100);
-  }
+  double get mrpWithGst => mrp;
 
-  /// Selling price inclusive of GST. Falls back to raw sellingPrice if gst is null/zero.
-  double get sellingPriceWithGst {
-    if (gst == null || gst == 0) return sellingPrice;
-    return sellingPrice * (1 + gst! / 100);
-  }
+  double get sellingPriceWithGst => sellingPrice;
 
   /// Tries 'gst' → 'igst' → ('cgst' + 'sgst') in order.
   static double? _resolveGst(Map<String, dynamic> json) {

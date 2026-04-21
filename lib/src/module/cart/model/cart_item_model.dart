@@ -77,17 +77,9 @@ class CartItemModel {
 
   double get mrpValue => double.tryParse(mrp) ?? 0.0;
 
-  double get mrpWithGst {
-    final gstRate = effectiveGstRate;
-    if (gstRate <= 0) return mrpValue;
-    return mrpValue + (mrpValue * gstRate / 100);
-  }
+  double get mrpWithGst => mrpValue;
 
-  double get sellingPriceWithGst {
-    final gstRate = effectiveGstRate;
-    if (gstRate <= 0) return sellingPrice;
-    return sellingPrice + (sellingPrice * gstRate / 100);
-  }
+  double get sellingPriceWithGst => sellingPrice;
 
   CartItemModel copyWith({
     int? id,

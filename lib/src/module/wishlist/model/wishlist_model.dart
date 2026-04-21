@@ -8,7 +8,9 @@ class WishlistModel {
   final double sellingPrice;
   final double mrp;
   final String stockStatus;
-  bool isCart; // <-- Add this field
+  bool isCart;
+  final double? gst;
+  final String slug;
 
   WishlistModel({
     required this.id,
@@ -20,7 +22,9 @@ class WishlistModel {
     required this.sellingPrice,
     required this.mrp,
     required this.stockStatus,
-    required this.isCart, // <-- Add this to constructor
+    required this.isCart,
+    this.gst,
+    required this.slug,
   });
 
   factory WishlistModel.fromJson(Map<String, dynamic> json) {
@@ -44,10 +48,35 @@ class WishlistModel {
           ? double.parse(json['mrp'])
           : (json['mrp'] ?? 0).toDouble(),
       stockStatus: json['stock_status'] ?? '',
-      isCart:
-          json['is_cart'] == true || json['is_cart'] == 'true', // <-- Add this
+      isCart: json['is_cart'] == true || json['is_cart'] == 'true',
+      gst: _resolveGst(json),
+      slug: json['slug']?.toString() ?? '',
     );
   }
+
+  static double? _resolveGst(Map<String, dynamic> json) {
+    double? parse(dynamic v) {
+      if (v == null) return null;
+      if (v is double) return v;
+      if (v is int) return v.toDouble();
+      if (v is String) return double.tryParse(v);
+      return null;
+    }
+
+    final gst = parse(json['gst']);
+    if (gst != null && gst > 0) return gst;
+    final igst = parse(json['igst']);
+    if (igst != null && igst > 0) return igst;
+    final cgst = parse(json['cgst']) ?? 0.0;
+    final sgst = parse(json['sgst']) ?? 0.0;
+    final combined = cgst + sgst;
+    if (combined > 0) return combined;
+    return null;
+  }
+
+  double get mrpWithGst => mrp;
+
+  double get sellingPriceWithGst => sellingPrice;
 }
 
 class WishlistResponse {

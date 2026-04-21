@@ -63,7 +63,7 @@ class DynamicFlagSectionWidget extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => ProductDetailsScreen(
-                        productId: product.id,
+                        slug: product.slug ?? '',
                       ),
                     ),
                   );

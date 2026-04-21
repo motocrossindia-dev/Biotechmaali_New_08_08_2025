@@ -90,7 +90,6 @@ class WishlistScreen extends StatelessWidget {
             return SingleChildScrollView(
               child: Column(
                 children: [
-
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: GridView.builder(
@@ -102,7 +101,7 @@ class WishlistScreen extends StatelessWidget {
                         crossAxisCount: 2,
                         crossAxisSpacing: 15.0,
                         mainAxisSpacing: 15.0,
-                        childAspectRatio: 0.48,
+                        childAspectRatio: 0.85,
                       ),
                       itemBuilder: (context, index) {
                         final product = provider.products[index];
@@ -112,7 +111,7 @@ class WishlistScreen extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => ProductDetailsScreen(
-                                  productId: product.id,
+                                  slug: product.slug,
                                 ),
                               ),
                             );
@@ -122,6 +121,9 @@ class WishlistScreen extends StatelessWidget {
                               WishlistProductTileWidget(
                                 productId: product.productId,
                                 isCart: product.isCart,
+                                isWishlist: true,
+                                isStock: product.stockStatus.toLowerCase() ==
+                                    "in stock",
                                 productTitle: product.name,
                                 productImage: product.image,
                                 tempImage:
@@ -130,9 +132,12 @@ class WishlistScreen extends StatelessWidget {
                                   provider.removeFromWishlist(
                                       product.id, context);
                                 },
-                                mrp: product.mrp.toInt().toString(),
-                                sellingPrice:
-                                    product.sellingPrice.toInt().toString(),
+                                mrp: product.mrpWithGst
+                                    .toStringAsFixed(2)
+                                    .replaceAll(RegExp(r'\.00$'), ''),
+                                sellingPrice: product.sellingPriceWithGst
+                                    .toStringAsFixed(2)
+                                    .replaceAll(RegExp(r'\.00$'), ''),
                                 home: true,
                               ),
                             ],

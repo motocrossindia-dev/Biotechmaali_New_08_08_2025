@@ -90,7 +90,8 @@ class ProductRatingProvider extends ChangeNotifier {
       _isLoading = false;
 
       if (result) {
-        context.read<ProductDetailsProvider>().fetchProductDetails(productId);
+        final pdp = context.read<ProductDetailsProvider>();
+        pdp.fetchProductDetails(pdp.currentSlug);
       }
 
       notifyListeners();

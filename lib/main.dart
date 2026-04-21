@@ -32,6 +32,10 @@ void main() async {
   // Check if app was reinstalled and clear old data
   await _handleReinstallCleanup();
 
+  // Clear in-memory image cache so images reload with corrected URLs
+  PaintingBinding.instance.imageCache.clear();
+  PaintingBinding.instance.imageCache.clearLiveImages();
+
   // Initialize app lifecycle handler for data cleanup
   AppLifecycleHandler.initialize();
 

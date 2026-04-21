@@ -49,6 +49,9 @@ class ProductDetailsProvider extends ChangeNotifier {
   int? _selectedColorId;
   int? _selectedWeightId;
 
+  // Current product slug (for API calls)
+  String _currentSlug = '';
+
   // New property for selected tab
   int _selectedTab = 0;
 
@@ -81,6 +84,7 @@ class ProductDetailsProvider extends ChangeNotifier {
   int? get selectedLitreId => _selectedLitreId;
   int? get selectedColorId => _selectedColorId;
   int? get selectedWeightId => _selectedWeightId;
+  String get currentSlug => _currentSlug;
 
   // Getter for selected tab
   int get selectedTab => _selectedTab;
@@ -140,12 +144,13 @@ class ProductDetailsProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchProductDetails(int productId) async {
-    // Guard: if already loading the same product, skip
-    if (_isLoading && _productDetails?.data.product.id == productId) return;
+  Future<void> fetchProductDetails(String slug) async {
+    // Guard: if already loading the same slug, skip
+    if (_isLoading && _currentSlug == slug) return;
 
     _isLoading = true;
     _error = null;
+    _currentSlug = slug;
     // Clear stale data from the previous product so the new screen
     // shows the shimmer instead of the old product's content.
     _productDetails = null;
@@ -155,7 +160,7 @@ class ProductDetailsProvider extends ChangeNotifier {
 
     try {
       final details =
-          await productDetailsRepository.fetchProductDetails(productId);
+          await productDetailsRepository.fetchProductDetails(slug);
       _productDetails = details;
 
       // Track view product analytics
@@ -171,7 +176,7 @@ class ProductDetailsProvider extends ChangeNotifier {
       InAppMessagingService().triggerProductDetailView();
 
       log("===== INITIAL PRODUCT DETAILS =====");
-      log("Product ID: $productId");
+      log("Slug: $slug");
       log("Images count: ${details.data.product.images.length}");
       log("Images: ${details.data.product.images.map((img) => img.image).toList()}");
 
@@ -193,9 +198,8 @@ class ProductDetailsProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
 
-      // Automatically apply default combination filter to get all images
-      // Use the combination product ID from the response, not the main product ID
-      await _applyDefaultCombination(details.data.product.id);
+      // Automatically apply default combination filter to get correct images
+      await _applyDefaultCombination(slug);
     } catch (e) {
       _error = e.toString();
       _isLoading = false;
@@ -204,7 +208,7 @@ class ProductDetailsProvider extends ChangeNotifier {
   }
 
   // New method to apply default combination filter
-  Future<void> _applyDefaultCombination(int combinationProductId) async {
+  Future<void> _applyDefaultCombination(String slug) async {
     try {
       // Only apply filter if there are any combinations available
       bool hasCombinations = _selectedSizeId != null ||
@@ -216,48 +220,41 @@ class ProductDetailsProvider extends ChangeNotifier {
 
       log("===== CHECKING DEFAULT COMBINATION =====");
       log("Has combinations: $hasCombinations");
-      log("Combination Product ID: $combinationProductId");
+      log("Slug: $slug");
       log("SizeId: $_selectedSizeId, PlanterSizeId: $_selectedPlanterSizeId, PlanterId: $_selectedPlanterId, ColorId: $_selectedColorId, WeightId: $_selectedWeightId, LitreId: $_selectedLitreId");
 
       if (hasCombinations) {
-        log("Applying default combination filter for combination product: $combinationProductId");
+        log("Applying default combination filter for slug: $slug");
 
-        // Send only the primary dimension parameter, not all of them
-        // This matches how the manual selection works (e.g., clicking "18 inches" only sends planter_size_id)
         if (_selectedPlanterSizeId != null) {
-          // For pots with planter sizes, send only planter_size_id
           await _filterProduct(
-            productId: combinationProductId,
+            slug: slug,
             planterSizeId: _selectedPlanterSizeId,
+            colorId: _selectedColorId,
           );
         } else if (_selectedSizeId != null) {
-          // For plants with sizes, send only size_id
           await _filterProduct(
-            productId: combinationProductId,
+            slug: slug,
             sizeId: _selectedSizeId,
           );
         } else if (_selectedLitreId != null) {
-          // For products with litre options, send only litre_id
           await _filterProduct(
-            productId: combinationProductId,
+            slug: slug,
             litreId: _selectedLitreId,
           );
         } else if (_selectedWeightId != null) {
-          // For seeds with weight options, send only weight_id
           await _filterProduct(
-            productId: combinationProductId,
+            slug: slug,
             weightId: _selectedWeightId,
           );
         } else if (_selectedPlanterId != null) {
-          // For products with planter options, send only planter_id
           await _filterProduct(
-            productId: combinationProductId,
+            slug: slug,
             planterId: _selectedPlanterId,
           );
         } else if (_selectedColorId != null) {
-          // For products with only color options, send only color_id
           await _filterProduct(
-            productId: combinationProductId,
+            slug: slug,
             colorId: _selectedColorId,
           );
         }
@@ -341,60 +338,39 @@ class ProductDetailsProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> updateSize(int sizeId, int productId) async {
+  Future<void> updateSize(int sizeId) async {
     if (_selectedSizeId == sizeId) return;
-
-    await _filterProduct(
-      productId: productId,
-      sizeId: sizeId,
-      // Keep default values for other parameters
-      // planterSizeId: _selectedPlanterSizeId,
-      // planterId: _selectedPlanterId,
-      // colorId: _selectedColorId,
-    );
+    await _filterProduct(slug: _currentSlug, sizeId: sizeId);
   }
 
-  Future<void> updatePlanterSize(int planterSizeId, int productId) async {
+  Future<void> updatePlanterSize(int planterSizeId) async {
     if (_selectedPlanterSizeId == planterSizeId) return;
-
     await _filterProduct(
-      productId: productId,
-      sizeId: _selectedSizeId,
+      slug: _currentSlug,
       planterSizeId: planterSizeId,
-      // // Keep default values for other parameters
-      // planterId: _selectedPlanterId,
-      // colorId: _selectedColorId,
+      colorId: _selectedColorId,
     );
   }
 
-  Future<void> updatePlanter(int planterId, int productId) async {
+  Future<void> updatePlanter(int planterId) async {
     if (_selectedPlanterId == planterId) return;
-
     await _filterProduct(
-      productId: productId,
-      sizeId: _selectedSizeId,
+      slug: _currentSlug,
       planterSizeId: _selectedPlanterSizeId,
       planterId: planterId,
-      // // Keep default values for other parameters
-      // colorId: _selectedColorId,
     );
   }
 
-  Future<void> updateLitre(int litreId, int productId) async {
-    if (_selectedPlanterId == litreId) return;
-
-    log("litre Id : $litreId , Product Id : $productId");
-    await _filterProduct(
-        productId: productId,
-        // planterSizeId: _selectedPlanterSizeId,
-        litreId: litreId);
+  Future<void> updateLitre(int litreId) async {
+    if (_selectedLitreId == litreId) return;
+    log("litre Id : $litreId");
+    await _filterProduct(slug: _currentSlug, litreId: litreId);
   }
 
-  Future<void> updateColor(int colorId, int productId) async {
+  Future<void> updateColor(int colorId) async {
     if (_selectedColorId == colorId) return;
-
     await _filterProduct(
-      productId: productId,
+      slug: _currentSlug,
       sizeId: _selectedSizeId,
       planterSizeId: _selectedPlanterSizeId,
       planterId: _selectedPlanterId,
@@ -402,28 +378,23 @@ class ProductDetailsProvider extends ChangeNotifier {
     );
   }
 
-  Future<void> updateColorForPot(int colorId, int productId) async {
+  Future<void> updateColorForPot(int colorId) async {
     if (_selectedColorId == colorId) return;
-
     await _filterProduct(
-      productId: productId,
+      slug: _currentSlug,
       planterSizeId: _selectedPlanterSizeId,
       litreId: _selectedLitreId,
       colorId: colorId,
     );
   }
 
-  Future<void> updateWeight(int weightId, int productId) async {
-    if (_selectedPlanterId == weightId) return;
-
-    await _filterProduct(
-      productId: productId,
-      weightId: weightId,
-    );
+  Future<void> updateWeight(int weightId) async {
+    if (_selectedWeightId == weightId) return;
+    await _filterProduct(slug: _currentSlug, weightId: weightId);
   }
 
   Future<void> _filterProduct({
-    required int productId,
+    required String slug,
     int? sizeId,
     int? planterSizeId,
     int? planterId,
@@ -436,10 +407,10 @@ class ProductDetailsProvider extends ChangeNotifier {
 
     try {
       log("===== CALLING FILTER API =====");
-      log("Product ID: $productId, SizeId: $sizeId, PlanterSizeId: $planterSizeId, PlanterId: $planterId, LitreId: $litreId, ColorId: $colorId, WeightId: $weightId");
+      log("Slug: $slug, SizeId: $sizeId, PlanterSizeId: $planterSizeId, PlanterId: $planterId, LitreId: $litreId, ColorId: $colorId, WeightId: $weightId");
 
       final filteredDetails = await productDetailsRepository.filterProduct(
-          productId: productId,
+          slug: slug,
           sizeId: sizeId,
           planterSizeId: planterSizeId,
           planterId: planterId,
@@ -638,7 +609,9 @@ class ProductDetailsProvider extends ChangeNotifier {
   void _updateCarouselImages() {
     if (_productDetails != null) {
       _carouselProductImageList = _productDetails!.data.product.images
-          .map((image) => image.image)
+          .map((image) => image.image.startsWith('http')
+              ? image.image
+              : '${BaseUrl.baseUrlForImages}${image.image}')
           .toList();
 
       // Preload images for better performance

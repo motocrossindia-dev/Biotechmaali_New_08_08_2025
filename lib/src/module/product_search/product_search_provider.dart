@@ -1,12 +1,12 @@
 import 'package:biotech_maali/import.dart';
 import 'package:biotech_maali/src/module/cart/cart_provider.dart';
-import 'package:biotech_maali/src/module/product_search/model/product_search_model.dart';
+import 'package:biotech_maali/src/module/product_list/product_list/model/product_list_model.dart';
 import 'package:biotech_maali/src/module/product_search/product_search_repository.dart';
 import 'package:biotech_maali/core/services/analytics_service.dart';
 
 class ProductSearchProvider extends ChangeNotifier {
   final ProductSearchRepository _repository = ProductSearchRepository();
-  List<ProductSearchModel> products = [];
+  List<Product> products = [];
   bool isLoading = false;
   String error = '';
   String? nextPage;

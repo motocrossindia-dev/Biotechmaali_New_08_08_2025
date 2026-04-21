@@ -286,17 +286,11 @@ class Product {
     return stockWord.trim().toLowerCase() == 'instock' || inStock == true;
   }
 
-  /// MRP inclusive of GST. Falls back to raw mrp if gst is null/zero.
-  double get mrpWithGst {
-    if (gst == null || gst == 0) return mrp;
-    return mrp * (1 + gst! / 100);
-  }
+  /// Returns raw MRP (GST already included from backend).
+  double get mrpWithGst => mrp;
 
-  /// Selling price inclusive of GST. Falls back to raw sellingPrice if gst is null/zero.
-  double get sellingPriceWithGst {
-    if (gst == null || gst == 0) return sellingPrice;
-    return sellingPrice * (1 + gst! / 100);
-  }
+  /// Returns raw selling price (GST already included from backend).
+  double get sellingPriceWithGst => sellingPrice;
 
   static int _parseId(dynamic value) {
     if (value == null) return 0;
@@ -605,17 +599,32 @@ class ProductAddOn {
   final ProductRating productRating;
   bool isCart;
   bool isWishlist;
+  final String? slug;
+  final String? categorySlug;
+  final String? subCategorySlug;
+  final List<String>? flags;
+  final String? ribbon;
+  final int? stock;
+  final bool? isStock;
 
-  ProductAddOn(
-      {required this.id,
-      required this.name,
-      required this.productId,
-      required this.mrp,
-      required this.sellingPrice,
-      required this.image,
-      required this.productRating,
-      required this.isCart,
-      required this.isWishlist});
+  ProductAddOn({
+    required this.id,
+    required this.name,
+    required this.productId,
+    required this.mrp,
+    required this.sellingPrice,
+    required this.image,
+    required this.productRating,
+    required this.isCart,
+    required this.isWishlist,
+    this.slug,
+    this.categorySlug,
+    this.subCategorySlug,
+    this.flags,
+    this.ribbon,
+    this.stock,
+    this.isStock,
+  });
 
   factory ProductAddOn.fromJson(Map<String, dynamic> json) {
     return ProductAddOn(
@@ -626,8 +635,23 @@ class ProductAddOn {
       sellingPrice: (json['selling_price'] as num?)?.toDouble() ?? 0.0,
       image: json['image'] ?? '',
       productRating: ProductRating.fromJson(json['product_rating'] ?? {}),
-      isCart: json['is_cart'] ?? '',
-      isWishlist: json['is_wishlist'],
+      isCart: json['is_cart'] == true || json['is_cart'] == 'true',
+      isWishlist: json['is_wishlist'] == true || json['is_wishlist'] == 'true',
+      slug: json['slug']?.toString(),
+      categorySlug: json['category_slug']?.toString(),
+      subCategorySlug: json['sub_category_slug']?.toString(),
+      flags: json['flags'] != null ? List<String>.from(json['flags']) : null,
+      ribbon: json['ribbon']?.toString(),
+      stock: json['stock'] != null
+          ? (json['stock'] is int
+              ? json['stock'] as int
+              : int.tryParse(json['stock'].toString()))
+          : null,
+      isStock: json['in_stock'] != null
+          ? (json['in_stock'] is bool
+              ? json['in_stock'] as bool
+              : json['in_stock'] != 0)
+          : null,
     );
   }
 }

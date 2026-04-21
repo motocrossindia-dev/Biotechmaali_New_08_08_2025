@@ -776,9 +776,11 @@ class _ProductImageWithLongPressState extends State<ProductImageWithLongPress> {
       currentImage = images[1];
     }
     
-    // Safety check just in case the URL from backend is absolute
-    final isAbsolute = currentImage.startsWith('http://') || currentImage.startsWith('https://');
-    final imageUrl = isAbsolute ? currentImage : '${widget.baseUrl}$currentImage';
+    // The model already resolves relative → full URL.
+    // If still relative (edge case), prefix here as a safety net.
+    final imageUrl = currentImage.startsWith('http')
+        ? currentImage
+        : '${widget.baseUrl}$currentImage';
 
     return GestureDetector(
       onLongPressStart: (_) => setState(() => _isLongPressed = true),

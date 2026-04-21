@@ -1,17 +1,17 @@
 import 'dart:developer';
 import 'package:biotech_maali/import.dart';
-import 'package:biotech_maali/src/module/product_search/model/product_search_model.dart';
+import 'package:biotech_maali/src/module/product_list/product_list/model/product_list_model.dart';
 
 class ProductSearchRepository {
   final Dio _dio = Dio();
 
-  Future<SearchResponse> searchProducts(String query) async {
+  Future<ProductListModel> searchProducts(String query) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("access_token");
     try {
       final response = await _dio.get(
-        EndUrl.searchUrl,
-        queryParameters: {'search': query},
+        "${BaseUrl.baseUrl}filters/main_productsFilter/",
+        queryParameters: {'mobile_app': 'true', 'search': query},
         options: Options(headers: {
           if (token != null) 'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -21,16 +21,16 @@ class ProductSearchRepository {
       log("Response : ${response.statusCode}, data: ${response.data}");
 
       if (response.statusCode == 200) {
-        return SearchResponse.fromJson(response.data);
+        return ProductListModel.fromJson(response.data);
       }
-      return SearchResponse(products: [], count: 0);
+      return ProductListModel(message: '', products: [], count: 0);
     } catch (e) {
       log("Error: ${e.toString()}");
       throw Exception('Failed to search products: $e');
     }
   }
 
-  Future<SearchResponse> loadMoreProducts(
+  Future<ProductListModel> loadMoreProducts(
       String url, String searchQuery) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("access_token");
@@ -46,9 +46,9 @@ class ProductSearchRepository {
       log("Response : ${response.statusCode}, data: ${response.data}");
 
       if (response.statusCode == 200) {
-        return SearchResponse.fromJson(response.data);
+        return ProductListModel.fromJson(response.data);
       }
-      return SearchResponse(products: [], count: 0);
+      return ProductListModel(message: '', products: [], count: 0);
     } catch (e) {
       log("Error: ${e.toString()}");
       throw Exception('Failed to search products: $e');

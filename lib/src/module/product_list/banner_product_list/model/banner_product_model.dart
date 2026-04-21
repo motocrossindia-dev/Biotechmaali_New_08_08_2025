@@ -95,6 +95,7 @@ class BannerProduct {
   final ProductRating productRating;
   final String? ribbon;
   final double? gst; // GST percentage e.g. 18.0 means 18%
+  final String? slug;
 
   BannerProduct({
     required this.id,
@@ -108,6 +109,7 @@ class BannerProduct {
     required this.productRating,
     this.ribbon,
     this.gst,
+    this.slug,
   });
 
   factory BannerProduct.fromJson(Map<String, dynamic> json) {
@@ -124,6 +126,7 @@ class BannerProduct {
           json['product_rating'] as Map<String, dynamic>),
       ribbon: json['ribbon']?.toString(),
       gst: _resolveGst(json),
+      slug: json['slug']?.toString(),
     );
   }
 
@@ -147,15 +150,9 @@ class BannerProduct {
     return null;
   }
 
-  double get mrpWithGst {
-    if (gst == null || gst == 0) return mrp;
-    return mrp * (1 + gst! / 100);
-  }
+  double get mrpWithGst => mrp;
 
-  double get sellingPriceWithGst {
-    if (gst == null || gst == 0) return sellingPrice;
-    return sellingPrice * (1 + gst! / 100);
-  }
+  double get sellingPriceWithGst => sellingPrice;
 
   Map<String, dynamic> toJson() {
     return {
@@ -189,6 +186,7 @@ class BannerProduct {
       productRating: productRating,
       ribbon: ribbon,
       gst: gst,
+      slug: slug,
     );
   }
 }

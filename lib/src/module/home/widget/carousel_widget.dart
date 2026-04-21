@@ -83,14 +83,18 @@ class CarouselWidget extends StatelessWidget {
                       return;
                     }
 
-                    // If productId exists, navigate to product details
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProductDetailsScreen(
-                            productId: int.parse(productId)),
-                      ),
-                    );
+                    // If productSlug exists, navigate to product details using slug
+                    final productSlug = imageUrl['productSlug'];
+                    if (productSlug != null && productSlug.isNotEmpty) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              ProductDetailsScreen(slug: productSlug),
+                        ),
+                      );
+                    }
+                    // Note: Banner API update pending — slug not yet available from banner data
                   },
                   child: NetworkImageWidget(
                     imageUrl: imageUrl['image'] ?? '',
