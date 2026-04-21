@@ -97,4 +97,47 @@ class ProductListRepository {
       throw Exception('Error fetching products: $e');
     }
   }
+  Future<ProductListModel> getFlagProductList(int flagId,
+      {String? nextPageUrl}) async {
+    log("flagId : $flagId");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+    try {
+      Response? response;
+      String url = nextPageUrl ?? "${BaseUrl.baseUrl}filters/main_productsFilter/?mobile_app=true&flag=$flagId";
+
+      if (token != null) {
+        response = await dio.get(
+          url,
+          options: Options(
+            headers: {
+              "Authorization": "Bearer $token",
+              "Content-Type": "Application/json"
+            },
+          ),
+        );
+      } else {
+        response = await dio.get(url);
+      }
+
+      if (response.statusCode == 200) {
+        log("data in repository flag products : ${response.data.toString()}");
+        dynamic responseData = response.data;
+
+        ProductListModel productListModel =
+            ProductListModel.fromJson(responseData);
+
+        return productListModel;
+      } else {
+        throw Exception('Failed to load products: ${response.statusCode}');
+      }
+    } catch (e) {
+      if (e is DioException) {
+        log('Dio error: ${e.message}');
+        throw Exception('Network error fetching products: ${e.message}');
+      }
+      log('General error: $e');
+      throw Exception('Error fetching products: $e');
+    }
+  }
 }

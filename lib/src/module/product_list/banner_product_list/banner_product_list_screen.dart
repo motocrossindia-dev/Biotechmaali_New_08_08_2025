@@ -5,7 +5,6 @@ import 'package:biotech_maali/src/module/product_search/product_search_screen.da
 import 'package:biotech_maali/src/module/wishlist/wishlist_screen.dart';
 import 'package:biotech_maali/src/widgets/login_prompt_dialog.dart';
 import 'package:biotech_maali/src/module/product_list/product_list_shimmer.dart';
-import 'package:biotech_maali/src/module/product_list/home_product_list/widget/home_product_tile_widget.dart';
 import 'package:biotech_maali/src/module/cart/cart_provider.dart';
 import 'package:biotech_maali/src/module/wishlist/whishlist_provider.dart';
 import 'package:biotech_maali/src/widgets/no_products_found_widget.dart';
@@ -146,7 +145,7 @@ class _BannerProductListScreenState extends State<BannerProductListScreen> {
           return SingleChildScrollView(
             child: Column(
               children: [
-                const CustomBannerWidget(),
+
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: GridView.builder(
@@ -174,7 +173,7 @@ class _BannerProductListScreenState extends State<BannerProductListScreen> {
                             ),
                           );
                         },
-                        child: HomeProductTileWidget(
+                        child: ProductTileWidget(
                           mainProdId: productDetails.prodId,
                           productTitle: productDetails.name,
                           productImage: productDetails.image,
@@ -184,6 +183,7 @@ class _BannerProductListScreenState extends State<BannerProductListScreen> {
                           actualAmount: productDetails.mrpWithGst.toString(),
                           rating:
                               productDetails.productRating.avgRating.toDouble(),
+                          numRatings: productDetails.productRating.numRatings,
                           home: true,
                           isWishlist: productDetails.isWishlist,
                           isCart: productDetails.isCart,

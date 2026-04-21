@@ -18,12 +18,14 @@ class ProductListScreen extends StatefulWidget {
   final String title;
   final String id;
   final String? categoryName;
+  final int? flagId;
 
   const ProductListScreen(
       {required this.isCategory,
       required this.title,
       required this.id,
       this.categoryName,
+      this.flagId,
       super.key});
 
   @override
@@ -68,7 +70,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
       );
 
       // All categories (plants, pots, offers, etc.) use the same API
-      if (widget.isCategory) {
+      if (widget.flagId != null) {
+        context.read<ProductListProdvider>().getFlagProductList(
+            flagId: widget.flagId!);
+      } else if (widget.isCategory) {
         context.read<ProductListProdvider>().getCategoryProductList(
             categoryId: widget.id);
       } else {
@@ -92,7 +97,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
         // Handle regular products pagination
         final provider = context.read<ProductListProdvider>();
         if (!provider.isLoadingMore && provider.hasMoreData) {
-          if (widget.isCategory) {
+          if (widget.flagId != null) {
+            provider.getFlagProductList(
+                flagId: widget.flagId!, loadMore: true);
+          } else if (widget.isCategory) {
             provider.getCategoryProductList(
                 categoryId: widget.id, loadMore: true);
           } else {
@@ -169,9 +177,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
             return CustomScrollView(
               controller: _scrollController,
               slivers: [
-                const SliverToBoxAdapter(
-                  child: CustomBannerWidget(),
-                ),
+
                 SliverPadding(
                   padding: const EdgeInsets.all(8.0),
                   sliver: SliverGrid(

@@ -94,7 +94,7 @@ class WishlistProvider extends ChangeNotifier {
         _products.removeWhere((item) => item.id == productId);
         notifyListeners();
         final homeProvider = context.read<HomeProvider>();
-        homeProvider.fetchHomeProducts();
+        homeProvider.fetchPublicFlags();
         Fluttertoast.showToast(msg: "Item deleted from the wishlist");
       }
     } catch (e) {

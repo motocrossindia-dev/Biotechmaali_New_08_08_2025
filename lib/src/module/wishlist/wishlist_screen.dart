@@ -90,7 +90,7 @@ class WishlistScreen extends StatelessWidget {
             return SingleChildScrollView(
               child: Column(
                 children: [
-                  const CustomBannerWidget(),
+
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: GridView.builder(

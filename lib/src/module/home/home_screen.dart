@@ -7,6 +7,7 @@ import 'package:biotech_maali/src/module/home/widget/referral_popup.dart';
 import 'package:biotech_maali/src/module/home/widget/our_store_widget.dart';
 import 'package:biotech_maali/src/widgets/error_message_widget.dart';
 import 'package:biotech_maali/core/services/analytics_service.dart';
+import 'package:biotech_maali/src/module/home/widget/dynamic_flag_section_widget.dart';
 import 'package:biotech_maali/core/services/analytics_helper.dart';
 import '../../../import.dart';
 
@@ -107,21 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const PromotionalBanner(),
                   const SizedBox(height: 10),
-                  const HomeProductsTileWidget(title: 'Featured'),
-                  const SizedBox(height: 10),
-                  const CompoOfferWidget(),
-                  const SizedBox(height: 10),
-                  const HomeProductsTileWidget(title: 'Latest'),
-                  const SizedBox(height: 10),
-                  const HomeProductsTileWidget(title: 'Bestseller'),
-                  const SizedBox(height: 10),
-                  const ReferFriendWidget(),
-                  const SizedBox(height: 10),
-                  const HomeProductsTileWidget(title: 'Seasonal Collection'),
-                  const SizedBox(height: 10),
-                  const YoutubeVideoplayerWidget(),
-                  const SizedBox(height: 10),
-                  const OurStoreWidget(),
+                  ..._buildDynamicFlagSections(provider),
                   const SizedBox(height: 20),
                 ],
               ),
@@ -130,6 +117,55 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       ),
     );
+  }
+
+  List<Widget> _buildDynamicFlagSections(HomeProvider provider) {
+    List<Widget> widgets = [];
+    final flags = provider.publicFlags;
+    
+    int flagCount = flags.length;
+    
+    for (int i = 0; i < flagCount; i++) {
+        widgets.add(DynamicFlagSectionWidget(
+          flag: flags[i],
+          productResponse: provider.flagProductsList[flags[i].id],
+        ));
+        widgets.add(const SizedBox(height: 10));
+        
+        if (i == 1) {
+          widgets.add(const CompoOfferWidget());
+          widgets.add(const SizedBox(height: 10));
+        } else if (i == 3) {
+          widgets.add(const ReferFriendWidget());
+          widgets.add(const SizedBox(height: 10));
+        } else if (i == 5) {
+          widgets.add(const YoutubeVideoplayerWidget());
+          widgets.add(const SizedBox(height: 10));
+        } else if (i == 6) {
+          widgets.add(const OurStoreWidget());
+          widgets.add(const SizedBox(height: 10));
+        }
+    }
+    
+    // Fallback: Ensure trailing static widgets are shown even if flags are few
+    if (flagCount <= 1) {
+      widgets.add(const CompoOfferWidget());
+      widgets.add(const SizedBox(height: 10));
+    }
+    if (flagCount <= 3) {
+      widgets.add(const ReferFriendWidget());
+      widgets.add(const SizedBox(height: 10));
+    }
+    if (flagCount <= 5) {
+      widgets.add(const YoutubeVideoplayerWidget());
+      widgets.add(const SizedBox(height: 10));
+    }
+    if (flagCount <= 6) {
+      widgets.add(const OurStoreWidget());
+      widgets.add(const SizedBox(height: 10));
+    }
+    
+    return widgets;
   }
 }
 

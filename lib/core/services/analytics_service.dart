@@ -945,7 +945,7 @@ class AnalyticsService {
       parameters: {
         'list_name': listName,
         'list_id': listId,
-        'is_category': isCategory,
+        'is_category': isCategory.toString(),
         if (itemsCount != null) 'items_count': itemsCount,
       },
     );

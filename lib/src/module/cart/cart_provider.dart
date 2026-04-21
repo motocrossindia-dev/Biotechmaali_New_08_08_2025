@@ -360,8 +360,7 @@ class CartProvider extends ChangeNotifier {
 
   void refreshAllProducts(BuildContext context) {
     final homeProvider = context.read<HomeProvider>();
-    // final productListProdvider = context.read<ProductListProdvider>();
-    homeProvider.fetchHomeProducts();
+    homeProvider.fetchPublicFlags();
   }
 
   // Method to safely show cart message without overlapping

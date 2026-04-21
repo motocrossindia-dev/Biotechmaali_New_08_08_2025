@@ -226,7 +226,7 @@ class _ProductCompoListScreenState extends State<ProductCompoListScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 8),
-                  const CustomBannerWidget(),
+
                   _buildSection('Combo Offers', comboOffers, provider),
                   _buildSection('Shop The Look', shopTheLook, provider),
                   const SizedBox(height: 80),

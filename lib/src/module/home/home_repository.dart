@@ -3,8 +3,11 @@ import 'dart:developer';
 import 'package:biotech_maali/src/module/home/model/banner_model.dart';
 import 'package:biotech_maali/src/module/home/model/category_model.dart';
 import 'package:biotech_maali/src/module/home/model/content_block_model.dart';
-import 'package:biotech_maali/src/module/home/model/home_product_model.dart';
+
 import 'package:biotech_maali/src/module/home/model/promotional_banner_model.dart';
+import 'package:biotech_maali/src/module/home/model/public_flag_model.dart';
+import 'package:biotech_maali/src/module/product_list/product_list/model/product_list_model.dart';
+
 import '../../../import.dart';
 
 class HomeRepository {
@@ -13,56 +16,46 @@ class HomeRepository {
   final String bannerUrl = EndUrl.promotionBannerUrl;
   final String mainCategoriesUrl = EndUrl.getMainCategoriesUrl;
 
-  Future<List<HomeProductModel>> getHomeProducts() async {
+  Future<List<PublicFlagModel>> getPublicFlags() async {
+    try {
+      final response = await dio.get("${BaseUrl.baseUrl}product/public-flags/");
+      if (response.statusCode == 200 && response.data != null) {
+        final List<dynamic> flagsData = response.data['flags'];
+        return flagsData
+            .map((flag) => PublicFlagModel.fromJson(flag as Map<String, dynamic>))
+            .toList();
+      } else {
+        throw Exception('Failed to load public flags: ${response.statusCode}');
+      }
+    } catch (e) {
+      log('Error fetching public flags: $e');
+      throw Exception('Error fetching public flags: $e');
+    }
+  }
+
+  Future<ProductListModel> getProductsForFlag(int flagId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("access_token");
-    log("tokenin home : $token");
     try {
-      Response? response;
-
+      Response response;
+      final url = "${BaseUrl.baseUrl}filters/main_productsFilter/?mobile_app=true&flag=$flagId";
       if (token != null) {
         response = await dio.get(
-          productUrl,
-          options: Options(
-            headers: {
-              "Authorization": "Bearer $token",
-              "Content-Type": "Application/json"
-            },
-          ),
+          url,
+          options: Options(headers: {"Authorization": "Bearer $token"}),
         );
       } else {
-        response = await dio.get(productUrl);
+        response = await dio.get(url);
       }
 
       if (response.statusCode == 200 && response.data != null) {
-        final Map<String, dynamic> responseData = response.data;
-
-        if (responseData['data'] == null ||
-            responseData['data']['products'] == null) {
-          throw Exception('Invalid response format: missing data or products');
-        }
-
-        final List<dynamic> productsData = responseData['data']['products'];
-        log("Home Product Data ============== ${productsData.toString()}");
-        // DEBUG: check first product's GST fields
-        if (productsData.isNotEmpty) {
-          final first = productsData.first as Map<String, dynamic>;
-          log("HOME GST CHECK → id:${first['id']} gst:${first['gst']} igst:${first['igst']} cgst:${first['cgst']} sgst:${first['sgst']}");
-        }
-        return productsData
-            .map((product) =>
-                HomeProductModel.fromJson(product as Map<String, dynamic>))
-            .toList();
+        return ProductListModel.fromJson(response.data as Map<String, dynamic>);
       } else {
-        throw Exception('Failed to load products: ${response.statusCode}');
+        throw Exception('Failed to load products for flag $flagId');
       }
     } catch (e) {
-      if (e is DioException) {
-        log('Dio error: ${e.message}');
-        throw Exception('Network error fetching products: ${e.message}');
-      }
-      log('General error: $e');
-      throw Exception('Error fetching products: $e');
+      log('Error fetching products for flag $flagId: $e');
+      throw Exception('Error fetching products for flag $flagId: $e');
     }
   }
 

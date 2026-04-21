@@ -62,7 +62,7 @@ class _CartScreenState extends State<CartScreen> {
           }
 
           if (widget.isHomeProductList) {
-            context.read<HomeProvider>().fetchHomeProducts();
+            context.read<HomeProvider>().fetchPublicFlags();
           }
           if (widget.isWishlist) {
             context.read<WishlistProvider>().fetchWishlist();
