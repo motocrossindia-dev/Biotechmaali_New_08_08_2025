@@ -880,7 +880,7 @@ class _ProductImageWithLongPressState extends State<ProductImageWithLongPress> {
       onLongPressCancel: () => setState(() => _isLongPressed = false),
       child: NetworkImageWidget(
         imageUrl: imageUrl,
-        fit: BoxFit.fitHeight,
+        fit: BoxFit.fill,
         width: 200,
         height: 200,
         memCacheWidth: 300,

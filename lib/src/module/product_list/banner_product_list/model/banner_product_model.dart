@@ -1,5 +1,6 @@
-// Banner Product Model
+import 'package:biotech_maali/core/network/app_base_url.dart';
 
+// Banner Product Model
 class BannerProductResponse {
   final String message;
   final BannerProductData data;
@@ -96,6 +97,10 @@ class BannerProduct {
   final String? ribbon;
   final double? gst; // GST percentage e.g. 18.0 means 18%
   final String? slug;
+  final List<String>? flags;
+  final bool? isStock;
+  final int? stock;
+  final String? subCategorySlug;
 
   BannerProduct({
     required this.id,
@@ -110,6 +115,10 @@ class BannerProduct {
     this.ribbon,
     this.gst,
     this.slug,
+    this.flags,
+    this.isStock,
+    this.stock,
+    this.subCategorySlug,
   });
 
   factory BannerProduct.fromJson(Map<String, dynamic> json) {
@@ -121,13 +130,34 @@ class BannerProduct {
       isWishlist: json['is_wishlist'] as bool,
       mrp: (json['mrp'] as num).toDouble(),
       sellingPrice: (json['selling_price'] as num).toDouble(),
-      image: json['image'] as String,
+      image: _parseImageField(json['image']),
       productRating: ProductRating.fromJson(
           json['product_rating'] as Map<String, dynamic>),
       ribbon: json['ribbon']?.toString(),
       gst: _resolveGst(json),
       slug: json['slug']?.toString(),
+      flags: json['flags'] != null ? List<String>.from(json['flags']) : null,
+      isStock: json['is_stock'] != null ? _parseBool(json['is_stock']) : null,
+      stock: json['stock'] != null ? _parseInt(json['stock']) : null,
+      subCategorySlug: json['sub_category_slug']?.toString(),
     );
+  }
+
+  static bool _parseBool(dynamic value) {
+    if (value is bool) return value;
+    if (value is int) return value != 0;
+    if (value is String) {
+      final v = value.toLowerCase().trim();
+      return v == 'true' || v == '1' || v == 'yes';
+    }
+    return false;
+  }
+
+  static int _parseInt(dynamic value) {
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
   }
 
   static double? _resolveGst(Map<String, dynamic> json) {
@@ -153,6 +183,21 @@ class BannerProduct {
   double get mrpWithGst => mrp;
 
   double get sellingPriceWithGst => sellingPrice;
+
+  static String _parseImageField(dynamic raw) {
+    if (raw == null) return '';
+    if (raw is List) {
+      return raw.toString();
+    }
+    final str = raw.toString();
+    return _resolveImageUrl(str);
+  }
+
+  static String _resolveImageUrl(String path) {
+    if (path.isEmpty) return path;
+    if (path.startsWith('http')) return path;
+    return '${BaseUrl.baseUrlForImages}$path';
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -192,7 +237,7 @@ class BannerProduct {
 }
 
 class ProductRating {
-  final int avgRating;
+  final double avgRating;
   final int numRatings;
 
   ProductRating({
@@ -201,9 +246,22 @@ class ProductRating {
   });
 
   factory ProductRating.fromJson(Map<String, dynamic> json) {
+    double parseRating(dynamic v) {
+      if (v is double) return v;
+      if (v is int) return v.toDouble();
+      if (v is String) return double.tryParse(v) ?? 0.0;
+      return 0.0;
+    }
+
+    int parseNum(dynamic v) {
+      if (v is int) return v;
+      if (v is String) return int.tryParse(v) ?? 0;
+      return 0;
+    }
+
     return ProductRating(
-      avgRating: json['avg_rating'] as int,
-      numRatings: json['num_ratings'] as int,
+      avgRating: parseRating(json['avg_rating']),
+      numRatings: parseNum(json['num_ratings']),
     );
   }
 

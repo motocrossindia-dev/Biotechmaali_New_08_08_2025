@@ -181,13 +181,16 @@ class _BannerProductListScreenState extends State<BannerProductListScreen> {
                           discountAmount:
                               productDetails.sellingPriceWithGst.toString(),
                           actualAmount: productDetails.mrpWithGst.toString(),
-                          rating:
-                              productDetails.productRating.avgRating.toDouble(),
+                          rating: productDetails.productRating.avgRating,
                           numRatings: productDetails.productRating.numRatings,
                           home: true,
                           isWishlist: productDetails.isWishlist,
                           isCart: productDetails.isCart,
                           ribbon: productDetails.ribbon,
+                          flags: productDetails.flags,
+                          isStock: productDetails.isStock,
+                          stock: productDetails.stock,
+                          subCategorySlug: productDetails.subCategorySlug,
                           addToFavouriteEvent: () async {
                             final settingsProvider =
                                 context.read<SettingsProvider>();
