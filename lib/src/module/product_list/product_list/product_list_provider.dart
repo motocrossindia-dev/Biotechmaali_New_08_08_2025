@@ -138,7 +138,7 @@ class ProductListProdvider extends ChangeNotifier {
   }
 
   Future<void> getSubCategoryProductList(
-      {String? subCategoryId, bool loadMore = false}) async {
+      {String? subCategoryId, String? categoryId, bool loadMore = false}) async {
     if (loadMore) {
       if (_isLoadingMore || !hasMoreData) return;
       _isLoadingMore = true;
@@ -157,6 +157,7 @@ class ProductListProdvider extends ChangeNotifier {
     try {
       final result = await productListRepository.getSubCotegoryProductList(
         subCategoryId!,
+        categoryId: categoryId,
         nextPageUrl: loadMore ? _nextPageUrl : null,
       );
 

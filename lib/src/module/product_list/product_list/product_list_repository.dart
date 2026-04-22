@@ -55,13 +55,14 @@ class ProductListRepository {
   }
 
   Future<ProductListModel> getSubCotegoryProductList(String id,
-      {String? nextPageUrl}) async {
-    log("id : $id");
+      {String? categoryId, String? nextPageUrl}) async {
+    log("id : $id, categoryId: $categoryId");
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
     try {
       Response? response;
-      String url = nextPageUrl ?? "${EndUrl.subCategoryProductUrl}$id";
+      String url = nextPageUrl ?? 
+          "${EndUrl.categoryFilterProductUrl}?mobile_app=true${categoryId != null ? '&category_id=$categoryId' : ''}&subcategory_id=$id";
 
       if (token != null) {
         response = await dio.get(

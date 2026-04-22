@@ -57,4 +57,6 @@ class EndUrl {
   static String storeListUrl = "${baseUrl}store/store_list/";
   static String getWalletUrl = "${baseUrl}wallet/wallet/";
   static String getWalletTransactionUrl = "${baseUrl}wallet/transactions/";
+  static String clearCartUrl = "${baseUrl}order/cart/clear/";
+  static String freeShippingUrl = "${baseUrl}utils/freeShipping/";
 }

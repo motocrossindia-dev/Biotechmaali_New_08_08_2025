@@ -34,7 +34,7 @@ class SubCategories extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () {
                     provider.fetchMainCategories();
-                    provider.fetchSubcategory(provider.selectedCategoryId ?? 0,
+                    provider.fetchSubcategory(provider.selectedCategorySlug ?? '',
                         context: context);
                   },
                   child: const Text('Retry'),
@@ -93,11 +93,13 @@ class SubCategories extends StatelessWidget {
                         MaterialPageRoute(
                           builder: (context) => ProductListScreen(
                             id: subcategory.id.toString(),
+                            categoryId: subcategory.category.toString(),
                             isCategory: false,
                             title: subcategory.name,
                             categoryName: provider.maincategories.isNotEmpty 
                                 ? provider.maincategories[provider.selectedCategoryIndex].slug 
                                 : '',
+                            subcategoryDetails: subcategory,
                           ),
                         ),
                       );

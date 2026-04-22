@@ -19,14 +19,14 @@ class PaymentScreen extends StatefulWidget {
 class _PaymentScreenState extends State<PaymentScreen> {
   bool _showCODMessage = false;
 
+  static const Color _primaryGreen = Color(0xFF3B5226);
+  static const Color _darkGreen = Color(0xFF1B3012);
+  static const Color _bgColor = Color(0xFFF9FBF7);
+
   @override
   void initState() {
     super.initState();
-
-    // Track payment screen view
     AnalyticsService().logScreenView(screenName: ScreenNames.choosePayment);
-
-    // Initialize EditProfileProvider to fetch GST data
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<EditProfileProvider>().fetchProfileData();
     });
@@ -35,72 +35,73 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   Widget build(BuildContext context) {
     final orderDetails = widget.orderSummaryResponse;
-
-    // Get the selected delivery option from OrderSummaryProvider
     final selectedDeliveryOption =
         context.read<OrderSummaryProvider>().selectedDeliveryOption;
 
     return Scaffold(
+      backgroundColor: _bgColor,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded,
+              color: _darkGreen, size: 20),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Select Payment',
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: _darkGreen,
+              ),
+            ),
+            Text(
+              'Choose your preferred method',
+              style:
+                  GoogleFonts.poppins(fontSize: 11, color: Colors.grey.shade500),
+            ),
+          ],
+        ),
+      ),
       body: SafeArea(
         child: Column(
           children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  IconButton(
-                      icon: const Icon(Icons.arrow_back),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      }),
-                  const Text(
-                    'Select Payment Method',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
+            // Order tracker
+            Container(
+              color: Colors.white,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: const OrderTrackerTimeline(
+                  currentStatus: OrderStatus.payment),
             ),
-
-            const OrderTrackerTimeline(currentStatus: OrderStatus.payment),
 
             Expanded(
               child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Total Amount',
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Use Consumer to get OrderSummaryProvider data with GST details
-                      Consumer<OrderSummaryProvider>(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Order Total Summary card
+                    _buildCard(
+                      icon: Icons.receipt_long_outlined,
+                      title: 'Order Summary',
+                      child: Consumer<OrderSummaryProvider>(
                         builder: (context, orderSummaryProvider, child) {
                           final orderData = orderSummaryProvider.orderData;
                           final order = orderData?.order;
                           final shippingInfo = orderData?.shippingInfo;
 
-                          // Check if coupon applied (for free shipping)
                           final isFreeShippingFromApi =
                               shippingInfo?.freeShipping ?? false;
                           final isPickUpStore =
                               selectedDeliveryOption == "Pick Up Store";
-                          // NOTE: Only check API flag and pickup store - NOT all coupons give free shipping
                           final isFreeDelivery =
                               isPickUpStore || isFreeShippingFromApi;
 
-                          // Use shippingInfo values if available, otherwise fallback to order values
-                          // (API returns shipping data in order object after coupon is applied)
                           final actualShippingCharge =
                               shippingInfo?.shippingCharge ??
                                   order?.shippingCharge ??
@@ -108,37 +109,27 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           final finalDisplayShippingCharge =
                               isFreeDelivery ? 0.0 : actualShippingCharge;
 
-                          // GST values - fallback to order values when shippingInfo is null
-
                           final productGst5 = order?.gstAmount5 ?? 0.0;
                           final productGst18 = order?.gstAmount18 ?? 0.0;
                           final totalProductGst = productGst5 + productGst18;
 
-
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Price (items)
                               _buildPriceRow(
                                 'Price (${orderDetails.data.orderItems.length} items)',
                                 '₹${orderDetails.data.order.taxableValue.toStringAsFixed(2)}',
                               ),
-
-                              // Discount
                               _buildPriceRow(
                                 'Discount',
                                 '-₹${orderDetails.data.order.totalDiscount.toStringAsFixed(2)}',
                                 isGreen: orderDetails.data.order.totalDiscount > 0,
                               ),
-
-                              // Coupon Discount
                               if (orderDetails.data.order.couponDiscount > 0)
                                 _buildCouponRow(
                                   orderData?.couponCode ?? 'Coupon Applied',
                                   '-₹${orderDetails.data.order.couponDiscount.toStringAsFixed(2)}',
                                 ),
-
-                              // Delivery Charges
                               _buildPriceRow(
                                 'Delivery Charges',
                                 finalDisplayShippingCharge > 0
@@ -146,21 +137,21 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                     : 'Free',
                                 isGreen: finalDisplayShippingCharge == 0,
                               ),
-
-                              // GST Summary from backend — single row sum
                               Builder(builder: (context) {
-                                final totalGst = orderDetails.data.order.gstSummary.values.fold<double>(0.0, (a, b) => a + b);
+                                final totalGst = orderDetails
+                                    .data.order.gstSummary.values
+                                    .fold<double>(0.0, (a, b) => a + b);
                                 if (totalGst > 0) {
-                                  return _buildPriceRow('GST', '₹${totalGst.toStringAsFixed(2)}');
+                                  return _buildPriceRow(
+                                      'GST', '₹${totalGst.toStringAsFixed(2)}');
                                 } else if (totalProductGst > 0) {
-                                  return _buildPriceRow('GST', '₹${totalProductGst.toStringAsFixed(2)}');
+                                  return _buildPriceRow('GST',
+                                      '₹${totalProductGst.toStringAsFixed(2)}');
                                 }
                                 return const SizedBox.shrink();
                               }),
-
-                              const Divider(height: 32),
-
-                              // Total Amount — subtract only shippingCharge for pickup
+                              Divider(
+                                  height: 28, color: Colors.grey.shade100),
                               Builder(builder: (context) {
                                 final shippingInGrandTotal =
                                     shippingInfo?.shippingCharge ??
@@ -171,254 +162,343 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                         shippingInGrandTotal
                                     : orderDetails.data.order.grandTotal;
 
-                                return _buildPriceRow(
-                                  'Total Amount',
-                                  '₹${calculatedTotal.toStringAsFixed(2)}',
-                                  isBold: true,
+                                return Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Total Amount',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                        color: _darkGreen,
+                                      ),
+                                    ),
+                                    Text(
+                                      '₹${calculatedTotal.toStringAsFixed(2)}',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: _primaryGreen,
+                                      ),
+                                    ),
+                                  ],
                                 );
                               }),
-
-                              // Savings
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 8.0),
-                                child: Text(
-                                  'You will save ₹${(orderDetails.data.order.totalDiscount + orderDetails.data.order.couponDiscount).toStringAsFixed(2)} on this order',
-                                  style: TextStyle(
-                                    color: Colors.green[600],
-                                    fontWeight: FontWeight.w500,
+                              const SizedBox(height: 8),
+                              // Savings banner
+                              if ((orderDetails.data.order.totalDiscount +
+                                      orderDetails.data.order.couponDiscount) >
+                                  0)
+                                Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.shade50,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                        color: Colors.green.shade100),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.savings_outlined,
+                                          size: 16, color: Colors.green),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          'You save ₹${(orderDetails.data.order.totalDiscount + orderDetails.data.order.couponDiscount).toStringAsFixed(2)} on this order!',
+                                          style: GoogleFonts.poppins(
+                                            color: Colors.green.shade700,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ),
                             ],
                           );
                         },
                       ),
+                    ),
 
-                      // Payment Options
-                      const SizedBox(height: 20),
+                    const SizedBox(height: 12),
 
-                      // GST Checkbox
-                      Consumer2<ChoosePaymentProvider, EditProfileProvider>(
-                        builder: (context, choosePaymentProvider,
-                            editProfileProvider, child) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildPaymentOption(
-                                'Add GST Number',
-                                '',
-                                isCheckbox: true,
-                                isGstCheckbox: true,
-                                onGstChanged: (value) {
-                                  if (value == true) {
-                                    // Check if GST number exists
-                                    if (editProfileProvider.hasGstNumber()) {
+                    // Payment Options card
+                    _buildCard(
+                      icon: Icons.payment_outlined,
+                      title: 'Payment Method',
+                      child: Column(
+                        children: [
+                          // GST Checkbox
+                          Consumer2<ChoosePaymentProvider, EditProfileProvider>(
+                            builder: (context, choosePaymentProvider,
+                                editProfileProvider, child) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildPaymentOption(
+                                    'Add GST Number',
+                                    '',
+                                    isCheckbox: true,
+                                    isGstCheckbox: true,
+                                    onGstChanged: (value) {
+                                      if (value == true) {
+                                        if (editProfileProvider
+                                            .hasGstNumber()) {
+                                          choosePaymentProvider
+                                              .handleGstCheckbox(value!);
+                                        } else {
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return const GstUpdatePopup();
+                                            },
+                                          );
+                                        }
+                                      } else {
+                                        choosePaymentProvider
+                                            .handleGstCheckbox(value!);
+                                      }
+                                    },
+                                    gstCheckboxValue:
+                                        choosePaymentProvider.isGstCheckbox,
+                                  ),
+                                  if (choosePaymentProvider.isGstCheckbox &&
+                                      editProfileProvider.hasGstNumber())
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 48, top: 4, bottom: 8),
+                                      child: Text(
+                                        'GST: ${editProfileProvider.gstNumberCheckout.text}',
+                                        style: GoogleFonts.poppins(
+                                          color: Colors.grey.shade600,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              );
+                            },
+                          ),
+
+                          Divider(height: 20, color: Colors.grey.shade100),
+
+                          // Wallet
+                          Consumer2<WalletProvider, ChoosePaymentProvider>(
+                            builder: (context, walletProvider,
+                                choosePaymentProvider, child) {
+                              final grandTotal = widget
+                                  .orderSummaryResponse.data.order.grandTotal;
+                              final walletBalance = walletProvider.balance;
+                              final isWalletChecked =
+                                  choosePaymentProvider.isWalletCheckbox;
+                              final payableAmount = isWalletChecked
+                                  ? (grandTotal - walletBalance)
+                                      .clamp(0.0, double.infinity)
+                                  : grandTotal;
+
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildPaymentOption(
+                                    'Use Wallet',
+                                    walletProvider.balance.toInt().toString(),
+                                    isCheckbox: true,
+                                    onWalletChanged: (value) {
+                                      if (value == true) {
+                                        if (walletProvider.balance == 0.0) {
+                                          Fluttertoast.showToast(
+                                              msg:
+                                                  "Insufficient wallet balance",
+                                              backgroundColor: Colors.red);
+                                          return;
+                                        }
+                                        double actualWalletBalance =
+                                            walletProvider.balance -
+                                                widget.orderSummaryResponse
+                                                    .data.order.grandTotal;
+                                        context
+                                            .read<ChoosePaymentProvider>()
+                                            .handleWalletBalance(
+                                                actualWalletBalance);
+                                        context
+                                            .read<ChoosePaymentProvider>()
+                                            .handleWalletCheckbox(
+                                                value!,
+                                                walletProvider.balance);
+                                      } else {
+                                        double actualWalletBalance =
+                                            walletProvider.balance;
+                                        context
+                                            .read<ChoosePaymentProvider>()
+                                            .handleWalletBalance(
+                                                actualWalletBalance);
+                                        context
+                                            .read<ChoosePaymentProvider>()
+                                            .handleWalletCheckbox(
+                                                value!,
+                                                walletProvider.balance);
+                                      }
+                                    },
+                                  ),
+                                  if (isWalletChecked)
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 48, top: 4, bottom: 8),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: Colors.green.shade50,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        child: Text(
+                                          'Payable Amount: ₹${payableAmount.toInt()}',
+                                          style: GoogleFonts.poppins(
+                                            color: Colors.green.shade700,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              );
+                            },
+                          ),
+
+                          Divider(height: 20, color: Colors.grey.shade100),
+
+                          // Online / COD
+                          Consumer<ChoosePaymentProvider>(
+                            builder: (context, choosePaymentProvider, child) {
+                              return Column(
+                                children: [
+                                  _buildPaymentOption(
+                                    'Razorpay Secure (UPI, Cards, Wallets, NetBanking)',
+                                    '',
+                                    showPaymentIcons: true,
+                                    onChanged: (value) {
                                       choosePaymentProvider
-                                          .handleGstCheckbox(value!);
-                                    } else {
-                                      // Show popup to update GST
-                                      showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return const GstUpdatePopup();
-                                        },
-                                      );
-                                    }
-                                  } else {
-                                    choosePaymentProvider
-                                        .handleGstCheckbox(value!);
-                                  }
-                                },
-                                gstCheckboxValue:
-                                    choosePaymentProvider.isGstCheckbox,
-                              ),
-                              // Show GST number when checkbox is checked
-                              if (choosePaymentProvider.isGstCheckbox &&
-                                  editProfileProvider.hasGstNumber())
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.only(left: 40, top: 4),
-                                  child: Text(
-                                    'GST: ${editProfileProvider.gstNumberCheckout.text}',
-                                    style: TextStyle(
-                                      color: Colors.grey.shade600,
-                                      fontSize: 12,
-                                    ),
+                                          .handleOnlinePaymentOption(value!);
+                                    },
+                                    radioValue: choosePaymentProvider
+                                        .isOnlineRadioButton,
+                                    radioGroupValue: true,
                                   ),
-                                ),
-                            ],
-                          );
-                        },
-                      ),
-
-                      Consumer2<WalletProvider, ChoosePaymentProvider>(
-                        builder: (context, walletProvider,
-                            choosePaymentProvider, child) {
-                          // Calculate payable amount after wallet deduction
-                          final grandTotal =
-                              widget.orderSummaryResponse.data.order.grandTotal;
-                          final walletBalance = walletProvider.balance;
-                          final isWalletChecked =
-                              choosePaymentProvider.isWalletCheckbox;
-                          final payableAmount = isWalletChecked
-                              ? (grandTotal - walletBalance)
-                                  .clamp(0.0, double.infinity)
-                              : grandTotal;
-
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildPaymentOption(
-                                'Use Wallet',
-                                walletProvider.balance.toInt().toString(),
-                                isCheckbox: true,
-                                onWalletChanged: (value) {
-                                  if (value == true) {
-                                    if (walletProvider.balance == 0.0) {
-                                      Fluttertoast.showToast(
-                                          msg: "Insufficient wallet balance",
-                                          backgroundColor: Colors.red);
-                                      return;
-                                    }
-
-                                    // Calculate wallet balance after deduction for display
-                                    double actualWalletBalance =
-                                        walletProvider.balance -
-                                            widget.orderSummaryResponse.data
-                                                .order.grandTotal;
-                                    context
-                                        .read<ChoosePaymentProvider>()
-                                        .handleWalletBalance(
-                                            actualWalletBalance);
-                                    context
-                                        .read<ChoosePaymentProvider>()
-                                        .handleWalletCheckbox(
-                                            value!, walletProvider.balance);
-                                  } else {
-                                    double actualWalletBalance =
-                                        walletProvider.balance;
-                                    context
-                                        .read<ChoosePaymentProvider>()
-                                        .handleWalletBalance(
-                                            actualWalletBalance);
-                                    context
-                                        .read<ChoosePaymentProvider>()
-                                        .handleWalletCheckbox(
-                                            value!, walletProvider.balance);
-                                  }
-                                },
-                              ),
-                              // Show payable amount when wallet is checked
-                              if (isWalletChecked)
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 40, top: 4, bottom: 8),
-                                  child: Text(
-                                    'Payable Amount: ₹${payableAmount.toInt()}',
-                                    style: TextStyle(
-                                      color: Colors.green[700],
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          );
-                        },
-                      ),
-                      Consumer<ChoosePaymentProvider>(
-                        builder: (context, choosePaymentProvider, child) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildPaymentOption(
-                                'Razorpay Secure (UPI, Cards, Wallets, NetBanking)',
-                                '',
-                                showPaymentIcons: true,
-                                onChanged: (value) {
-                                  choosePaymentProvider
-                                      .handleOnlinePaymentOption(value!);
-                                },
-                                radioValue:
-                                    choosePaymentProvider.isOnlineRadioButton,
-                                radioGroupValue: true,
-                              ),
-                              _buildPaymentOption(
-                                'Cash on Delivery/Pay on Delivery',
-                                '',
-                                onChanged: (value) {
-                                  // choosePaymentProvider
-                                  //     .handleCashOnDeliveryPayment(value!);
-
-                                  setState(() {
-                                    _showCODMessage = true;
-                                  });
-
-                                  Future.delayed(const Duration(seconds: 2),
-                                      () {
-                                    if (mounted) {
+                                  const SizedBox(height: 8),
+                                  _buildPaymentOption(
+                                    'Cash on Delivery / Pay on Delivery',
+                                    '',
+                                    onChanged: (value) {
                                       setState(() {
-                                        _showCODMessage = false;
+                                        _showCODMessage = true;
                                       });
-                                    }
-                                  });
-                                },
-                                radioValue:
-                                    !choosePaymentProvider.isOnlineRadioButton,
-                                radioGroupValue: true,
-                                message: _showCODMessage
-                                    ? 'Cash on Delivery is not available to this area'
-                                    : null,
-                              ),
-                            ],
-                          );
-                        },
+                                      Future.delayed(
+                                          const Duration(seconds: 2), () {
+                                        if (mounted) {
+                                          setState(() {
+                                            _showCODMessage = false;
+                                          });
+                                        }
+                                      });
+                                    },
+                                    radioValue:
+                                        !choosePaymentProvider.isOnlineRadioButton,
+                                    radioGroupValue: true,
+                                    message: _showCODMessage
+                                        ? 'Cash on Delivery is not available to this area'
+                                        : null,
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 80),
+                  ],
                 ),
               ),
             ),
 
             // Bottom Buttons
             Container(
-              width: double.infinity,
-              height: 60,
-              color: cWhiteColor,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 16,
+                    offset: const Offset(0, -4),
+                  ),
+                ],
+              ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  SizedBox(
-                    width: 160,
-                    height: 48,
-                    child: CustomizableBorderColoredButton(
-                      title: 'CANCEL',
-                      event: () {
-                        Navigator.pop(context);
-                      },
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: _primaryGreen),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: Text(
+                        'CANCEL',
+                        style: GoogleFonts.poppins(
+                          color: _primaryGreen,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
                     ),
                   ),
-                  SizedBox(
-                    width: 160,
-                    height: 48,
-                    child: CustomizableButton(
-                      title: 'PROCEED',
-                      event: () async {
-                        // Check if Pick Up Store is selected
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
                         final isPickUpStore = context
                                 .read<OrderSummaryProvider>()
                                 .selectedDeliveryOption ==
                             "Pick Up Store";
-
-                        context
-                            .read<ChoosePaymentProvider>()
-                            .checkPaymentMethod(
+                        context.read<ChoosePaymentProvider>().checkPaymentMethod(
                               widget.orderSummaryResponse,
                               context,
                               isPickUpStore: isPickUpStore,
                             );
                       },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _primaryGreen,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        elevation: 0,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.lock_outline, size: 16),
+                          const SizedBox(width: 8),
+                          Text(
+                            'PROCEED',
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -430,36 +510,95 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
+  Widget _buildCard({
+    required IconData icon,
+    required String title,
+    required Widget child,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF3B5226).withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(icon, size: 18, color: const Color(0xFF3B5226)),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF1B3012),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Divider(height: 1, color: Colors.grey.shade100),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: child,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildPriceRow(String label, String amount,
       {bool isGreen = false, String? originalPrice, bool isBold = false}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             label,
-            style: TextStyle(
-              color: Colors.grey[600],
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              color: Colors.grey.shade600,
               fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
             ),
           ),
           Row(
             children: [
-              if (originalPrice != null)
+              if (originalPrice != null) ...[
                 Text(
                   originalPrice,
                   style: const TextStyle(
                     decoration: TextDecoration.lineThrough,
                     color: Colors.grey,
+                    fontSize: 12,
                   ),
                 ),
-              const SizedBox(width: 4),
+                const SizedBox(width: 4),
+              ],
               Text(
                 amount,
-                style: TextStyle(
-                  color: isGreen ? Colors.green[600] : null,
-                  fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+                style: GoogleFonts.poppins(
+                  fontSize: 13,
+                  color: isGreen ? Colors.green.shade700 : const Color(0xFF1B3012),
+                  fontWeight:
+                      isBold ? FontWeight.bold : FontWeight.w600,
                 ),
               ),
             ],
@@ -471,27 +610,27 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   Widget _buildCouponRow(String couponCode, String discountValue) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [
-              Icon(Icons.local_offer, size: 16, color: cButtonGreen),
+              const Icon(Icons.local_offer, size: 14, color: Colors.green),
               const SizedBox(width: 6),
               Text(
                 'Coupon ($couponCode)',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                ),
+                style: GoogleFonts.poppins(
+                    fontSize: 13, color: Colors.grey.shade600),
               ),
             ],
           ),
           Text(
             discountValue,
-            style: TextStyle(
-              fontWeight: FontWeight.w500,
-              color: cButtonGreen,
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
+              color: Colors.green.shade700,
             ),
           ),
         ],
@@ -514,45 +653,54 @@ class _PaymentScreenState extends State<PaymentScreen> {
     String? message,
   }) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if (isCheckbox)
-            Checkbox(
-              value: isGstCheckbox
-                  ? (gstCheckboxValue ?? false)
-                  : context.watch<ChoosePaymentProvider>().isWalletCheckbox,
-              onChanged: isGstCheckbox
-                  ? onGstChanged
-                  : (onWalletChanged != null)
-                      ? onWalletChanged
-                      : (value) {
-                          if (value == true) {
-                            double actualWalletBalance = double.parse(amount) -
-                                widget
-                                    .orderSummaryResponse.data.order.grandTotal;
-
+            Transform.scale(
+              scale: 1.1,
+              child: Checkbox(
+                value: isGstCheckbox
+                    ? (gstCheckboxValue ?? false)
+                    : context.watch<ChoosePaymentProvider>().isWalletCheckbox,
+                onChanged: isGstCheckbox
+                    ? onGstChanged
+                    : (onWalletChanged != null)
+                        ? onWalletChanged
+                        : (value) {
+                            if (value == true) {
+                              double actualWalletBalance =
+                                  double.parse(amount) -
+                                      widget.orderSummaryResponse.data.order
+                                          .grandTotal;
+                              context
+                                  .read<ChoosePaymentProvider>()
+                                  .handleWalletBalance(actualWalletBalance);
+                            } else if (value == false) {
+                              double actualWalletBalance =
+                                  double.parse(amount);
+                              context
+                                  .read<ChoosePaymentProvider>()
+                                  .handleWalletBalance(actualWalletBalance);
+                            }
                             context
                                 .read<ChoosePaymentProvider>()
-                                .handleWalletBalance(actualWalletBalance);
-                          } else if (value == false) {
-                            double actualWalletBalance = double.parse(amount);
-
-                            context
-                                .read<ChoosePaymentProvider>()
-                                .handleWalletBalance(actualWalletBalance);
-                          }
-                          context
-                              .read<ChoosePaymentProvider>()
-                              .handleWalletCheckbox(value!,
-                                  context.read<WalletProvider>().balance);
-                        },
+                                .handleWalletCheckbox(value!,
+                                    context.read<WalletProvider>().balance);
+                          },
+                activeColor: const Color(0xFF3B5226),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4)),
+              ),
             )
           else
             Radio(
-                value: radioValue,
-                groupValue: radioGroupValue,
-                onChanged: onChanged),
+              value: radioValue,
+              groupValue: radioGroupValue,
+              onChanged: onChanged,
+              activeColor: const Color(0xFF3B5226),
+            ),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -563,15 +711,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     duration: const Duration(milliseconds: 300),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 8, horizontal: 16),
+                          vertical: 8, horizontal: 12),
                       margin: const EdgeInsets.only(bottom: 8),
                       decoration: BoxDecoration(
                         color: Colors.red.shade50,
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.red.shade100),
                       ),
                       child: Text(
                         message,
-                        style: TextStyle(
+                        style: GoogleFonts.poppins(
                           color: Colors.red.shade700,
                           fontSize: 12,
                         ),
@@ -579,43 +728,34 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     ),
                   )
                 else
-                  Text(label),
+                  Text(
+                    label,
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      color: const Color(0xFF1B3012),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 if (showPaymentIcons)
-                  Row(
-                    children: [
-                      // Payment method icons would go here
-                      // You'll need to add actual payment method icons
-                      Container(
-                        margin: const EdgeInsets.only(top: 8),
-                        child: Row(
-                          children: [
-                            Image.asset(
-                              "assets/png/payment_icon/upi.png",
-                              height: 40,
-                              width: 40,
-                            ),
-                            const SizedBox(width: 8),
-                            Image.asset(
-                              "assets/png/payment_icon/visa.png",
-                              height: 44,
-                              width: 44,
-                            ),
-                            const SizedBox(width: 8),
-                            Image.asset(
-                              "assets/png/payment_icon/master_card.png",
-                              height: 40,
-                              width: 40,
-                            ),
-                            const SizedBox(width: 8),
-                            Image.asset(
-                              "assets/png/payment_icon/rupay.png",
-                              height: 54,
-                              width: 54,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Row(
+                      children: [
+                        Image.asset("assets/png/payment_icon/upi.png",
+                            height: 36, width: 36),
+                        const SizedBox(width: 6),
+                        Image.asset("assets/png/payment_icon/visa.png",
+                            height: 38, width: 38),
+                        const SizedBox(width: 6),
+                        Image.asset(
+                            "assets/png/payment_icon/master_card.png",
+                            height: 36,
+                            width: 36),
+                        const SizedBox(width: 6),
+                        Image.asset("assets/png/payment_icon/rupay.png",
+                            height: 48, width: 48),
+                      ],
+                    ),
                   ),
               ],
             ),
@@ -625,47 +765,37 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ? Row(
                     children: [
                       Text(
-                        "₹${widget.orderSummaryResponse.data.order.grandTotal.toInt()}",
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 12,
-                        ),
+                        '₹${widget.orderSummaryResponse.data.order.grandTotal.toInt()}',
+                        style: GoogleFonts.poppins(
+                            color: Colors.grey.shade500, fontSize: 12),
                       ),
+                      Text(' - ',
+                          style: GoogleFonts.poppins(
+                              color: Colors.grey.shade500, fontSize: 12)),
                       Text(
-                        " - ",
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 12,
-                        ),
+                        '₹$amount',
+                        style: GoogleFonts.poppins(
+                            color: Colors.grey.shade500, fontSize: 12),
                       ),
+                      Text(' = ',
+                          style: GoogleFonts.poppins(
+                              color: Colors.grey.shade500, fontSize: 12)),
                       Text(
-                        "₹$amount",
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 12,
-                        ),
-                      ),
-                      Text(
-                        " = ",
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 12,
-                        ),
-                      ),
-                      Text(
-                        "₹${(widget.orderSummaryResponse.data.order.grandTotal - double.parse(amount)).clamp(0.0, double.infinity).toInt()}",
-                        style: TextStyle(
-                          color: Colors.green[600],
+                        '₹${(widget.orderSummaryResponse.data.order.grandTotal - double.parse(amount)).clamp(0.0, double.infinity).toInt()}',
+                        style: GoogleFonts.poppins(
+                          color: Colors.green.shade700,
                           fontWeight: FontWeight.w600,
+                          fontSize: 13,
                         ),
                       ),
                     ],
                   )
                 : Text(
-                    "₹$amount",
-                    style: TextStyle(
-                      color: Colors.green[600],
+                    '₹$amount',
+                    style: GoogleFonts.poppins(
+                      color: Colors.green.shade700,
                       fontWeight: FontWeight.w500,
+                      fontSize: 13,
                     ),
                   ),
         ],

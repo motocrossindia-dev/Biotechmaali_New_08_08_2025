@@ -69,6 +69,7 @@ class FranchiseScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         leading: const BackButton(),
         title: const Text('Franchise Enquiry'),
@@ -80,188 +81,307 @@ class FranchiseScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Plant Store Image
-            Image.asset(
-              'assets/png/images/franchise_pic_1.png',
-              height: 200,
-              fit: BoxFit.cover,
-            ),
-            const SizedBox(height: 20),
-
-            const Center(
-              child: CommonTextWidget(
-                title: 'Get A Franchise',
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+            // Header Section
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: const BoxDecoration(
+                color: Color(0xFF3B5226),
               ),
-            ),
-
-            Image.asset(
-              'assets/png/images/franchise_pic_2.png',
-              height: 200,
-              fit: BoxFit.cover,
-            ),
-
-            // Franchise Form
-            Consumer<FranchiseProvider>(
-              builder: (context, provider, child) {
-                return Form(
-                  key: formKey, // Add form key here
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      style: GoogleFonts.poppins(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                        height: 1.1,
+                      ),
                       children: [
-                        _buildTextField(
-                          context,
-                          'Name',
-                          provider.name,
-                          validator: validateName,
-                          keyboardType: TextInputType.name,
-                        ),
-                        _buildTextField(
-                            context, 'Contact Number', provider.contact,
-                            validator: validateContact,
-                            keyboardType: TextInputType.phone,
-                            maxLength: 10),
-                        _buildTextField(
-                          context,
-                          'Your Email',
-                          provider.email,
-                          validator: validateEmail,
-                          keyboardType: TextInputType.emailAddress,
-                        ),
-                        _buildTextField(
-                          context,
-                          'Area In Which You Want To Open The Biotech Maali Outlet',
-                          provider.area,
-                          validator: validateArea,
-                        ),
-                        _buildTextField(
-                          context,
-                          'Address',
-                          provider.address,
-                          validator: validateAddress,
-                          keyboardType: TextInputType.streetAddress,
-                        ),
-                        _buildTextField(
-                          context,
-                          'Message',
-                          provider.message,
-                          maxLines: 3,
-                          validator: validateMessage,
-                        ),
-                        const SizedBox(height: 20),
-                        Consumer<FranchiseProvider>(
-                          builder: (context, provider, _) {
-                            return Column(
-                              children: [
-                                if (provider.error != null) ...[
-                                  CommonTextWidget(
-                                    title: provider.error!,
-                                    color: Colors.red[700],
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  const SizedBox(height: 16),
-                                ],
-                                CommonButtonWidget(
-                                  event: () {
-                                    if (formKey.currentState!.validate()) {
-                                      // Add validation check
-                                      provider.submitForm(context);
-                                    }
-                                  },
-                                  title: provider.isLoading
-                                      ? 'SENDING...'
-                                      : 'SEND MESSAGE',
-                                ),
-                              ],
-                            );
-                          },
+                        const TextSpan(text: 'Grow with '),
+                        TextSpan(
+                          text: 'Gidan',
+                          style: GoogleFonts.playfairDisplay(
+                            fontStyle: FontStyle.italic,
+                            color: const Color(0xFFA6C13C),
+                          ),
                         ),
                       ],
                     ),
                   ),
-                );
-              },
+                  const SizedBox(height: 12),
+                  Text(
+                    'Join our network of sustainable gardening partners and cultivate success.',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.white.withOpacity(0.8),
+                    ),
+                  ),
+                ],
+              ),
             ),
 
-            // Rest of the sections remain the same
-            _buildWhyWeRockSection(),
-            ..._buildFeatureItems(),
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(height: 100, color: const Color(0xFF3B5226)),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.all(24),
+                    child: Consumer<FranchiseProvider>(
+                      builder: (context, provider, child) {
+                        return Form(
+                          key: formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'PARTNER REGISTRATION',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFFA6C13C),
+                                  letterSpacing: 1,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              RichText(
+                                text: TextSpan(
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.bold,
+                                    color: const Color(0xFF1B3012),
+                                  ),
+                                  children: [
+                                    const TextSpan(text: 'Get a '),
+                                    TextSpan(
+                                      text: 'Franchise',
+                                      style: GoogleFonts.playfairDisplay(
+                                        fontStyle: FontStyle.italic,
+                                        color: const Color(0xFFA6C13C),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                'Share your details and our team will get back to you with the next steps.',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildNewTextField(
+                                      'Full Name',
+                                      provider.name,
+                                      Icons.person_outline,
+                                      validator: validateName,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: _buildNewTextField(
+                                      'Contact Number',
+                                      provider.contact,
+                                      Icons.phone_outlined,
+                                      validator: validateContact,
+                                      keyboardType: TextInputType.phone,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              _buildNewTextField(
+                                'Email Address',
+                                provider.email,
+                                Icons.email_outlined,
+                                validator: validateEmail,
+                                keyboardType: TextInputType.emailAddress,
+                              ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildNewTextField(
+                                      'Desired Area',
+                                      provider.area,
+                                      Icons.corporate_fare_outlined,
+                                      validator: validateArea,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: _buildNewTextField(
+                                      'Current Address',
+                                      provider.address,
+                                      Icons.map_outlined,
+                                      validator: validateAddress,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              _buildNewTextField(
+                                'Tell us about your interest...',
+                                provider.message,
+                                Icons.chat_bubble_outline,
+                                maxLines: 4,
+                                validator: validateMessage,
+                              ),
+                              const SizedBox(height: 24),
+                              if (provider.error != null) ...[
+                                Text(
+                                  provider.error!,
+                                  style: const TextStyle(color: Colors.red, fontSize: 12),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 8),
+                              ],
+                              SizedBox(
+                                width: double.infinity,
+                                height: 56,
+                                child: ElevatedButton(
+                                  onPressed: provider.isLoading
+                                      ? null
+                                      : () {
+                                          if (formKey.currentState!.validate()) {
+                                            provider.submitForm(context);
+                                          }
+                                        },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF1B3012),
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    elevation: 0,
+                                  ),
+                                  child: provider.isLoading
+                                      ? const CircularProgressIndicator(color: Colors.white)
+                                      : Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              'Request Call-back',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 12),
+                                            const Icon(Icons.send_outlined, size: 20),
+                                          ],
+                                        ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 40),
+
+            // Why We Rock? Section
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                children: [
+                  Text(
+                    'OUR PHILOSOPHY',
+                    style: GoogleFonts.poppins(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFFA6C13C),
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
+                      style: GoogleFonts.poppins(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF1B3012),
+                      ),
+                      children: [
+                        const TextSpan(text: 'Why We '),
+                        TextSpan(
+                          text: 'Rock?',
+                          style: GoogleFonts.playfairDisplay(
+                            fontStyle: FontStyle.italic,
+                            color: const Color(0xFFA6C13C),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Gidan is India\'s newest destination for thoughtfully curated garden products, plants, planters, and supplies. Built with a deep respect for nature and a strong commitment to education-driven gardening, we represent a community of plant lovers, growers, and cultivators across homes, farms, and agricultural ecosystems.',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.black54,
+                      height: 1.6,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 40),
+
             _buildStoreLocationsSection(),
 
-            // Store Cards with proper Consumer
+            // Store Cards
             Consumer<OurStoreProvider>(
               builder: (context, storeProvider, child) {
                 if (storeProvider.isLoading) {
-                  return const SizedBox(
-                    height: 200,
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
+                  return const Center(child: CircularProgressIndicator());
                 }
-
-                if (storeProvider.error != null) {
-                  return SizedBox(
-                    height: 200,
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.error_outline,
-                            color: Colors.red,
-                            size: 48,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            storeProvider.error ?? 'Failed to load stores',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(color: Colors.red),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-
                 if (storeProvider.stores.isEmpty) {
-                  return const SizedBox(
-                    height: 200,
-                    child: Center(
-                      child: Text(
-                        'No stores available',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ),
-                  );
+                  return const SizedBox();
                 }
-
-                return SizedBox(
-                  height: 350,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: storeProvider.stores.length,
-                    itemBuilder: (context, index) {
-                      final store = storeProvider.stores[index];
-                      return StoreCard(store: store);
-                    },
-                  ),
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: storeProvider.stores.length.clamp(0, 2), // Show only first 2
+                  itemBuilder: (context, index) {
+                    return StoreCard(store: storeProvider.stores[index]);
+                  },
                 );
               },
             ),
 
-            const SizedBox(height: 20),
-
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: CommonButtonWidget(
-                  event: () {
+              padding: const EdgeInsets.all(24),
+              child: SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: OutlinedButton.icon(
+                  onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -269,11 +389,52 @@ class FranchiseScreen extends StatelessWidget {
                       ),
                     );
                   },
-                  title: 'VIEW ALL'),
+                  icon: const Text('View All Stores'),
+                  label: const Icon(Icons.arrow_forward),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF1B3012),
+                    side: const BorderSide(color: Color(0xFF1B3012)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
             ),
-
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNewTextField(
+    String label,
+    TextEditingController controller,
+    IconData icon, {
+    int maxLines = 1,
+    String? Function(String?)? validator,
+    TextInputType? keyboardType,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: TextFormField(
+        controller: controller,
+        maxLines: maxLines,
+        keyboardType: keyboardType,
+        validator: validator,
+        style: GoogleFonts.poppins(fontSize: 14),
+        decoration: InputDecoration(
+          hintText: label,
+          hintStyle: GoogleFonts.poppins(fontSize: 14, color: Colors.black26),
+          prefixIcon: Icon(icon, size: 20, color: Colors.black26),
+          filled: true,
+          fillColor: const Color(0xFFF9F9F9),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         ),
       ),
     );
@@ -338,7 +499,7 @@ class FranchiseScreen extends StatelessWidget {
           const SizedBox(height: 10),
           const CommonTextWidget(
               title:
-                  'Take the first step and become a part of the family that is ever-growing. Partner with the Most Trusted Plant Nursery in the market. The vision of Biotech Maali franchise is to deliver our unique cultural blend and values to each corner of this world.',
+                  'Take the first step and become a part of the family that is ever-growing. Partner with the Most Trusted Plant Nursery in the market. The vision of Gidan franchise is to deliver our unique cultural blend and values to each corner of this world.',
               fontSize: 16),
           const SizedBox(height: 16),
           ClipRRect(

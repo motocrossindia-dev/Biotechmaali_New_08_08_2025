@@ -12,6 +12,9 @@ import 'package:biotech_maali/src/other_modules/franchise_enquiry/franchise_enqu
 import 'package:biotech_maali/src/other_modules/our_store/our_store_screen.dart';
 import 'package:biotech_maali/src/payment_and_order/order_history/order_history_screen.dart';
 import 'package:biotech_maali/core/services/analytics_service.dart';
+import 'package:biotech_maali/src/module/account/faq_screen.dart';
+import 'package:biotech_maali/src/module/account/returns_policy_screen.dart';
+import 'package:biotech_maali/src/module/account/shipping_policy_screen.dart';
 import 'package:biotech_maali/src/widgets/gd_coin_widget.dart';
 
 class AccountScreen extends StatefulWidget {
@@ -46,75 +49,139 @@ class _AccountScreenState extends State<AccountScreen> {
   Widget build(BuildContext context) {
     context.watch<AccountProvider>();
     return Scaffold(
-      backgroundColor: cScaffoldBackground,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        elevation: 4,
-        shadowColor: Colors.black,
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.transparent,
-        scrolledUnderElevation: 0,
-        toolbarHeight: 80,
-        title: Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Image.asset(
-                'assets/png/Gidan Logo.png',
-                height: 45,
-                width: 90,
-              ),
-            ],
-          ),
+        backgroundColor: const Color(0xFF3B5226),
+        elevation: 0,
+        centerTitle: false,
+        title: Image.asset(
+          'assets/png/Gidan Logo.png',
+          height: 35,
+          color: Colors.white, // Styling logo for the dark header if possible
         ),
       ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            controller: _scrollController,
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      sizedBoxHeight20,
-                      Card(
-                        // borderOnForeground: true,
-                        shape: const Border(
-                          bottom: BorderSide(style: BorderStyle.none),
+      body: SingleChildScrollView(
+        controller: _scrollController,
+        child: Column(
+          children: [
+            // Premium Header
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
+              decoration: const BoxDecoration(
+                color: Color(0xFF3B5226),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(32),
+                  bottomRight: Radius.circular(32),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      style: GoogleFonts.poppins(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                      children: [
+                        const TextSpan(text: 'My '),
+                        TextSpan(
+                          text: 'Account',
+                          style: GoogleFonts.playfairDisplay(
+                            fontStyle: FontStyle.italic,
+                            color: const Color(0xFFA6C13C),
+                          ),
                         ),
-                        color: cWhiteColor,
-                        child: Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          // ignore: avoid_unnecessary_containers
-                          child: Container(
-                            child: Row(
-                              children: [
-                                SvgPicture.asset(
-                                  'assets/svg/icons/account_person.svg',
-                                  height: 50,
-                                  width: 50,
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: const Color(0xFFA6C13C), width: 2),
+                        ),
+                        child: SvgPicture.asset(
+                          'assets/svg/icons/account_person.svg',
+                          height: 50,
+                          width: 50,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'WELCOME BACK',
+                            style: GoogleFonts.poppins(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFFA6C13C),
+                              letterSpacing: 1,
+                            ),
+                          ),
+                          Consumer<AccountProvider>(
+                            builder: (context, accountProvider, child) {
+                              return Text(
+                                accountProvider.userName ?? 'Plant Lover',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
                                 ),
-                                sizedBoxWidth15,
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                children: [
+                  // Wallet & Coins Card
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1B3012),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: InkWell(
+                            onTap: () {
+                              AnalyticsService().logAccountMenuTap(menuItem: 'Wallet');
+                              final walletProvider = context.read<WalletProvider>();
+                              walletProvider.fetchWalletDetails();
+                              walletProvider.fetchTransactions();
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const WalletScreen()));
+                            },
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('WALLET BALANCE', style: GoogleFonts.poppins(fontSize: 9, color: Colors.white54, fontWeight: FontWeight.bold)),
+                                const SizedBox(height: 4),
+                                Row(
                                   children: [
-                                    const CommonTextWidget(
-                                      title: 'Hello',
-                                      fontSize: 12,
-                                    ),
-                                    Consumer<AccountProvider>(
-                                      builder:
-                                          (context, accountProvider, child) {
-                                        return CommonTextWidget(
-                                          title: accountProvider.userName ??
-                                              'No Name',
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                        );
-                                      },
+                                    const Icon(Icons.currency_rupee, size: 14, color: Color(0xFFA6C13C)),
+                                    Text(
+                                      '${context.read<WalletProvider>().balance}',
+                                      style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                                     ),
                                   ],
                                 ),
@@ -122,713 +189,231 @@ class _AccountScreenState extends State<AccountScreen> {
                             ),
                           ),
                         ),
-                      ),
-                      sizedBoxHeight20,
-                      Card(
-                        shape: const Border(
-                          bottom: BorderSide(style: BorderStyle.none),
-                        ),
-                        color: cWhiteColor,
-                        child: Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          child: Column(
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  AnalyticsService()
-                                      .logAccountMenuTap(menuItem: 'My Orders');
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const OrderHistoryScreen(),
-                                    ),
-                                  );
-                                },
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        SvgPicture.asset(
-                                          'assets/svg/icons/my_orders.svg',
-                                          height: 25,
-                                          width: 25,
-                                        ),
-                                        sizedBoxWidth20,
-                                        CommonTextWidget(
-                                          title: 'MY ORDERS',
-                                          color: cAccountText,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ],
-                                    ),
-                                    Icon(
-                                      Icons.chevron_right,
-                                      size: 30,
-                                      color: cAccountText,
-                                    )
-                                  ],
-                                ),
-                              ),
-                              sizedBoxHeight30,
-                              Row(
-                                children: [
-                                  SvgPicture.asset(
-                                    'assets/svg/icons/my_account_icon.svg',
-                                    height: 25,
-                                    width: 25,
-                                  ),
-                                  sizedBoxWidth20,
-                                  CommonTextWidget(
-                                    title: 'ACCOUNT SETTINGS',
-                                    color: cAccountText,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ],
-                              ),
-                              sizedBoxHeight20,
-                              InkWell(
-                                onTap: () {
-                                  AnalyticsService().logAccountMenuTap(
-                                      menuItem: 'My Profile');
-                                  AnalyticsService().logProfileOpened();
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const EditProfileScreen(),
-                                    ),
-                                  );
-                                },
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Row(
-                                      children: [
-                                        sizedBoxWidth25,
-                                        sizedBoxWidth20,
-                                        CommonTextWidget(
-                                          title: 'My Profile',
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ],
-                                    ),
-                                    Icon(
-                                      Icons.chevron_right,
-                                      size: 30,
-                                      color: cAccountText,
-                                    )
-                                  ],
-                                ),
-                              ),
-                              sizedBoxHeight10,
-                              // InkWell(
-                              //   onTap: () {
-                              //     AnalyticsService().logAccountMenuTap(
-                              //         menuItem: 'Track Order');
-                              //     AnalyticsService().logTrackOrderOpened();
-                              //     Navigator.push(
-                              //       context,
-                              //       MaterialPageRoute(
-                              //         builder: (context) =>
-                              //             const TrackOrderScreen(),
-                              //       ),
-                              //     );
-                              //   },
-                              //   child: Row(
-                              //     mainAxisAlignment:
-                              //         MainAxisAlignment.spaceBetween,
-                              //     children: [
-                              //       const Row(
-                              //         children: [
-                              //           sizedBoxWidth25,
-                              //           sizedBoxWidth20,
-                              //           CommonTextWidget(
-                              //             title: 'Track Order',
-                              //             fontSize: 14,
-                              //             fontWeight: FontWeight.w500,
-                              //           ),
-                              //         ],
-                              //       ),
-                              //       Icon(
-                              //         Icons.chevron_right,
-                              //         size: 30,
-                              //         color: cAccountText,
-                              //       )
-                              //     ],
-                              //   ),
-                              // ),
-                              // sizedBoxHeight10,
-                              InkWell(
-                                onTap: () {
-                                  AnalyticsService().logAccountMenuTap(
-                                      menuItem: 'Add Address');
-                                  AnalyticsService().logAddressScreenOpened();
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const AddEditAddressScreen(
-                                        isFromAccount: true,
-                                        isAddAddress: true,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Row(
-                                      children: [
-                                        sizedBoxWidth25,
-                                        sizedBoxWidth20,
-                                        CommonTextWidget(
-                                          title: 'Add Address',
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ],
-                                    ),
-                                    Icon(
-                                      Icons.chevron_right,
-                                      size: 30,
-                                      color: cAccountText,
-                                    )
-                                  ],
-                                ),
-                              ),
-                              sizedBoxHeight10,
-                              InkWell(
-                                onTap: () {
-                                  AnalyticsService().logAccountMenuTap(
-                                      menuItem: 'Change Addresses');
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const ChangeAddressScreen(),
-                                    ),
-                                  );
-                                },
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Row(
-                                      children: [
-                                        sizedBoxWidth25,
-                                        sizedBoxWidth20,
-                                        CommonTextWidget(
-                                          title: 'Change Address',
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ],
-                                    ),
-                                    Icon(
-                                      Icons.chevron_right,
-                                      size: 30,
-                                      color: cAccountText,
-                                    )
-                                  ],
-                                ),
-                              ),
-                              sizedBoxHeight35,
-                              Row(
-                                children: [
-                                  SvgPicture.asset(
-                                    'assets/svg/icons/my_wallet.svg',
-                                    height: 25,
-                                    width: 25,
-                                  ),
-                                  sizedBoxWidth20,
-                                  CommonTextWidget(
-                                    title: 'PAYMENTS',
-                                    color: cAccountText,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ],
-                              ),
-                              sizedBoxHeight20,
-                              InkWell(
-                                onTap: () {
-                                  AnalyticsService()
-                                      .logAccountMenuTap(menuItem: 'Wallet');
-                                  final walletProvider =
-                                      context.read<WalletProvider>();
-                                  walletProvider.fetchWalletDetails();
-                                  walletProvider.fetchTransactions();
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const WalletScreen(),
-                                    ),
-                                  );
-                                },
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Row(
-                                      children: [
-                                        sizedBoxWidth25,
-                                        sizedBoxWidth20,
-                                        CommonTextWidget(
-                                          title: 'Wallet',
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.currency_rupee,
-                                          size: 16,
-                                        ),
-                                        CommonTextWidget(
-                                          title:
-                                              '${context.read<WalletProvider>().balance}',
-                                          color: Colors.green,
-                                          fontSize: 16,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              sizedBoxHeight20,
-
-                              InkWell(
-                                onTap: () {
-                                  AnalyticsService()
-                                      .logAccountMenuTap(menuItem: 'Coin');
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const CoinScreen(),
-                                    ),
-                                  );
-                                },
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Row(
-                                      children: [
-                                        sizedBoxWidth25,
-                                        sizedBoxWidth20,
-                                        CommonTextWidget(
-                                          title: 'Coin',
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        buildBTCoinIcon(size: 16),
-                                        sizedBoxWidth5,
-                                        CommonTextWidget(
-                                          title: (context
-                                              .read<ReferFriendProvider>()
-                                              .totalcoins
-                                              .toString()),
-                                          color: Colors.green,
-                                          fontSize: 16,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              // sizedBoxHeight35,
-                              // Row(
-                              //   children: [
-                              //     SvgPicture.asset(
-                              //       'assets/svg/icons/my_account_icon.svg',
-                              //       height: 25,
-                              //       width: 25,
-                              //     ),
-                              //     sizedBoxWidth20,
-                              //     CommonTextWidget(
-                              //       title: 'MY STUFF',
-                              //       color: cAccountText,
-                              //       fontSize: 16,
-                              //       fontWeight: FontWeight.w500,
-                              //     ),
-                              //   ],
-                              // ),
-                              sizedBoxHeight15,
-                              InkWell(
-                                onTap: () {
-                                  AnalyticsService().logAccountMenuTap(
-                                      menuItem: 'My Referrals');
-                                  AnalyticsService().logReferFriendOpened();
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const ReferFriendScreen(),
-                                    ),
-                                  );
-                                },
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Row(
-                                      children: [
-                                        sizedBoxWidth25,
-                                        sizedBoxWidth20,
-                                        CommonTextWidget(
-                                          title: 'My Refferals',
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ],
-                                    ),
-                                    Icon(
-                                      Icons.chevron_right,
-                                      size: 30,
-                                      color: cAccountText,
-                                    )
-                                  ],
-                                ),
-                              ),
-                              sizedBoxHeight20,
-                              InkWell(
-                                onTap: () {
-                                  context.read<AccountProvider>().toggleMore();
-                                  Future.delayed(
-                                      const Duration(milliseconds: 100), () {
-                                    if (context
-                                        .read<AccountProvider>()
-                                        .isMore) {
-                                      _scrollController.animateTo(
-                                        _scrollController
-                                            .position.maxScrollExtent,
-                                        duration:
-                                            const Duration(milliseconds: 400),
-                                        curve: Curves.easeInOut,
-                                      );
-                                    } else {
-                                      _scrollController.animateTo(
-                                        0,
-                                        duration:
-                                            const Duration(milliseconds: 400),
-                                        curve: Curves.easeInOut,
-                                      );
-                                    }
-                                  });
-                                },
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        SvgPicture.asset(
-                                          'assets/svg/icons/my_account_icon.svg',
-                                          height: 25,
-                                          width: 25,
-                                        ),
-                                        sizedBoxWidth20,
-                                        CommonTextWidget(
-                                          title: 'MORE',
-                                          color: cAccountText,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ],
-                                    ),
-                                    IconButton(
-                                      onPressed: () {
-                                        context
-                                            .read<AccountProvider>()
-                                            .toggleMore();
-                                        Future.delayed(
-                                            const Duration(milliseconds: 100),
-                                            () {
-                                          if (context
-                                              .read<AccountProvider>()
-                                              .isMore) {
-                                            _scrollController.animateTo(
-                                              _scrollController
-                                                  .position.maxScrollExtent,
-                                              duration: const Duration(
-                                                  milliseconds: 400),
-                                              curve: Curves.easeInOut,
-                                            );
-                                          } else {
-                                            _scrollController.animateTo(
-                                              0,
-                                              duration: const Duration(
-                                                  milliseconds: 400),
-                                              curve: Curves.easeInOut,
-                                            );
-                                          }
-                                        });
-                                      },
-                                      icon: Icon(
-                                        context.watch<AccountProvider>().isMore
-                                            ? Icons.keyboard_arrow_down
-                                            : Icons.keyboard_arrow_up,
-                                        color: cAccountText,
-                                        size: 30,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              // InkWell(
-                              //   onTap: () {
-                              //     Navigator.push(
-                              //       context,
-                              //       MaterialPageRoute(
-                              //         builder: (context) =>
-                              //             const GiftCardScreen(),
-                              //       ),
-                              //     );
-                              //   },
-                              //   child: Row(
-                              //     mainAxisAlignment:
-                              //         MainAxisAlignment.spaceBetween,
-                              //     children: [
-                              //       const Row(
-                              //         children: [
-                              //           sizedBoxWidth25,
-                              //           sizedBoxWidth20,
-                              //           CommonTextWidget(
-                              //             title: 'My Gift Card',
-                              //             fontSize: 14,
-                              //             fontWeight: FontWeight.w500,
-                              //           ),
-                              //         ],
-                              //       ),
-                              //       Icon(
-                              //         Icons.chevron_right,
-                              //         size: 30,
-                              //         color: cAccountText,
-                              //       )
-                              //     ],
-                              //   ),
-                              // ),
-                              context.watch<AccountProvider>().isMore
-                                  ? Column(
-                                      children: [
-                                        sizedBoxHeight20,
-                                        SubtitleWidget(
-                                          onPressedCallBack: () {
-                                            AnalyticsService()
-                                                .logAccountMenuTap(
-                                                    menuItem:
-                                                        'Franchise Enquiry');
-                                            AnalyticsService()
-                                                .logFranchiseScreenOpened();
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    FranchiseScreen(),
-                                              ),
-                                            );
-                                          },
-                                          title: 'Franchise Enquiry',
-                                        ),
-                                        // sizedBoxHeight15,
-                                        // SubtitleWidget(
-                                        //   onPressedCallBack: () {
-                                        //     Navigator.push(
-                                        //       context,
-                                        //       MaterialPageRoute(
-                                        //         builder: (context) =>
-                                        //             const OurWorkScreen(),
-                                        //       ),
-                                        //     );
-                                        //   },
-                                        //   title: 'Our Work',
-                                        // ),
-                                        // sizedBoxHeight15,
-                                        // SubtitleWidget(
-                                        //   onPressedCallBack: () {
-                                        //     Navigator.push(
-                                        //       context,
-                                        //       MaterialPageRoute(
-                                        //         builder: (context) =>
-                                        //             const ServicesScreen(),
-                                        //       ),
-                                        //     );
-                                        //   },
-                                        //   title: 'Services',
-                                        // ),
-                                        sizedBoxHeight15,
-                                        SubtitleWidget(
-                                          onPressedCallBack: () {
-                                            AnalyticsService()
-                                                .logAccountMenuTap(
-                                                    menuItem: 'Careers');
-                                            AnalyticsService()
-                                                .logCareersOpened();
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    const CarrersScreen(),
-                                              ),
-                                            );
-                                          },
-                                          title: 'Carriers',
-                                        ),
-                                        sizedBoxHeight15,
-                                        SubtitleWidget(
-                                          onPressedCallBack: () {
-                                            AnalyticsService()
-                                                .logAccountMenuTap(
-                                                    menuItem: 'Our Stores');
-                                            AnalyticsService()
-                                                .logOurStoresOpened();
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    const OurStoresScreen(),
-                                              ),
-                                            );
-                                          },
-                                          title: 'Our Stores',
-                                        ),
-                                        sizedBoxHeight15,
-                                        SubtitleWidget(
-                                          onPressedCallBack: () {
-                                            AnalyticsService()
-                                                .logAccountMenuTap(
-                                                    menuItem: 'Contact Us');
-                                            AnalyticsService()
-                                                .logContactUsOpened();
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    const ContactScreen(),
-                                              ),
-                                            );
-                                          },
-                                          title: 'Contact Us',
-                                        ),
-                                        sizedBoxHeight15,
-                                        SubtitleWidget(
-                                          onPressedCallBack: () {},
-                                          title: 'Terms Of Services',
-                                        ),
-                                        sizedBoxHeight15,
-                                        SubtitleWidget(
-                                          onPressedCallBack: () {},
-                                          title: 'Privacy Policy',
-                                        ),
-                                        sizedBoxHeight15,
-                                        SubtitleWidget(
-                                          onPressedCallBack: () {},
-                                          title: 'Shipping Policy',
-                                        ),
-                                        sizedBoxHeight15,
-                                        SubtitleWidget(
-                                          onPressedCallBack: () {},
-                                          title: 'Return Policy',
-                                        ),
-                                      ],
-                                    )
-                                  : sizedBoxHeight0,
-
-                              // sizedBoxHeight15,
-                              // SubtitleWidget(
-                              //   onPressedCallBack: () {},
-                              //   title: 'FAQ’s',
-                              // ),
-                              sizedBoxHeight20,
-                            ],
-                          ),
-                        ),
-                      ),
-                      // sizedBoxHeight20,
-                      SizedBox(
-                        width: double.infinity,
-                        height: 55,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 8.0, right: 8),
-                          child: MaterialButton(
-                            color: cScaffoldBackground,
-                            onPressed: () async {
-                              // Show the bottom sheet when the button is pressed
-                              bottmomSheetLogout(context);
+                        Container(width: 1, height: 30, color: Colors.white10),
+                        Expanded(
+                          child: InkWell(
+                            onTap: () {
+                              AnalyticsService().logAccountMenuTap(menuItem: 'Coin');
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const CoinScreen()));
                             },
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                  5), // Set the border radius here
-                              side: const BorderSide(
-                                color: Colors.red, // Set the border color here
-                                width: 2, // Set the border width
-                              ),
-                            ),
-                            child: CommonTextWidget(
-                              fontWeight: FontWeight.w500,
-                              title: 'LOGOUT',
-                              color: cButtonRed,
-                              fontSize: 18,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text('GIDAN COINS', style: GoogleFonts.poppins(fontSize: 9, color: Colors.white54, fontWeight: FontWeight.bold)),
+                                const SizedBox(height: 4),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    buildBTCoinIcon(size: 14),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '${context.read<ReferFriendProvider>().totalcoins}',
+                                      style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
                         ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Orders Section
+                  _buildMenuSection(
+                    title: 'ORDERS & TRACKING',
+                    children: [
+                      _buildMenuRow(
+                        icon: SvgPicture.asset('assets/svg/icons/my_orders.svg', height: 20, width: 20, color: const Color(0xFF1B3012)),
+                        title: 'My Orders',
+                        onTap: () {
+                          AnalyticsService().logAccountMenuTap(menuItem: 'My Orders');
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const OrderHistoryScreen()));
+                        },
                       ),
-                      sizedBoxHeight05,
                     ],
                   ),
-                ),
-              ],
+
+                  const SizedBox(height: 16),
+
+                  // Account Settings Section
+                  _buildMenuSection(
+                    title: 'ACCOUNT SETTINGS',
+                    children: [
+                      _buildMenuRow(
+                        icon: SvgPicture.asset('assets/svg/icons/account_person.svg', height: 20, width: 20, color: const Color(0xFF1B3012)),
+                        title: 'My Profile',
+                        onTap: () {
+                          AnalyticsService().logAccountMenuTap(menuItem: 'My Profile');
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfileScreen()));
+                        },
+                      ),
+                      _buildMenuRow(
+                        icon: SvgPicture.asset('assets/svg/icons/location_icon.svg', height: 20, width: 20, color: const Color(0xFF1B3012)),
+                        title: 'My Addresses',
+                        onTap: () {
+                          AnalyticsService().logAccountMenuTap(menuItem: 'Change Addresses');
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const ChangeAddressScreen()));
+                        },
+                      ),
+                      _buildMenuRow(
+                        icon: const Icon(Icons.share_outlined, size: 20, color: Color(0xFF1B3012)),
+                        title: 'My Referrals',
+                        onTap: () {
+                          AnalyticsService().logAccountMenuTap(menuItem: 'My Referrals');
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const ReferFriendScreen()));
+                        },
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // More Section
+                  _buildMenuSection(
+                    title: 'SUPPORT & POLICIES',
+                    children: [
+                      _buildMenuRow(
+                        icon: const Icon(Icons.business_center_outlined, size: 20, color: Color(0xFF1B3012)),
+                        title: 'Franchise Enquiry',
+                        onTap: () {
+                          AnalyticsService().logAccountMenuTap(menuItem: 'Franchise Enquiry');
+                          AnalyticsService().logFranchiseScreenOpened();
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => FranchiseScreen()));
+                        },
+                      ),
+                      _buildMenuRow(
+                        icon: const Icon(Icons.work_outline, size: 20, color: Color(0xFF1B3012)),
+                        title: 'Careers',
+                        onTap: () {
+                          AnalyticsService().logAccountMenuTap(menuItem: 'Careers');
+                          AnalyticsService().logCareersOpened();
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const CarrersScreen()));
+                        },
+                      ),
+                      _buildMenuRow(
+                        icon: const Icon(Icons.storefront_outlined, size: 20, color: Color(0xFF1B3012)),
+                        title: 'Our Stores',
+                        onTap: () {
+                          AnalyticsService().logAccountMenuTap(menuItem: 'Our Stores');
+                          AnalyticsService().logOurStoresOpened();
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const OurStoresScreen()));
+                        },
+                      ),
+                      _buildMenuRow(
+                        icon: const Icon(Icons.headset_mic_outlined, size: 20, color: Color(0xFF1B3012)),
+                        title: 'Contact Us',
+                        onTap: () {
+                          AnalyticsService().logAccountMenuTap(menuItem: 'Contact Us');
+                          AnalyticsService().logContactUsOpened();
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const ContactScreen()));
+                        },
+                      ),
+                      _buildMenuRow(
+                        icon: const Icon(Icons.help_outline, size: 20, color: Color(0xFF1B3012)),
+                        title: 'FAQ’s',
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const FAQScreen()));
+                        },
+                      ),
+                      _buildMenuRow(
+                        icon: const Icon(Icons.assignment_return_outlined, size: 20, color: Color(0xFF1B3012)),
+                        title: 'Returns Policy',
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const ReturnsPolicyScreen()));
+                        },
+                      ),
+                      _buildMenuRow(
+                        icon: const Icon(Icons.local_shipping_outlined, size: 20, color: Color(0xFF1B3012)),
+                        title: 'Shipping Policy',
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const ShippingPolicyScreen()));
+                        },
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 40),
+
+                  // Logout Button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: OutlinedButton(
+                      onPressed: () => bottmomSheetLogout(context),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.red,
+                        side: const BorderSide(color: Colors.red),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: Text(
+                        'LOGOUT',
+                        style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 40),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuSection({required String title, required List<Widget> children}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 8, bottom: 12),
+          child: Text(
+            title,
+            style: GoogleFonts.poppins(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFFA6C13C),
+              letterSpacing: 1,
             ),
           ),
-          // Positioned(
-          //   bottom: 0,
-          //   left: 0,
-          //   right: 0,
-          //   child: SizedBox(
-          //     width: double.infinity,
-          //     height: 55,
-          //     child: Padding(
-          //       padding: const EdgeInsets.only(left: 8.0, right: 8),
-          //       child: MaterialButton(
-          //         color: cScaffoldBackground,
-          //         onPressed: () async {
-          //           // Show the bottom sheet when the button is pressed
-          //           bottmomSheetLogout(context);
-          //         },
-          //         shape: RoundedRectangleBorder(
-          //           borderRadius:
-          //               BorderRadius.circular(5), // Set the border radius here
-          //           side: const BorderSide(
-          //             color: Colors.red, // Set the border color here
-          //             width: 2, // Set the border width
-          //           ),
-          //         ),
-          //         child: CommonTextWidget(
-          //           fontWeight: FontWeight.w500,
-          //           title: 'LOGOUT',
-          //           color: cButtonRed,
-          //           fontSize: 18,
-          //         ),
-          //       ),
-          //     ),
-          //   ),
-          // ),
-        ],
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 5)),
+            ],
+          ),
+          child: Column(children: children),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMenuRow({required Widget icon, required String title, required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: Row(
+          children: [
+            SizedBox(width: 20, height: 20, child: Center(child: icon)),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                title,
+                style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87),
+              ),
+            ),
+            const Icon(Icons.chevron_right, size: 20, color: Colors.black12),
+          ],
+        ),
       ),
     );
   }
@@ -838,7 +423,7 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 }
 
-  // Replace the existing onPressed handler with this:
+// Replace the existing onPressed handler with this:
 void bottmomSheetLogout(BuildContext context) {
   // Capture the parent/screen context BEFORE opening the bottom sheet
   final parentContext = context;

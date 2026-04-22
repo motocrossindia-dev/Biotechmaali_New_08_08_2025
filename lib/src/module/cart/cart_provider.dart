@@ -13,6 +13,7 @@ import 'cart_repository.dart';
 
 class CartProvider extends ChangeNotifier {
   final CartRepository _repository = CartRepository();
+  CartDataModel? _cartData;
   List<CartItemModel> _cartItems = [];
   bool _isLoading = false;
   final Map<int, bool> _quantityLoadingStates = {};
@@ -22,13 +23,19 @@ class CartProvider extends ChangeNotifier {
   bool _isDeletingItem = false;
   bool _isShowingCartMessage = false;
   bool _isRemovingOutOfStock = false;
+  double _freeShippingThreshold = 2000.0;
+  bool _isClearingCart = false;
 
   bool get isPlacingOrder => _isPlacingOrder;
   bool get isDeletingItem => _isDeletingItem;
+  bool get isClearingCart => _isClearingCart;
   List<CartItemModel> get cartItems => _cartItems;
+  CartDataModel? get cartData => _cartData;
+  List<CartRecommendationModel> get recommendations => _cartData?.recommendations ?? [];
   bool get isLoading => _isLoading;
   bool get isShowingCartMessage => _isShowingCartMessage;
   bool get isRemovingOutOfStock => _isRemovingOutOfStock;
+  double get freeShippingThreshold => _freeShippingThreshold;
 
   // Returns cart items that are out of stock according to their stockStatus
   List<CartItemModel> get outOfStockItems {
@@ -44,30 +51,72 @@ class CartProvider extends ChangeNotifier {
   bool isQuantityLoading(int cartId) => _quantityLoadingStates[cartId] ?? false;
   bool isDeleteLoading(int cartId) => _deleteLoadingStates[cartId] ?? false;
 
+  // Computed live from _cartItems so it instantly reflects quantity changes and deletions.
   double get totalAmount {
-    return _cartItems.fold(
-        0.0, (sum, item) => sum + (item.mrpWithGst * item.quantity));
+    return _cartItems.fold(0.0, (sum, item) => sum + (item.sellingPrice * item.quantity));
   }
 
-  double get totalDiscount {
-    return _cartItems.fold(
-        0.0,
-        (sum, item) =>
-            sum +
-            ((item.mrpWithGst - item.sellingPriceWithGst) * item.quantity));
+  double get subTotal {
+    return _cartItems.fold(0.0, (sum, item) => sum + (item.baseMrp * item.quantity));
   }
+
+  double get totalMrp {
+    return _cartItems.fold(0.0, (sum, item) => sum + (item.mrp * item.quantity));
+  }
+
+  double get totalTaxAmount {
+    return _cartItems.fold(0.0, (sum, item) {
+      final gstPercent = item.gst ?? 0.0;
+      final taxPerItem = item.sellingPrice * (gstPercent / (100 + gstPercent));
+      return sum + (taxPerItem * item.quantity);
+    });
+  }
+
+  double get totalDiscount => totalMrp - totalAmount;
 
   Future<void> fetchCartItems() async {
     try {
       _isLoading = true;
+      Future.microtask(() => notifyListeners());
 
-      _cartItems = await _repository.getCartItems();
+      // Fetch both cart and threshold
+      final results = await Future.wait([
+        _repository.getCartItems(),
+        _repository.getFreeShippingThreshold(),
+      ]);
+
+      _cartData = results[0] as CartDataModel;
+      _freeShippingThreshold = results[1] as double;
+      _cartItems = _cartData?.cartItems ?? [];
+      log("🛒 CartProvider: Fetched ${_cartItems.length} items, Threshold: $_freeShippingThreshold");
       _error = '';
-      notifyListeners();
     } catch (e) {
-      _error = "Something went wrong while fetching cart items , Server down";
+      log("❌ CartProvider Error: $e");
+      _error = "Something went wrong while fetching cart items";
     } finally {
       _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> clearEntireCart() async {
+    try {
+      _isClearingCart = true;
+      notifyListeners();
+
+      final success = await _repository.clearCart();
+      if (success) {
+        _cartItems = [];
+        _cartData = null;
+        notifyListeners();
+        Fluttertoast.showToast(msg: "Cart cleared successfully");
+      } else {
+        Fluttertoast.showToast(msg: "Failed to clear cart", backgroundColor: Colors.red);
+      }
+    } catch (e) {
+      log("Error clearing cart: $e");
+    } finally {
+      _isClearingCart = false;
       notifyListeners();
     }
   }
@@ -126,11 +175,12 @@ class CartProvider extends ChangeNotifier {
         AnalyticsService().logRemoveFromCart(
           productId: itemToDelete.productId.toString(),
           productName: itemToDelete.name,
-          price: double.tryParse(itemToDelete.mrp) ?? 0,
+          price: itemToDelete.mrp,
           quantity: itemToDelete.quantity,
         );
 
         _cartItems.removeWhere((item) => item.id == cartId);
+        notifyListeners(); // Immediately update price & progress bar
         refreshAllProducts(context);
 
         // Show success message after a short delay to ensure UI updates

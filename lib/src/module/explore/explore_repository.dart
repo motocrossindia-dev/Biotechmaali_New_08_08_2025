@@ -31,15 +31,15 @@ class ExploreRepository {
     }
   }
 
-  Future<SubcategoryModel?> getSubcategories(int categoryId) async {
-    if (categoryId == 0) {
-      Fluttertoast.showToast(msg: "Category id is missing");
+  Future<SubcategoryModel?> getSubcategories(String categorySlug) async {
+    if (categorySlug.isEmpty) {
+      Fluttertoast.showToast(msg: "Category slug is missing");
       return null;
     }
 
     try {
       final response = await dio.get(
-        "${EndUrl.getCategoryWiseSubCategoryUrl}$categoryId",
+        "${EndUrl.getCategoryWiseSubCategoryUrl}$categorySlug/",
         options: Options(
           // headers: {'Authorization': 'Bearer $token'},
           validateStatus: (status) => status! < 500,

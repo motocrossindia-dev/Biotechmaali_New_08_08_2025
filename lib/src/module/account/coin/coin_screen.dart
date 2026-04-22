@@ -18,15 +18,18 @@ class _CoinScreenState extends State<CoinScreen> {
   ReferFriendProvider? _referFriendProvider;
   bool _isProcessingRedeem = false;
 
+  static const Color _primaryGreen = Color(0xFF3B5226);
+  static const Color _darkGreen = Color(0xFF1B3012);
+  static const Color _limeAccent = Color(0xFFA6C13C);
+  static const Color _bgColor = Color(0xFFF9FBF7);
+
   @override
   void initState() {
     super.initState();
-    // Use addPostFrameCallback to ensure the widget is fully built before accessing context
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && _coinProvider != null && _referFriendProvider != null) {
         _coinProvider!.fetchTransactions();
         _referFriendProvider!.getReferralDetails();
-        // Track coin screen opened with current coins
         final currentCoins = _referFriendProvider!.totalcoins;
         AnalyticsService().logScreenView(screenName: 'Coin Screen');
         AnalyticsService().logCoinScreenOpened(currentCoins: currentCoins);
@@ -37,49 +40,35 @@ class _CoinScreenState extends State<CoinScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Save references to providers to avoid unsafe context access
     _coinProvider = Provider.of<CoinProvider>(context, listen: false);
-    _referFriendProvider =
-        Provider.of<ReferFriendProvider>(context, listen: false);
+    _referFriendProvider = Provider.of<ReferFriendProvider>(context, listen: false);
   }
 
-  @override
-  void dispose() {
-    // Clean up any resources if needed
-    super.dispose();
-  }
-
-  // Safe method to dismiss loading dialogs
   void _dismissLoadingDialog() {
     if (mounted) {
       try {
-        // Try to pop the loading dialog
         if (Navigator.canPop(context)) {
           Navigator.of(context).pop();
         }
-      } catch (e) {
-        // Ignore navigation errors - dialog might already be dismissed
-      }
+      } catch (e) {}
     }
   }
 
-  // Utility method to safely navigate
   void _safeNavigate(VoidCallback navigationAction) {
     if (mounted) {
       navigationAction();
     }
   }
 
-  // Utility method to safely show snackbar
   void _safeShowSnackBar(String message, {Color? backgroundColor}) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(message),
+          content: Text(message, style: GoogleFonts.poppins(fontSize: 13)),
           backgroundColor: backgroundColor ?? Colors.red,
-          duration: const Duration(
-              seconds: 4), // Longer duration for success messages
+          duration: const Duration(seconds: 4),
           behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           margin: const EdgeInsets.all(16),
         ),
       );
@@ -91,22 +80,37 @@ class _CoinScreenState extends State<CoinScreen> {
     return Consumer2<CoinProvider, ReferFriendProvider>(
       builder: (context, coinProvider, referFriendProvider, _) {
         return Scaffold(
+          backgroundColor: _bgColor,
           appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
+              icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                  color: _darkGreen, size: 20),
               onPressed: () => _safeNavigate(() => Navigator.pop(context)),
             ),
-            title: const CommonTextWidget(
-              title: 'Coins',
-              fontSize: 16,
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'BT Coins',
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: _darkGreen,
+                  ),
+                ),
+                Text(
+                  'Your rewards & benefits',
+                  style: GoogleFonts.poppins(fontSize: 11, color: Colors.grey.shade500),
+                ),
+              ],
             ),
             actions: [
               IconButton(
-                icon: const Icon(Icons.refresh),
+                icon: const Icon(Icons.refresh_rounded, color: _primaryGreen),
                 onPressed: () async {
-                  if (mounted &&
-                      _coinProvider != null &&
-                      _referFriendProvider != null) {
+                  if (mounted && _coinProvider != null && _referFriendProvider != null) {
                     await Future.wait([
                       _coinProvider!.refreshTransactions(),
                       _referFriendProvider!.getReferralDetails(),
@@ -117,160 +121,198 @@ class _CoinScreenState extends State<CoinScreen> {
             ],
           ),
           body: coinProvider.isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(child: CircularProgressIndicator(color: _primaryGreen))
               : coinProvider.error != null
                   ? _buildErrorView(context, coinProvider)
                   : SingleChildScrollView(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           // Balance Card
-                          Card(
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                children: [
-                                  const Text(
-                                    'Total Coin Balance',
-                                    style: TextStyle(fontSize: 16),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      _buildBTCoinIcon(),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        referFriendProvider.totalcoins
-                                            .toString(),
-                                        style: TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.bold,
-                                          color: cBottomNav,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                          Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [_darkGreen, _primaryGreen],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
                               ),
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: _darkGreen.withOpacity(0.3),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 10),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                Text(
+                                  'Total Coin Balance',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    color: Colors.white.withOpacity(0.8),
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const GdCoinWidget(size: 32),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      referFriendProvider.totalcoins?.toString() ?? '0',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 36,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.15),
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  child: Text(
+                                    'WORTH ₹${((referFriendProvider.totalcoins ?? 0) / 100 * coinProvider.redemptionRate).toInt()}',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: _limeAccent,
+                                      letterSpacing: 1,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                           const SizedBox(height: 24),
 
-                          const Text('Earn More Coins',
-                              style: TextStyle(fontSize: 18)),
-                          const SizedBox(height: 16),
-
-                          // Ways to Earn Coins
-                          Card(
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Complete Actions to Earn Coins:',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  _buildEarnOption(
-                                    context,
-                                    icon: Icons.shopping_cart,
-                                    title: 'Complete a purchase',
-                                    coins: '50',
-                                  ),
-                                  const Divider(),
-                                  _buildEarnOption(
-                                    context,
-                                    icon: Icons.rate_review,
-                                    title: 'Write a product review',
-                                    coins: '20',
-                                  ),
-                                  const Divider(),
-                                  _buildEarnOption(
-                                    context,
-                                    icon: Icons.share,
-                                    title: 'Refer a friend',
-                                    coins: '50',
-                                  ),
-                                ],
-                              ),
+                          // Ways to Earn Section
+                          _buildSectionCard(
+                            icon: Icons.auto_awesome_outlined,
+                            title: 'Earn More Coins',
+                            child: Column(
+                              children: [
+                                _buildEarnOption(
+                                  icon: Icons.shopping_bag_outlined,
+                                  title: 'Complete a purchase',
+                                  coins: '50',
+                                ),
+                                Divider(height: 24, color: Colors.grey.shade100),
+                                _buildEarnOption(
+                                  icon: Icons.rate_review_outlined,
+                                  title: 'Write a product review',
+                                  coins: '20',
+                                ),
+                                Divider(height: 24, color: Colors.grey.shade100),
+                                _buildEarnOption(
+                                  icon: Icons.person_add_outlined,
+                                  title: 'Refer a friend',
+                                  coins: '50',
+                                ),
+                              ],
                             ),
                           ),
                           const SizedBox(height: 24),
 
                           // Redeem Button
                           ElevatedButton(
-                            onPressed: (referFriendProvider.totalcoins ?? 0) > 0
-                                ? () => _showRedeemDialog(
-                                    context, coinProvider, referFriendProvider)
+                            onPressed: (referFriendProvider.totalcoins ?? 0) >= 100
+                                ? () => _showRedeemDialog(context, coinProvider, referFriendProvider)
                                 : null,
                             style: ElevatedButton.styleFrom(
+                              backgroundColor: _primaryGreen,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(16),
                               ),
-                              backgroundColor: cButtonGreen,
-                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              elevation: 0,
+                              disabledBackgroundColor: Colors.grey.shade200,
                             ),
-                            child: const Text(
-                              'REDEEM COINS',
-                              style: TextStyle(color: Colors.white),
+                            child: Text(
+                              (referFriendProvider.totalcoins ?? 0) < 100
+                                  ? 'MIN 100 COINS TO REDEEM'
+                                  : 'REDEEM COINS NOW',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                                letterSpacing: 0.5,
+                              ),
                             ),
                           ),
                           const SizedBox(height: 16),
 
-                          // Coin History Button
+                          // History Button
                           OutlinedButton(
                             onPressed: () => _safeNavigate(() {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      const CoinHistoryScreen(),
+                                  builder: (context) => const CoinHistoryScreen(),
                                 ),
                               );
                             }),
-                            style: ElevatedButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
+                            style: OutlinedButton.styleFrom(
+                              minimumSize: const Size(double.infinity, 56),
+                              side: BorderSide(color: Colors.grey.shade200),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              backgroundColor: Colors.white,
                             ),
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Row(
-                                  children: [
-                                    Icon(Icons.history,
-                                        color: Colors.blue[900]),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'COIN TRANSACTION HISTORY',
-                                      style: TextStyle(color: Colors.blue[900]),
-                                    ),
-                                  ],
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue.shade50,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(Icons.history, color: Colors.blue.shade700, size: 18),
                                 ),
-                                Icon(Icons.chevron_right,
-                                    color: Colors.blue[900]),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'Transaction History',
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w600,
+                                      color: _darkGreen,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                                Icon(Icons.arrow_forward_ios_rounded, color: Colors.grey.shade300, size: 14),
                               ],
                             ),
                           ),
-                          sizedBoxHeight20,
+                          const SizedBox(height: 24),
 
-                          // Coin Information Cards
-                          _buildCoinInfoCard(
-                            title: "Shop & Earn Coins",
-                            subTitle: "Earn 1 Coin for every ₹10 spent",
-                            totalAmount: "${coinProvider.earnRate} Coins/₹10",
-                          ),
-                          _buildCoinInfoCard(
-                            title: "Coin Redemption Value",
-                            subTitle: "100 Coins = ₹10 discount",
-                            totalAmount:
-                                "₹${coinProvider.redemptionRate}/100 Coins",
+                          // Info Cards Row
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildInfoCard(
+                                  'Earning Rate',
+                                  '${coinProvider.earnRate} Coins per ₹10',
+                                  Icons.trending_up_rounded,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _buildInfoCard(
+                                  'Value',
+                                  '₹${coinProvider.redemptionRate} per 100 Coins',
+                                  Icons.monetization_on_outlined,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -280,104 +322,151 @@ class _CoinScreenState extends State<CoinScreen> {
     );
   }
 
-  Widget _buildErrorView(BuildContext context, CoinProvider provider) {
-    return Center(
+  Widget _buildSectionCard({
+    required IconData icon,
+    required String title,
+    required Widget child,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(
-            Icons.error_outline,
-            size: 64,
-            color: Colors.red,
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'Failed to load coin data',
-            style: TextStyle(
-              fontSize: 18,
-              color: Colors.red,
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: _primaryGreen.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(icon, size: 18, color: _primaryGreen),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: _darkGreen,
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            provider.error ?? 'Unknown error',
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
-            ),
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () async {
-              if (mounted && _referFriendProvider != null) {
-                await Future.wait([
-                  provider.refreshTransactions(),
-                  _referFriendProvider!.getReferralDetails(),
-                ]);
-              }
-            },
-            child: const Text('Retry'),
+          Divider(height: 1, color: Colors.grey.shade100),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: child,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildBTCoinIcon({double size = 28}) {
-    return GdCoinWidget(size: size);
-  }
-
-  Widget _buildEarnOption(
-    BuildContext context, {
+  Widget _buildEarnOption({
     required IconData icon,
     required String title,
     required String coins,
   }) {
     return Row(
       children: [
-        Icon(icon, color: cBottomNav),
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade50,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: _primaryGreen, size: 20),
+        ),
         const SizedBox(width: 16),
         Expanded(
           child: Text(
             title,
-            style: const TextStyle(fontSize: 16),
+            style: GoogleFonts.poppins(fontSize: 13, color: _darkGreen, fontWeight: FontWeight.w500),
           ),
         ),
-        Row(
-          children: [
-            _buildBTCoinIcon(size: 16),
-            const SizedBox(width: 4),
-            Text(
-              coins,
-              style: TextStyle(
-                color: cBottomNav,
-                fontWeight: FontWeight.bold,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: _limeAccent.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            children: [
+              const GdCoinWidget(size: 14),
+              const SizedBox(width: 4),
+              Text(
+                '+$coins',
+                style: GoogleFonts.poppins(
+                  color: _primaryGreen,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildCoinInfoCard({
-    required String title,
-    required String subTitle,
-    required String totalAmount,
-  }) {
-    return Card(
-      child: ListTile(
-        title: Text(title),
-        subtitle: Text(subTitle),
-        trailing: Text(
-          totalAmount,
-          style: TextStyle(
-            fontSize: 15,
-            color: cBottomNav,
-            fontWeight: FontWeight.bold,
+  Widget _buildInfoCard(String title, String value, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey.shade100),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 20, color: _primaryGreen),
+          const SizedBox(height: 12),
+          Text(title, style: GoogleFonts.poppins(fontSize: 11, color: Colors.grey.shade500)),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: _darkGreen,
+            ),
           ),
-        ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorView(BuildContext context, CoinProvider provider) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
+          const SizedBox(height: 16),
+          Text('Failed to load coin data', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(provider.error ?? 'Unknown error', style: GoogleFonts.poppins(color: Colors.grey)),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: () => provider.refreshTransactions(),
+            style: ElevatedButton.styleFrom(backgroundColor: _primaryGreen),
+            child: const Text('Retry'),
+          ),
+        ],
       ),
     );
   }
@@ -387,24 +476,54 @@ class _CoinScreenState extends State<CoinScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Redeem Coins'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Text(
+          'Redeem Coins',
+          style: GoogleFonts.playfairDisplay(fontWeight: FontWeight.bold, color: _darkGreen),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('How many coins would you like to redeem?'),
-            const SizedBox(height: 16),
+            Text(
+              'How many coins would you like to redeem?',
+              style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey.shade600),
+            ),
+            const SizedBox(height: 20),
             TextFormField(
               controller: provider.redeemController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Enter coin amount',
+              style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.grey.shade50,
+                hintText: 'Enter amount (min 100)',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                prefixIcon: const Padding(
+                  padding: EdgeInsets.all(12),
+                  child: GdCoinWidget(size: 16),
+                ),
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              '${provider.redemptionRate} ₹ discount per 100 coins',
-              style: const TextStyle(color: Colors.grey),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline, size: 16, color: Colors.blue.shade700),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '₹${provider.redemptionRate} discount per 100 coins',
+                      style: GoogleFonts.poppins(fontSize: 11, color: Colors.blue.shade700, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -412,68 +531,55 @@ class _CoinScreenState extends State<CoinScreen> {
           TextButton(
             onPressed: () {
               provider.redeemController.clear();
-              _safeNavigate(() => Navigator.pop(context));
+              Navigator.pop(context);
             },
-            child: const Text('CANCEL'),
+            child: Text('CANCEL', style: GoogleFonts.poppins(color: Colors.grey, fontWeight: FontWeight.bold)),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () async {
-              if (_isProcessingRedeem) return; // Prevent multiple submissions
+              if (_isProcessingRedeem) return;
 
-              int redeemAmount =
-                  int.tryParse(provider.redeemController.text) ?? 0;
+              int redeemAmount = int.tryParse(provider.redeemController.text) ?? 0;
               int totalCoins = referFriendProvider.totalcoins ?? 0;
 
-              if (redeemAmount <= 0 || redeemAmount > totalCoins) {
-                _safeShowSnackBar('Please enter a valid amount');
+              if (redeemAmount < 100) {
+                _safeShowSnackBar('Minimum 100 coins required to redeem');
+                return;
+              }
+              if (redeemAmount > totalCoins) {
+                _safeShowSnackBar('Insufficient coin balance');
                 return;
               }
 
-              setState(() {
-                _isProcessingRedeem = true;
-              });
+              setState(() => _isProcessingRedeem = true);
+              Navigator.pop(context);
 
-              // Close the dialog first
-              _safeNavigate(() => Navigator.pop(context));
-
-              // Show loading indicator
+              // Show custom loading
               showDialog(
                 context: context,
                 barrierDismissible: false,
-                builder: (dialogContext) => const AlertDialog(
-                  content: Row(
-                    children: [
-                      CircularProgressIndicator(),
-                      SizedBox(width: 20),
-                      Text('Processing...'),
-                    ],
+                builder: (ctx) => Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(32),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
+                    child: const CircularProgressIndicator(color: _primaryGreen),
                   ),
                 ),
               );
 
               try {
                 final success = await provider.redeemCoins(redeemAmount);
-
-                // Always hide loading indicator first
                 _dismissLoadingDialog();
 
                 if (success) {
-                  // Refresh both providers using saved references
-                  if (mounted &&
-                      _coinProvider != null &&
-                      _referFriendProvider != null) {
+                  if (mounted && _coinProvider != null && _referFriendProvider != null) {
                     await Future.wait([
                       _coinProvider!.fetchTransactions(),
                       _referFriendProvider!.getReferralDetails(),
                     ]);
-
-                    // Calculate discount value
-                    double discountValue =
-                        (redeemAmount / 100) * provider.redemptionRate;
-
-                    // Show success snackbar
+                    double discountValue = (redeemAmount / 100) * provider.redemptionRate;
                     _safeShowSnackBar(
-                      '$redeemAmount coins redeemed successfully! ₹${discountValue.toInt()} added to your wallet.',
+                      'Successfully redeemed! ₹${discountValue.toInt()} added to wallet.',
                       backgroundColor: Colors.green,
                     );
                   }
@@ -481,21 +587,18 @@ class _CoinScreenState extends State<CoinScreen> {
                   _safeShowSnackBar(provider.error ?? 'Failed to redeem coins');
                 }
               } catch (e) {
-                // Hide loading indicator if still showing
                 _dismissLoadingDialog();
-                _safeShowSnackBar('An error occurred: ${e.toString()}');
+                _safeShowSnackBar('An error occurred');
               } finally {
-                // Reset processing state
-                if (mounted) {
-                  setState(() {
-                    _isProcessingRedeem = false;
-                  });
-                }
+                if (mounted) setState(() => _isProcessingRedeem = false);
               }
-
               provider.redeemController.clear();
             },
-            child: Text(_isProcessingRedeem ? 'PROCESSING...' : 'REDEEM'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _primaryGreen,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: Text(_isProcessingRedeem ? '...' : 'REDEEM', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
           ),
         ],
       ),

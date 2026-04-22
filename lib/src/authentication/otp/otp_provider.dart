@@ -21,6 +21,11 @@ class OtpProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void clearError() {
+    _errorMessage = '';
+    notifyListeners();
+  }
+
   Future<void> validateOtp(String mobile, BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (_otp == null || _otp!.length != 4) {

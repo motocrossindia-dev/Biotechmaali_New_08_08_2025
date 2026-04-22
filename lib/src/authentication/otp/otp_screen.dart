@@ -22,60 +22,88 @@ class _OtpScreenContent extends StatelessWidget {
 
   const _OtpScreenContent({required this.mobile});
 
+  static const Color _primaryGreen = Color(0xFF3B5226);
+  static const Color _darkGreen = Color(0xFF1B3012);
+  static const Color _bgColor = Color(0xFFF9FBF7);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: _bgColor,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: _darkGreen, size: 20),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      extendBodyBehindAppBar: true,
       body: SafeArea(
         child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              sizedBoxHeight70,
+              const SizedBox(height: 20),
               Center(
                 child: Column(
                   children: [
                     Image.asset(
                       'assets/png/Gidan Logo.png',
-                      height: 90,
-                      width: 180,
+                      height: 70,
+                      width: 140,
                     ),
-                    sizedBoxHeight50,
+                    const SizedBox(height: 40),
                     SvgPicture.asset(
                       'assets/svg/otp_screen_pic.svg',
-                      height: 240,
-                      width: 210,
+                      height: 200,
+                      width: 200,
                     ),
                   ],
                 ),
               ),
-              sizedBoxHeight50,
-              const CommonTextWidget(
-                title: 'Verification',
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
+              const SizedBox(height: 50),
+              Text(
+                'Verification',
+                style: GoogleFonts.playfairDisplay(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: _darkGreen,
+                ),
               ),
-              const CommonTextWidget(
-                title: 'Enter verification code',
-                fontSize: 18,
-                fontWeight: FontWeight.w300,
+              const SizedBox(height: 12),
+              RichText(
+                text: TextSpan(
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                    height: 1.5,
+                  ),
+                  children: [
+                    const TextSpan(text: 'We have sent a 4-digit verification code to '),
+                    TextSpan(
+                      text: '+91 $mobile',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: _darkGreen,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              sizedBoxHeight25,
-              const PinputWidget(),
-              sizedBoxHeight25,
+              const SizedBox(height: 40),
+              
+              const Center(child: PinputWidget()),
+              
+              const SizedBox(height: 40),
+              
               Consumer<OtpProvider>(
                 builder: (context, provider, child) {
                   if (provider.isLoading) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 30),
-                      child: Shimmer.fromColors(
-                        baseColor: Colors.grey[300]!,
-                        highlightColor: Colors.grey[100]!,
-                        child: const CommonButtonWidget(
-                          title: 'NEXT',
-                          event: null,
-                        ),
-                      ),
+                    return const Center(
+                      child: CircularProgressIndicator(color: _primaryGreen),
                     );
                   }
 
@@ -83,51 +111,56 @@ class _OtpScreenContent extends StatelessWidget {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text(provider.errorMessage),
+                          content: Text(provider.errorMessage, style: GoogleFonts.poppins(fontSize: 13)),
                           backgroundColor: Colors.red,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                       );
+                      provider.clearError(); // Custom method to clear error so it doesn't repeat
                     });
                   }
-                  return sizedBoxHeight0;
-
-                  // return Padding(
-                  //   padding: const EdgeInsets.symmetric(horizontal: 30),
-                  //   child: CommonButtonWidget(
-                  //     title: 'NEXT',
-                  //     event: () async {
-                  //       await provider.validateOtp(mobile, context);
-                  //     },
-                  //   ),
-                  // );
+                  return const SizedBox.shrink();
                 },
               ),
-              sizedBoxHeight05,
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CommonTextWidget(
-                    title: "Didn't receive the verification OTP?",
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
-                    color: cBorderGrey,
-                  ),
-                  sizedBoxWidth10,
-                  InkWell(
-                    onTap: () {
-                      context
-                          .read<MobileNumberProvider>()
-                          .registerMobile(context);
-                    },
-                    child: CommonTextWidget(
-                      title: 'RESEND OTP',
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: cCustomRed,
+              
+              Center(
+                child: Column(
+                  children: [
+                    Text(
+                      "Didn't receive the code?",
+                      style: GoogleFonts.poppins(
+                        fontSize: 13,
+                        color: Colors.grey.shade500,
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    InkWell(
+                      onTap: () {
+                        context.read<MobileNumberProvider>().registerMobile(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('OTP Resent Successfully', style: GoogleFonts.poppins()),
+                            backgroundColor: _primaryGreen,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      },
+                      child: Text(
+                        'RESEND OTP',
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: _primaryGreen,
+                          letterSpacing: 1,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(height: 40),
             ],
           ),
         ),

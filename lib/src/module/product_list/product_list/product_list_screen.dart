@@ -9,23 +9,29 @@ import 'package:biotech_maali/src/widgets/login_prompt_dialog.dart';
 import 'package:biotech_maali/src/module/product_list/product_list_shimmer.dart';
 import 'package:biotech_maali/src/widgets/shimmer/product_tile_shimmer.dart';
 import 'package:biotech_maali/src/widgets/no_products_found_widget.dart';
+import 'package:biotech_maali/src/module/product_list/product_list/widgets/subcategory_info_banner.dart';
 import 'package:biotech_maali/core/services/analytics_service.dart';
 
+import 'package:biotech_maali/src/module/explore/model/subcategory_model.dart';
 import '../../../../import.dart';
 
 class ProductListScreen extends StatefulWidget {
   final bool isCategory;
   final String title;
   final String id;
+  final String? categoryId;
   final String? categoryName;
   final int? flagId;
+  final Subcategory? subcategoryDetails;
 
   const ProductListScreen(
       {required this.isCategory,
       required this.title,
       required this.id,
+      this.categoryId,
       this.categoryName,
       this.flagId,
+      this.subcategoryDetails,
       super.key});
 
   @override
@@ -82,7 +88,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
       } else {
         context
             .read<ProductListProdvider>()
-            .getSubCategoryProductList(subCategoryId: widget.id);
+            .getSubCategoryProductList(subCategoryId: widget.id, categoryId: widget.categoryId);
       }
     });
   }
@@ -110,7 +116,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 categoryId: widget.id, loadMore: true);
           } else {
             provider.getSubCategoryProductList(
-                subCategoryId: widget.id, loadMore: true);
+                subCategoryId: widget.id, categoryId: widget.categoryId, loadMore: true);
           }
         }
       }
@@ -172,7 +178,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     provider.getCategoryProductList(categoryId: widget.id);
                   } else {
                     provider.getSubCategoryProductList(
-                        subCategoryId: widget.id);
+                        subCategoryId: widget.id, categoryId: widget.categoryId);
                   }
                 },
                 retryButtonText: 'Refresh',
@@ -182,7 +188,12 @@ class _ProductListScreenState extends State<ProductListScreen> {
             return CustomScrollView(
               controller: _scrollController,
               slivers: [
-
+                if (widget.subcategoryDetails != null)
+                  SliverToBoxAdapter(
+                    child: SubcategoryInfoBanner(
+                      subcategory: widget.subcategoryDetails!,
+                    ),
+                  ),
                 SliverPadding(
                   padding: const EdgeInsets.all(8.0),
                   sliver: SliverGrid(

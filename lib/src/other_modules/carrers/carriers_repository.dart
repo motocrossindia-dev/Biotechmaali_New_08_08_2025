@@ -6,7 +6,7 @@ import 'carrier_model.dart';
 
 class CarriersRepository {
   final Dio _dio = Dio();
-  final String baseUrl = 'https://https://backend.gidan.store';
+  final String baseUrl = 'https://backend.gidan.store';
 
   Future<List<CarrierModel>> getCarriers() async {
     try {

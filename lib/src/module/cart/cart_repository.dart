@@ -85,7 +85,7 @@ class CartRepository {
     }
   }
 
-  Future<List<CartItemModel>> getCartItems() async {
+  Future<CartDataModel> getCartItems() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("access_token");
 
@@ -105,11 +105,8 @@ class CartRepository {
       );
 
       if (response.statusCode == 200) {
-        log("cart items : ${response.data.toString()}");
-        List<CartItemModel> cartItems = (response.data['data']['cart'] as List)
-            .map((item) => CartItemModel.fromJson(item))
-            .toList();
-        return cartItems;
+        log("cart data : ${response.data.toString()}");
+        return CartDataModel.fromJson(response.data);
       } else {
         throw Exception('Failed to load cart items');
       }
@@ -261,6 +258,52 @@ class CartRepository {
         rethrow;
       }
       throw Exception('Failed to place order: $e');
+    }
+  }
+
+  Future<bool> clearCart() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("access_token");
+
+    if (token == null || token.isEmpty) {
+      throw Exception('Authentication token is missing');
+    }
+
+    try {
+      final response = await dio.delete(
+        EndUrl.clearCartUrl,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      log("Clear cart error: ${e.toString()}");
+      return false;
+    }
+  }
+
+  Future<double> getFreeShippingThreshold() async {
+    try {
+      final response = await dio.get(EndUrl.freeShippingUrl);
+
+      if (response.statusCode == 200) {
+        final data = response.data['data'];
+        return (data['free_shipping_amount'] as num?)?.toDouble() ?? 2000.0;
+      } else {
+        return 2000.0; // Fallback
+      }
+    } catch (e) {
+      log("Get free shipping threshold error: ${e.toString()}");
+      return 2000.0; // Fallback
     }
   }
 }

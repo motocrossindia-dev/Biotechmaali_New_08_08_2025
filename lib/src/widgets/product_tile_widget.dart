@@ -307,17 +307,19 @@ class ProductTileWidget extends StatelessWidget {
                           : 9.0,
                   vertical: isTablet ? 10.0 : 8.0,
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    // Top content wrapped in Expanded and unscrollable scroll view to gracefully clip
-                    // instead of throwing RenderFlex overflow errors when space is too tight.
-                    Expanded(
-                      child: SingleChildScrollView(
-                        physics: const NeverScrollableScrollPhysics(),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.topLeft,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: constraints.maxWidth,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize
+                              .min, // Use min so it only takes what it needs
                           children: [
                             // Sub Category label
                             if (formattedSubCategory.isNotEmpty) ...[
@@ -339,7 +341,7 @@ class ProductTileWidget extends StatelessWidget {
                               const SizedBox(height: 3),
                             ],
 
-                            // Product title (2 lines allowed in taller content area)
+                            // Product title (1 line as requested)
                             Text(
                               productTitle,
                               style: TextStyle(
@@ -352,7 +354,7 @@ class ProductTileWidget extends StatelessWidget {
                                 fontWeight: FontWeight.w600,
                                 height: 1.2,
                               ),
-                              maxLines: 2,
+                              maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
 
@@ -383,229 +385,239 @@ class ProductTileWidget extends StatelessWidget {
                                 ),
                               ],
                             ),
-                          ],
-                        ),
-                      ),
-                    ),
 
-                    // ── Price row + Add button ──────────────────────────────
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // Price + Save label
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              FittedBox(
-                                fit: BoxFit.scaleDown,
-                                alignment: Alignment.centerLeft,
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    if (hasDiscount) ...[
-                                      Text(
-                                        '₹${_formatPrice(discountAmount!)}',
-                                        style: TextStyle(
-                                          fontSize: isTablet
-                                              ? 22
-                                              : isSmallPhone
-                                                  ? 17
-                                                  : 20,
-                                          fontWeight: FontWeight.w800,
-                                          color: Colors.black87,
-                                          height: 1.0,
+                            const SizedBox(height: 6),
+
+                            // ── Price row + Add button ──────────────────────────────
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                // Price + Save label
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        alignment: Alignment.centerLeft,
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          children: [
+                                            if (hasDiscount) ...[
+                                              Text(
+                                                '₹${_formatPrice(discountAmount!)}',
+                                                style: TextStyle(
+                                                  fontSize: isTablet
+                                                      ? 22
+                                                      : isSmallPhone
+                                                          ? 17
+                                                          : 20,
+                                                  fontWeight: FontWeight.w800,
+                                                  color: Colors.black87,
+                                                  height: 1.0,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 6),
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    bottom: 2.0),
+                                                child: Text(
+                                                  '₹${_formatPrice(actualAmount)}',
+                                                  style: TextStyle(
+                                                    fontSize: isTablet
+                                                        ? 13
+                                                        : isSmallPhone
+                                                            ? 10
+                                                            : 12,
+                                                    fontWeight: FontWeight.w500,
+                                                    color:
+                                                        const Color(0xFF8B9289),
+                                                    decoration: TextDecoration
+                                                        .lineThrough,
+                                                    height: 1.0,
+                                                  ),
+                                                ),
+                                              ),
+                                            ] else ...[
+                                              Text(
+                                                '₹${_formatPrice(actualAmount)}',
+                                                style: TextStyle(
+                                                  fontSize: isTablet
+                                                      ? 22
+                                                      : isSmallPhone
+                                                          ? 17
+                                                          : 20,
+                                                  fontWeight: FontWeight.w800,
+                                                  color: Colors.black87,
+                                                  height: 1.0,
+                                                ),
+                                              ),
+                                            ],
+                                          ],
                                         ),
                                       ),
-                                      const SizedBox(width: 6),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 2.0),
-                                        child: Text(
-                                          '₹${_formatPrice(actualAmount)}',
+                                      // Save label (only when discount exists)
+                                      if (hasDiscount) ...[
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          'Save ₹${((double.tryParse(actualAmount) ?? 0) - (double.tryParse(discountAmount!) ?? 0)).toInt()}',
                                           style: TextStyle(
+                                            color: const Color(0xFFD64436),
                                             fontSize: isTablet
-                                                ? 13
+                                                ? 12
                                                 : isSmallPhone
-                                                    ? 10
-                                                    : 12,
+                                                    ? 9
+                                                    : 11,
                                             fontWeight: FontWeight.w500,
-                                            color: const Color(0xFF8B9289),
-                                            decoration:
-                                                TextDecoration.lineThrough,
-                                            height: 1.0,
                                           ),
                                         ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                                // Add to cart button
+                                if (home &&
+                                    isStock == true &&
+                                    addToCartEvent != null) ...[
+                                  const SizedBox(width: 30),
+                                  InkWell(
+                                    onTap: addToCartEvent,
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Container(
+                                      height: isTablet
+                                          ? 36
+                                          : isSmallPhone
+                                              ? 28
+                                              : 32,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF3F6331),
+                                        borderRadius: BorderRadius.circular(10),
                                       ),
-                                    ] else ...[
-                                      Text(
-                                        '₹${_formatPrice(actualAmount)}',
-                                        style: TextStyle(
-                                          fontSize: isTablet
-                                              ? 22
-                                              : isSmallPhone
-                                                  ? 17
-                                                  : 20,
-                                          fontWeight: FontWeight.w800,
-                                          color: Colors.black87,
-                                          height: 1.0,
+                                      alignment: Alignment.center,
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.shopping_cart_outlined,
+                                            color: Colors.white,
+                                            size: isTablet ? 15 : 13,
+                                          ),
+                                          const SizedBox(width: 5),
+                                          Text(
+                                            isCart ? 'Cart' : 'Add',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: isTablet
+                                                  ? 14
+                                                  : isSmallPhone
+                                                      ? 11
+                                                      : 13,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+
+                            const SizedBox(height: 8),
+
+                            // ── Stock bar ───────────────────────────────────────────
+                            if (isStock == true &&
+                                stock != null &&
+                                stock! > 0) ...[
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    child: Container(
+                                      height: 4,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[300],
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
+                                      alignment: Alignment.centerLeft,
+                                      child: FractionallySizedBox(
+                                        widthFactor: stock! >= 20
+                                            ? 1.0
+                                            : (stock! / 20.0).clamp(0.0, 1.0),
+                                        child: AnimatedStockBar(
+                                          stock: stock!,
+                                          baseColor: stock! > 20
+                                              ? const Color(0xFF00B251)
+                                              : ((stock! / 20.0)
+                                                          .clamp(0.0, 1.0) >
+                                                      0.5
+                                                  ? const Color(0xFFF3B456)
+                                                  : const Color(0xFFD64436)),
                                         ),
                                       ),
-                                    ],
-                                  ],
-                                ),
-                              ),
-                              // Save label (only when discount exists)
-                              if (hasDiscount) ...[
-                                const SizedBox(height: 2),
-                                Text(
-                                  'Save ₹${((double.tryParse(actualAmount) ?? 0) - (double.tryParse(discountAmount!) ?? 0)).toInt()}',
-                                  style: TextStyle(
-                                    color: const Color(0xFFD64436),
-                                    fontSize: isTablet
-                                        ? 12
-                                        : isSmallPhone
-                                            ? 9
-                                            : 11,
-                                    fontWeight: FontWeight.w500,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-
-                        // Add to cart button
-                        if (home &&
-                            isStock == true &&
-                            addToCartEvent != null) ...[
-                          const SizedBox(width: 6),
-                          InkWell(
-                            onTap: addToCartEvent,
-                            borderRadius: BorderRadius.circular(10),
-                            child: Container(
-                              height: isTablet
-                                  ? 36
-                                  : isSmallPhone
-                                      ? 28
-                                      : 32,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 12),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF3F6331),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              alignment: Alignment.center,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.shopping_cart_outlined,
-                                    color: Colors.white,
-                                    size: isTablet ? 15 : 13,
-                                  ),
-                                  const SizedBox(width: 5),
+                                  const SizedBox(width: 6),
                                   Text(
-                                    isCart ? 'Cart' : 'Add',
+                                    stock! > 20
+                                        ? 'IN STOCK'
+                                        : 'Only $stock left!',
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: stock! > 20
+                                          ? const Color(0xFF00B251)
+                                          : const Color(0xFFD64436),
                                       fontSize: isTablet
-                                          ? 14
+                                          ? 12
                                           : isSmallPhone
-                                              ? 11
-                                              : 13,
+                                              ? 9
+                                              : 10,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ] else if (isStock == false ||
+                                stock == 0 ||
+                                (home && addToCartEvent == null)) ...[
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    child: Container(
+                                      height: 4,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[300],
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'OUT OF STOCK',
+                                    style: TextStyle(
+                                      color: const Color(0xFFD64436),
+                                      fontSize: isTablet
+                                          ? 12
+                                          : isSmallPhone
+                                              ? 9
+                                              : 10,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    // ── Stock bar ───────────────────────────────────────────
-                    if (isStock == true && stock != null && stock! > 0) ...[
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: Container(
-                              height: 4,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[300],
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                              alignment: Alignment.centerLeft,
-                              child: FractionallySizedBox(
-                                widthFactor: stock! >= 20
-                                    ? 1.0
-                                    : (stock! / 20.0).clamp(0.0, 1.0),
-                                child: AnimatedStockBar(
-                                  stock: stock!,
-                                  baseColor: stock! > 20
-                                      ? const Color(0xFF00B251)
-                                      : ((stock! / 20.0).clamp(0.0, 1.0) > 0.5
-                                          ? const Color(0xFFF3B456)
-                                          : const Color(0xFFD64436)),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            stock! > 20 ? 'IN STOCK' : 'Only $stock left!',
-                            style: TextStyle(
-                              color: stock! > 20
-                                  ? const Color(0xFF00B251)
-                                  : const Color(0xFFD64436),
-                              fontSize: isTablet
-                                  ? 12
-                                  : isSmallPhone
-                                      ? 9
-                                      : 10,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
+                            ],
+                          ],
+                        ),
                       ),
-                    ] else if (isStock == false ||
-                        stock == 0 ||
-                        (home && addToCartEvent == null)) ...[
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: Container(
-                              height: 4,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[300],
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            'OUT OF STOCK',
-                            style: TextStyle(
-                              color: const Color(0xFFD64436),
-                              fontSize: isTablet
-                                  ? 12
-                                  : isSmallPhone
-                                      ? 9
-                                      : 10,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ],
+                    );
+                  },
                 ),
               ),
             ),

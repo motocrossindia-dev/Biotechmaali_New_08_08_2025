@@ -11,26 +11,31 @@ class SubtitleWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onPressedCallBack,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              sizedBoxWidth25,
-              sizedBoxWidth20,
-              CommonTextWidget(
-                title: title,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ],
-          ),
-          Icon(
-            Icons.chevron_right,
-            size: 30,
-            color: cAccountText,
-          )
-        ],
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                const SizedBox(width: 45), // Matching the indentation of the main icons
+                Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+            const Icon(
+              Icons.chevron_right,
+              size: 20,
+              color: Colors.black26,
+            )
+          ],
+        ),
       ),
     );
   }

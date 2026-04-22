@@ -54,7 +54,7 @@ class ProductCompoWidget extends StatelessWidget {
                   imageUrl: '${BaseUrl.baseUrlForImages}$image',
                   height: 200,
                   width: double.infinity,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.fill,
                   placeholder: (context, url) => Container(
                     height: 200,
                     color: Colors.grey[100],

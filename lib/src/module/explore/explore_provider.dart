@@ -15,12 +15,14 @@ class ExploreProvider extends ChangeNotifier {
   String? _error;
   int _selectedCategoryIndex = 0;
   int? _selectedCategoryId;
+  String? _selectedCategorySlug;
   String? _selectedCategoryName = "PLANTS";
 
   int get selectedCategoryIndex => _selectedCategoryIndex;
   bool get isLoading => _isLoading;
   String? get error => _error;
   int? get selectedCategoryId => _selectedCategoryId;
+  String? get selectedCategorySlug => _selectedCategorySlug;
   String? get selectedCategoryName => _selectedCategoryName;
 
   List<Subcategory> _subcategories = [];
@@ -29,22 +31,23 @@ class ExploreProvider extends ChangeNotifier {
   List<Subcategory> get subcategories => _subcategories;
   List<MainCategoryModel> get maincategories => _mainCategories;
 
-  void setSelectedCategory(int index, int categoryId, String categoryName) {
+  void setSelectedCategory(int index, int categoryId, String categorySlug, String categoryName) {
     _selectedCategoryIndex = index;
     _selectedCategoryId = categoryId;
+    _selectedCategorySlug = categorySlug;
     _selectedCategoryName = categoryName;
-    fetchSubcategory(categoryId);
+    fetchSubcategory(categorySlug);
     notifyListeners();
   }
 
-  Future<void> fetchSubcategory(int categoryId, {BuildContext? context}) async {
+  Future<void> fetchSubcategory(String categorySlug, {BuildContext? context}) async {
     try {
       _isLoading = true;
       _error = null;
       notifyListeners();
 
       // context!.read<FiltersProvider>().resetAllFilters();
-      final response = await exploreRepository.getSubcategories(categoryId);
+      final response = await exploreRepository.getSubcategories(categorySlug);
 
       if (response == null) {
         return;
@@ -75,7 +78,8 @@ class ExploreProvider extends ChangeNotifier {
       // Set initial category and fetch its subcategories
       if (_mainCategories.isNotEmpty) {
         _selectedCategoryId = _mainCategories[0].id;
-        await fetchSubcategory(_selectedCategoryId!);
+        _selectedCategorySlug = _mainCategories[0].slug;
+        await fetchSubcategory(_selectedCategorySlug!);
       }
 
       log("Main Categories: ${_mainCategories.toString()}");

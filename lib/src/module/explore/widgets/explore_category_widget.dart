@@ -39,7 +39,7 @@ class ExploreCategoryWidget extends StatelessWidget {
               return InkWell(
                 onTap: () {
                   exploreProvider.setSelectedCategory(
-                      index, category.id, category.name);
+                      index, category.id, category.slug, category.name);
                   // Track category tap
                   AnalyticsService().logCategoryTapped(
                     categoryId: category.id.toString(),
