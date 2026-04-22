@@ -9,7 +9,7 @@ class CarrersScreen extends StatefulWidget {
 }
 
 class _CarrersScreenState extends State<CarrersScreen> {
-  static const Color themeColor = Color(0xFF749F09);
+  static const Color themeColor = Color(0xFF3F6331);
 
   @override
   void initState() {
@@ -104,7 +104,7 @@ class _CarrersScreenState extends State<CarrersScreen> {
 
 class _JobListingsTab extends StatelessWidget {
   final bool isNonTech;
-  static const Color themeColor = Color(0xFF749F09);
+  static const Color themeColor = Color(0xFF3F6331);
 
   const _JobListingsTab({required this.isNonTech});
 

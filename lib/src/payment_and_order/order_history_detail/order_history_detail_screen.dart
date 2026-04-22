@@ -40,7 +40,7 @@ class OrderHistoryDetailScreen extends StatefulWidget {
 }
 
 class _OrderHistoryDetailScreenState extends State<OrderHistoryDetailScreen> {
-  static const Color themeColor = Color(0xFF749F09);
+  static const Color themeColor = Color(0xFF3F6331);
 
   @override
   void initState() {

@@ -124,7 +124,7 @@ class _CartScreenState extends State<CartScreen> {
                             children: [
                               CircularProgressIndicator(
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                  Color(0xFF749F09), // cButtonGreen theme color
+                                  Color(0xFF3F6331), // cButtonGreen theme color
                                 ),
                                 strokeWidth: 3,
                               ),
@@ -966,7 +966,7 @@ class _CartScreenState extends State<CartScreen> {
             children: [
               CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  Color(0xFF749F09), // cButtonGreen theme color
+                  Color(0xFF3F6331), // cButtonGreen theme color
                 ),
                 strokeWidth: 3,
               ),

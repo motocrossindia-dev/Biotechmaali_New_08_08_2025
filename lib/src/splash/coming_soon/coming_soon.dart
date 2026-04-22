@@ -165,7 +165,7 @@ class _ComingSoonScreenState extends State<ComingSoonScreen>
             colors: [
               Color(0xFF2E5016), // Dark theme green
               Color(0xFF4A6B2A), // Medium theme green
-              Color(0xFF749F09), // Your app theme color
+              Color(0xFF3F6331), // Your app theme color
               Color(0xFF8BC34A), // Lighter theme green
             ],
             stops: [0.0, 0.3, 0.7, 1.0],
@@ -249,7 +249,7 @@ class _ComingSoonScreenState extends State<ComingSoonScreen>
                                               shape: BoxShape.circle,
                                               gradient: RadialGradient(
                                                 colors: [
-                                                  Color(0xFF749F09),
+                                                  Color(0xFF3F6331),
                                                   Color(0xFF4A6B2A),
                                                 ],
                                               ),
@@ -463,7 +463,7 @@ class _ComingSoonScreenState extends State<ComingSoonScreen>
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF749F09).withOpacity(0.3),
+                color: const Color(0xFF3F6331).withOpacity(0.3),
                 blurRadius: 8,
                 spreadRadius: 1,
                 offset: const Offset(0, 2),
@@ -477,7 +477,7 @@ class _ComingSoonScreenState extends State<ComingSoonScreen>
                 width: 1.5,
                 color: Color.lerp(
                   Colors.white.withOpacity(0.6),
-                  const Color(0xFF749F09),
+                  const Color(0xFF3F6331),
                   (math.sin(_chipAnimationController.value * math.pi * 2) + 1) /
                       2,
                 )!,
@@ -490,7 +490,7 @@ class _ComingSoonScreenState extends State<ComingSoonScreen>
                 gradient: LinearGradient(
                   colors: [
                     Colors.white.withOpacity(0.1),
-                    const Color(0xFF749F09).withOpacity(0.1),
+                    const Color(0xFF3F6331).withOpacity(0.1),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -504,7 +504,7 @@ class _ComingSoonScreenState extends State<ComingSoonScreen>
                 style: TextStyle(
                   color: Color.lerp(
                     Colors.white,
-                    const Color(0xFF749F09),
+                    const Color(0xFF3F6331),
                     (math.sin(_chipAnimationController.value * math.pi * 2 +
                                 1) +
                             1) /

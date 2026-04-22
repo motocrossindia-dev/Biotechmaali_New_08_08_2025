@@ -143,7 +143,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
 
 class OrderHistoryCard extends StatelessWidget {
   final OrderHistory order;
-  static const Color themeColor = Color(0xFF749F09);
+  static const Color themeColor = Color(0xFF3F6331);
 
   const OrderHistoryCard({required this.order, super.key});
 

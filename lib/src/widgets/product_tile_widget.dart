@@ -52,10 +52,8 @@ class ProductTileWidget extends StatelessWidget {
 
   String _formatPrice(String price) {
     final doublePrice = double.tryParse(price);
-    if (doublePrice != null) {
-      return doublePrice.toInt().toString();
-    }
-    return price; // Return original if parsing fails
+    if (doublePrice != null) return doublePrice.toInt().toString();
+    return price;
   }
 
   String _calculateDiscountPercentage() {
@@ -89,18 +87,19 @@ class ProductTileWidget extends StatelessWidget {
     final isLargePhone = screenWidth >= 414;
     final isSmallPhone = screenWidth < 360;
 
-    // Responsive sizing based on device type
+    // ── Card dimensions ─────────────────────────────────────────────────────
+    // cardHeight increased so 40% content area has enough room for all widgets
     final cardWidth = isTablet
-        ? screenWidth * 0.3 // 30% for tablets
+        ? screenWidth * 0.3
         : isLargePhone
-            ? screenWidth * 0.43 // 43% for large phones
-            : screenWidth * 0.45; // 45% for small phones
+            ? screenWidth * 0.43
+            : screenWidth * 0.45;
 
     final cardHeight = isTablet
-        ? screenHeight * 0.22 // Adjusted for dynamic responsive UI
+        ? screenHeight * 0.46 // tablet  — bigger card for 60/40 split
         : isSmallPhone
-            ? screenHeight * 0.28 // Adjusted for dynamic responsive UI
-            : screenHeight * 0.25; // Adjusted for responsive fit
+            ? screenHeight * 0.50 // small phone
+            : screenHeight * 0.48; // normal phone
 
     final containerSize = isTablet
         ? screenWidth * 0.04
@@ -139,81 +138,63 @@ class ProductTileWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Product image with overlaid elements
+            // ── IMAGE SECTION — 60% of card height ──────────────────────────
             Expanded(
-              flex: isTablet ? 5 : 4, // More space for image on tablets
+              flex: 6,
               child: ClipRRect(
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(borderRadius),
                   topRight: Radius.circular(borderRadius),
                 ),
                 child: Stack(
+                  fit: StackFit.expand,
                   children: [
-                    // Square image container aligned to top - FULL WIDTH
-                    SizedBox(
-                      width: double.infinity, // Force full width
-                      child: AspectRatio(
-                        aspectRatio: 1, // Makes image square
-
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(borderRadius),
-                            topRight: Radius.circular(borderRadius),
-                          ),
-                          child: ProductImageWithLongPress(
-                            productImage: productImage,
-                            baseUrl: baseUrl,
-                            isTablet: isTablet,
-                            isSmallPhone: isSmallPhone,
-                          ),
-                        ),
-                      ),
+                    // Full bleed image — fills the entire 60% flex area
+                    ProductImageWithLongPress(
+                      productImage: productImage,
+                      baseUrl: baseUrl,
+                      isTablet: isTablet,
+                      isSmallPhone: isSmallPhone,
                     ),
-                    // Flag Badge (top-left) inside the image stack
+
+                    // Flag Badge — top left
                     if (flags != null && flags!.isNotEmpty)
                       Positioned(
-                        top: 10,
-                        left: 10,
+                        top: 8,
+                        left: 8,
                         child: AnimatedFlagBadge(flags: flags!),
                       ),
-                    // Ribbon badge (diagonal top right corner)
+
+                    // Ribbon badge — top right corner tag
                     if (ribbon != null && ribbon!.isNotEmpty)
                       Positioned(
-                        top: 18,
-                        right: -32,
-                        child: Transform.rotate(
-                          angle: 45 * 3.141592653589793 / 180,
-                          child: Container(
-                            width: 120,
-                            padding: EdgeInsets.symmetric(
-                              vertical: isTablet
-                                  ? 6
-                                  : isSmallPhone
-                                      ? 3
-                                      : 4,
+                        top: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFF44336), // Bright red from design
+                            borderRadius: BorderRadius.only(
+                              topRight: Radius.circular(12),
+                              bottomLeft: Radius.circular(12),
                             ),
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFE55B5B).withOpacity(
-                                  0.85), // Muted red slightly transparent
-                            ),
-                            child: Text(
-                              ribbon!.toUpperCase(),
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: isTablet
-                                    ? 12
-                                    : isSmallPhone
-                                        ? 8
-                                        : 10,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1.5,
-                              ),
+                          ),
+                          child: Text(
+                            ribbon!.isEmpty
+                                ? ''
+                                : ribbon![0].toUpperCase() +
+                                    ribbon!.substring(1).toLowerCase(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
                       ),
-                    // Discount badge (bottom left corner)
+
+                    // Discount badge — bottom left
                     if (shouldShowDiscountBadge)
                       Positioned(
                         bottom: 0,
@@ -251,20 +232,23 @@ class ProductTileWidget extends StatelessWidget {
                           ),
                         ),
                       ),
-                    // Wishlist button (top right corner, below ribbon)
+
+                    // Wishlist button — bottom right
                     if (home)
                       Positioned(
-                        top: 45,
+                        bottom: 8,
                         right: 8,
                         child: InkWell(
                           onTap: addToFavouriteEvent,
                           borderRadius: BorderRadius.circular(20),
                           child: Container(
-                            padding: EdgeInsets.all(isTablet
-                                ? 6.0
-                                : isSmallPhone
-                                    ? 4.0
-                                    : 5.0),
+                            padding: EdgeInsets.all(
+                              isTablet
+                                  ? 6.0
+                                  : isSmallPhone
+                                      ? 4.0
+                                      : 5.0,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.9),
                               borderRadius: BorderRadius.circular(20),
@@ -282,9 +266,7 @@ class ProductTileWidget extends StatelessWidget {
                                     width: containerSize,
                                     decoration: BoxDecoration(
                                       border: Border.all(
-                                        color: Colors.red,
-                                        width: 1,
-                                      ),
+                                          color: Colors.red, width: 1),
                                       shape: BoxShape.circle,
                                     ),
                                     child: Center(
@@ -313,322 +295,316 @@ class ProductTileWidget extends StatelessWidget {
               ),
             ),
 
-            // Content section with fixed spacing
+            // ── CONTENT SECTION — 40% of card height ────────────────────────
             Expanded(
-              flex: isTablet
-                  ? 4
-                  : 5, // More space for content to prevent overflow
+              flex: 4,
               child: Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: isTablet
                       ? 12.0
                       : isSmallPhone
-                          ? 6.0
-                          : 8.0,
+                          ? 7.0
+                          : 9.0,
+                  vertical: isTablet ? 10.0 : 8.0,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.max,
                   children: [
-                    SizedBox(height: isTablet ? 6 : 8),
-
-                    // Sub Category
-                    if (formattedSubCategory.isNotEmpty) ...[
-                      Text(
-                        formattedSubCategory,
-                        style: TextStyle(
-                          color: const Color(0xFF758572),
-                          fontSize: isTablet
-                              ? 12
-                              : isSmallPhone
-                                  ? 9
-                                  : 10,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 1.2,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      SizedBox(height: isTablet ? 2 : 4),
-                    ],
-
-                    // Title
-                    Flexible(
-                      child: Text(
-                        productTitle,
-                        style: TextStyle(
-                          color: Colors.black87,
-                          fontSize: isTablet
-                              ? 18
-                              : isSmallPhone
-                                  ? 14
-                                  : 16,
-                          fontWeight: FontWeight.w500,
-                          height: 1.2, // Tighter line height
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-
-                    SizedBox(height: isTablet ? 2 : 4),
-
-                    // Rating
-                    Row(
-                      children: [
-                        const Icon(Icons.star,
-                            color: Color(0xFFF3B456), size: 16),
-                        const SizedBox(width: 4),
-                        Text(
-                          rating?.toStringAsFixed(1) ?? '0.0',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: isTablet ? 14 : 12,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '(${numRatings ?? 0})',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontSize: isTablet ? 14 : 12,
-                            color: Colors.grey[500],
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const Spacer(),
-
-                    // Price, Action and Stock Layout
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // Top part: Price & Save Row + Add button
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    // Top content wrapped in Expanded and unscrollable scroll view to gracefully clip
+                    // instead of throwing RenderFlex overflow errors when space is too tight.
+                    Expanded(
+                      child: SingleChildScrollView(
+                        physics: const NeverScrollableScrollPhysics(),
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Price & Save info
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    alignment: Alignment.centerLeft,
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      children: [
-                                        if (hasDiscount) ...[
-                                          Text(
-                                            '₹${_formatPrice(discountAmount!)}',
-                                            style: TextStyle(
-                                              fontSize: isTablet
-                                                  ? 24
-                                                  : isSmallPhone
-                                                      ? 18
-                                                      : 22,
-                                              fontWeight: FontWeight.w800,
-                                              color: Colors.black87,
-                                              height: 1.0,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                bottom: 2.0),
-                                            child: Text(
-                                              '₹${_formatPrice(actualAmount)}',
-                                              style: TextStyle(
-                                                fontSize: isTablet
-                                                    ? 14
-                                                    : isSmallPhone
-                                                        ? 11
-                                                        : 13,
-                                                fontWeight: FontWeight.w600,
-                                                color: const Color(0xFF8B9289),
-                                                decoration:
-                                                    TextDecoration.lineThrough,
-                                                height: 1.0,
-                                              ),
-                                            ),
-                                          ),
-                                        ] else ...[
-                                          Text(
-                                            '₹${_formatPrice(actualAmount)}',
-                                            style: TextStyle(
-                                              fontSize: isTablet
-                                                  ? 24
-                                                  : isSmallPhone
-                                                      ? 18
-                                                      : 22,
-                                              fontWeight: FontWeight.w800,
-                                              color: Colors.black87,
-                                              height: 1.0,
-                                            ),
-                                          ),
-                                        ],
-                                      ],
-                                    ),
-                                  ),
-                                  // Save label
-                                  if (hasDiscount) ...[
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Save ₹${((double.tryParse(actualAmount) ?? 0) - (double.tryParse(discountAmount!) ?? 0)).toInt()}',
-                                      style: TextStyle(
-                                        color: const Color(
-                                            0xFFD64436), // Red color for Save
-                                        fontSize: isTablet
-                                            ? 13
-                                            : isSmallPhone
-                                                ? 10
-                                                : 12,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-                            // Add button
-                            if (home &&
-                                isStock == true &&
-                                addToCartEvent != null) ...[
-                              const SizedBox(width: 6),
-                              InkWell(
-                                onTap: addToCartEvent,
-                                borderRadius: BorderRadius.circular(
-                                    10), // Matched image roundness
-                                child: Container(
-                                  height: isTablet
-                                      ? 36
+                            // Sub Category label
+                            if (formattedSubCategory.isNotEmpty) ...[
+                              Text(
+                                formattedSubCategory,
+                                style: TextStyle(
+                                  color: const Color(0xFF758572),
+                                  fontSize: isTablet
+                                      ? 12
                                       : isSmallPhone
-                                          ? 28
-                                          : 32,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 14),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF3F6331),
-                                    borderRadius: BorderRadius.circular(10),
+                                          ? 9
+                                          : 10,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 1.2,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 3),
+                            ],
+
+                            // Product title (2 lines allowed in taller content area)
+                            Text(
+                              productTitle,
+                              style: TextStyle(
+                                color: Colors.black87,
+                                fontSize: isTablet
+                                    ? 18
+                                    : isSmallPhone
+                                        ? 13
+                                        : 15,
+                                fontWeight: FontWeight.w600,
+                                height: 1.2,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+
+                            const SizedBox(height: 4),
+
+                            // Rating row
+                            Row(
+                              children: [
+                                const Icon(Icons.star,
+                                    color: Color(0xFFF3B456), size: 14),
+                                const SizedBox(width: 3),
+                                Text(
+                                  rating?.toStringAsFixed(1) ?? '0.0',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: isTablet ? 13 : 11,
+                                    color: Colors.black87,
                                   ),
-                                  alignment: Alignment.center,
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons
-                                            .shopping_cart_outlined, // Outlined cart icon
-                                        color: Colors.white,
-                                        size: isTablet ? 16 : 14,
+                                ),
+                                const SizedBox(width: 3),
+                                Text(
+                                  '(${numRatings ?? 0})',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: isTablet ? 13 : 11,
+                                    color: Colors.grey[500],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // ── Price row + Add button ──────────────────────────────
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Price + Save label
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerLeft,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    if (hasDiscount) ...[
+                                      Text(
+                                        '₹${_formatPrice(discountAmount!)}',
+                                        style: TextStyle(
+                                          fontSize: isTablet
+                                              ? 22
+                                              : isSmallPhone
+                                                  ? 17
+                                                  : 20,
+                                          fontWeight: FontWeight.w800,
+                                          color: Colors.black87,
+                                          height: 1.0,
+                                        ),
                                       ),
                                       const SizedBox(width: 6),
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 2.0),
+                                        child: Text(
+                                          '₹${_formatPrice(actualAmount)}',
+                                          style: TextStyle(
+                                            fontSize: isTablet
+                                                ? 13
+                                                : isSmallPhone
+                                                    ? 10
+                                                    : 12,
+                                            fontWeight: FontWeight.w500,
+                                            color: const Color(0xFF8B9289),
+                                            decoration:
+                                                TextDecoration.lineThrough,
+                                            height: 1.0,
+                                          ),
+                                        ),
+                                      ),
+                                    ] else ...[
                                       Text(
-                                        isCart ? "Cart" : 'Add',
+                                        '₹${_formatPrice(actualAmount)}',
                                         style: TextStyle(
-                                          color: Colors.white,
                                           fontSize: isTablet
-                                              ? 14
+                                              ? 22
                                               : isSmallPhone
-                                                  ? 11
-                                                  : 13,
-                                          fontWeight: FontWeight.w600,
+                                                  ? 17
+                                                  : 20,
+                                          fontWeight: FontWeight.w800,
+                                          color: Colors.black87,
+                                          height: 1.0,
                                         ),
                                       ),
                                     ],
-                                  ),
+                                  ],
                                 ),
                               ),
-                            ],
-                          ],
-                        ),
-                        // Stock segment underneath (full width row with bar + text)
-                        if (isStock == true && stock != null && stock! > 0) ...[
-                          const SizedBox(height: 10),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              // The Bar
-                              Expanded(
-                                child: Container(
-                                  height: 4,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[300],
-                                    borderRadius: BorderRadius.circular(2),
-                                  ),
-                                  alignment: Alignment.centerLeft,
-                                  child: FractionallySizedBox(
-                                    widthFactor: stock! >= 20
-                                        ? 1.0
-                                        : (stock! / 20.0).clamp(0.0, 1.0),
-                                    child: AnimatedStockBar(
-                                      stock: stock!,
-                                      baseColor: stock! > 20
-                                          ? const Color(0xFF00B251)
-                                          : ((stock! / 20.0).clamp(0.0, 1.0) >
-                                                  0.5
-                                              ? const Color(0xFFF3B456)
-                                              : const Color(0xFFD64436)),
-                                    ),
+                              // Save label (only when discount exists)
+                              if (hasDiscount) ...[
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Save ₹${((double.tryParse(actualAmount) ?? 0) - (double.tryParse(discountAmount!) ?? 0)).toInt()}',
+                                  style: TextStyle(
+                                    color: const Color(0xFFD64436),
+                                    fontSize: isTablet
+                                        ? 12
+                                        : isSmallPhone
+                                            ? 9
+                                            : 11,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 8),
-                              // The Text
-                              Text(
-                                stock! > 20 ? 'IN STOCK' : 'Only $stock left!',
-                                style: TextStyle(
-                                  color: stock! > 20
-                                      ? const Color(0xFF00B251)
-                                      : const Color(
-                                          0xFFD64436), // Red color typically for "Only X left!"
-                                  fontSize: isTablet
-                                      ? 12
-                                      : isSmallPhone
-                                          ? 9
-                                          : 11,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
+                              ],
                             ],
                           ),
-                        ] else if (isStock == false ||
-                            stock == 0 ||
-                            (home && addToCartEvent == null)) ...[
-                          const SizedBox(height: 10),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  height: 4,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[300],
-                                    borderRadius: BorderRadius.circular(2),
+                        ),
+
+                        // Add to cart button
+                        if (home &&
+                            isStock == true &&
+                            addToCartEvent != null) ...[
+                          const SizedBox(width: 6),
+                          InkWell(
+                            onTap: addToCartEvent,
+                            borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              height: isTablet
+                                  ? 36
+                                  : isSmallPhone
+                                      ? 28
+                                      : 32,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 12),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF3F6331),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              alignment: Alignment.center,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.shopping_cart_outlined,
+                                    color: Colors.white,
+                                    size: isTablet ? 15 : 13,
                                   ),
-                                ),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    isCart ? 'Cart' : 'Add',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: isTablet
+                                          ? 14
+                                          : isSmallPhone
+                                              ? 11
+                                              : 13,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'OUT OF STOCK',
-                                style: TextStyle(
-                                  color: const Color(0xFFD64436),
-                                  fontSize: isTablet
-                                      ? 12
-                                      : isSmallPhone
-                                          ? 9
-                                          : 11,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ],
                       ],
                     ),
+
                     const SizedBox(height: 8),
+
+                    // ── Stock bar ───────────────────────────────────────────
+                    if (isStock == true && stock != null && stock! > 0) ...[
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: Container(
+                              height: 4,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                              alignment: Alignment.centerLeft,
+                              child: FractionallySizedBox(
+                                widthFactor: stock! >= 20
+                                    ? 1.0
+                                    : (stock! / 20.0).clamp(0.0, 1.0),
+                                child: AnimatedStockBar(
+                                  stock: stock!,
+                                  baseColor: stock! > 20
+                                      ? const Color(0xFF00B251)
+                                      : ((stock! / 20.0).clamp(0.0, 1.0) > 0.5
+                                          ? const Color(0xFFF3B456)
+                                          : const Color(0xFFD64436)),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            stock! > 20 ? 'IN STOCK' : 'Only $stock left!',
+                            style: TextStyle(
+                              color: stock! > 20
+                                  ? const Color(0xFF00B251)
+                                  : const Color(0xFFD64436),
+                              fontSize: isTablet
+                                  ? 12
+                                  : isSmallPhone
+                                      ? 9
+                                      : 10,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ] else if (isStock == false ||
+                        stock == 0 ||
+                        (home && addToCartEvent == null)) ...[
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: Container(
+                              height: 4,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'OUT OF STOCK',
+                            style: TextStyle(
+                              color: const Color(0xFFD64436),
+                              fontSize: isTablet
+                                  ? 12
+                                  : isSmallPhone
+                                      ? 9
+                                      : 10,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -649,9 +625,11 @@ class ProductTileWidget extends StatelessWidget {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// AnimatedFlagBadge
+// ─────────────────────────────────────────────────────────────────────────────
 class AnimatedFlagBadge extends StatefulWidget {
   final List<String> flags;
-
   const AnimatedFlagBadge({required this.flags, super.key});
 
   @override
@@ -685,19 +663,19 @@ class _AnimatedFlagBadgeState extends State<AnimatedFlagBadge> {
   @override
   Widget build(BuildContext context) {
     if (widget.flags.isEmpty) return const SizedBox.shrink();
-
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 500),
       transitionBuilder: (Widget child, Animation<double> animation) {
         return FadeTransition(
-            opacity: animation,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0.0, -0.5),
-                end: Offset.zero,
-              ).animate(animation),
-              child: child,
-            ));
+          opacity: animation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0.0, -0.5),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          ),
+        );
       },
       child: Container(
         key: ValueKey<int>(_currentIndex),
@@ -720,6 +698,9 @@ class _AnimatedFlagBadgeState extends State<AnimatedFlagBadge> {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// AnimatedStockBar
+// ─────────────────────────────────────────────────────────────────────────────
 class AnimatedStockBar extends StatefulWidget {
   final int stock;
   final Color baseColor;
@@ -745,10 +726,7 @@ class _AnimatedStockBarState extends State<AnimatedStockBar>
       vsync: this,
       duration: const Duration(milliseconds: 1500),
     );
-
-    if (widget.stock <= 20) {
-      _controller.repeat();
-    }
+    if (widget.stock <= 20) _controller.repeat();
   }
 
   @override
@@ -778,9 +756,7 @@ class _AnimatedStockBarState extends State<AnimatedStockBar>
         ),
       );
     }
-
     final highlightColor = Colors.white.withOpacity(0.5);
-
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
@@ -790,11 +766,7 @@ class _AnimatedStockBarState extends State<AnimatedStockBar>
             gradient: LinearGradient(
               begin: Alignment(-2.5 + (_controller.value * 5), 0),
               end: Alignment(-0.5 + (_controller.value * 5), 0),
-              colors: [
-                widget.baseColor,
-                highlightColor,
-                widget.baseColor,
-              ],
+              colors: [widget.baseColor, highlightColor, widget.baseColor],
               stops: const [0.0, 0.5, 1.0],
             ),
           ),
@@ -804,6 +776,9 @@ class _AnimatedStockBarState extends State<AnimatedStockBar>
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// ProductImageWithLongPress
+// ─────────────────────────────────────────────────────────────────────────────
 class ProductImageWithLongPress extends StatefulWidget {
   final dynamic productImage;
   final String baseUrl;
@@ -829,14 +804,11 @@ class _ProductImageWithLongPressState extends State<ProductImageWithLongPress> {
   List<String> _getImages() {
     final pi = widget.productImage;
     if (pi == null) return [];
-    if (pi is List) {
-      return pi.map((e) => e.toString()).toList();
-    }
+    if (pi is List) return pi.map((e) => e.toString()).toList();
     if (pi is String) {
       if (pi.isEmpty) return [];
       String source = pi;
       if (source.startsWith('[') && source.endsWith(']')) {
-        // Safe robust decoding for arrays that might lack quotes in raw mode
         source = source.substring(1, source.length - 1);
         final parts = source.split(',');
         return parts
@@ -859,17 +831,11 @@ class _ProductImageWithLongPressState extends State<ProductImageWithLongPress> {
   @override
   Widget build(BuildContext context) {
     final images = _getImages();
-    if (images.isEmpty) {
-      return _buildPlaceholder();
-    }
+    if (images.isEmpty) return _buildPlaceholder();
 
     String currentImage = images[0];
-    if (_isLongPressed && images.length > 1) {
-      currentImage = images[1];
-    }
+    if (_isLongPressed && images.length > 1) currentImage = images[1];
 
-    // The model already resolves relative → full URL.
-    // If still relative (edge case), prefix here as a safety net.
     final imageUrl = currentImage.startsWith('http')
         ? currentImage
         : '${widget.baseUrl}$currentImage';
@@ -880,14 +846,12 @@ class _ProductImageWithLongPressState extends State<ProductImageWithLongPress> {
       onLongPressCancel: () => setState(() => _isLongPressed = false),
       child: NetworkImageWidget(
         imageUrl: imageUrl,
-        fit: BoxFit.fill,
-        width: 200,
-        height: 200,
-        memCacheWidth: 300,
-        memCacheHeight: 300,
-        placeholder: (context, url) => Container(
-          color: Colors.grey[50],
-        ),
+        fit: BoxFit.fill, // fills taller area without distortion
+        width: double.infinity,
+        height: double.infinity,
+        memCacheWidth: 400,
+        memCacheHeight: 600,
+        placeholder: (context, url) => Container(color: Colors.grey[50]),
         errorWidget: (context, url, error) => _buildPlaceholder(),
       ),
     );
@@ -897,11 +861,7 @@ class _ProductImageWithLongPressState extends State<ProductImageWithLongPress> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: Colors.grey[300]!,
-          width: 1,
-        ),
+        border: Border.all(color: Colors.grey[300]!, width: 1),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

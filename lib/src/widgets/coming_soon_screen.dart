@@ -109,9 +109,9 @@ class _ComingSoonScreenState extends State<ComingSoonScreen>
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
                             colors: [
-                              const Color(0xFF749F09).withValues(
+                              const Color(0xFF3F6331).withValues(
                                   alpha: 0.08 * _pulseAnimation.value),
-                              const Color(0xFF749F09).withValues(alpha: 0.0),
+                              const Color(0xFF3F6331).withValues(alpha: 0.0),
                             ],
                           ),
                         ),
@@ -144,13 +144,13 @@ class _ComingSoonScreenState extends State<ComingSoonScreen>
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
-                                Color(0xFF749F09),
+                                Color(0xFF3F6331),
                                 Color(0xFF5C7F07),
                               ],
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF749F09)
+                                color: const Color(0xFF3F6331)
                                     .withValues(alpha: 0.3),
                                 blurRadius: 25,
                                 spreadRadius: 5,
@@ -178,7 +178,7 @@ class _ComingSoonScreenState extends State<ComingSoonScreen>
               shaderCallback: (bounds) => const LinearGradient(
                 colors: [
                   Color(0xFF0D2164),
-                  Color(0xFF749F09),
+                  Color(0xFF3F6331),
                   Color(0xFF0D2164),
                 ],
               ).createShader(bounds),
@@ -220,7 +220,7 @@ class _ComingSoonScreenState extends State<ComingSoonScreen>
                     icon: Icons.local_florist_rounded,
                     title: 'Curated Gift Sets',
                     subtitle: 'Beautiful plant arrangements for every occasion',
-                    color: const Color(0xFF749F09),
+                    color: const Color(0xFF3F6331),
                     delay: 0,
                   ),
                   const SizedBox(height: 12),
@@ -253,12 +253,12 @@ class _ComingSoonScreenState extends State<ComingSoonScreen>
                 height: 52,
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF749F09), Color(0xFF5C7F07)],
+                    colors: [Color(0xFF3F6331), Color(0xFF5C7F07)],
                   ),
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF749F09).withValues(alpha: 0.3),
+                      color: const Color(0xFF3F6331).withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -301,11 +301,11 @@ class _ComingSoonScreenState extends State<ComingSoonScreen>
 
   Widget _buildSparkle(int index) {
     final colors = [
-      const Color(0xFF749F09),
+      const Color(0xFF3F6331),
       const Color(0xFFFFD700),
       const Color(0xFF0D2164),
       const Color(0xFFC63E3E),
-      const Color(0xFF749F09),
+      const Color(0xFF3F6331),
       const Color(0xFFFFD700),
     ];
 
