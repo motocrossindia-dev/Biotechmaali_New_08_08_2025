@@ -309,22 +309,54 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                             height: 48,
                             child: Padding(
                               padding: const EdgeInsets.only(left: 8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  CommonTextWidget(
-                                    title:
-                                        '₹${provider.orderData!.order?.totalPrice.toInt() ?? 0}',
-                                    lineThrough: TextDecoration.lineThrough,
-                                    fontSize: 12,
-                                  ),
-                                  CommonTextWidget(
-                                    title:
-                                        '₹${provider.orderData!.order?.grandTotal.toInt() ?? 0}',
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  )
-                                ],
+                              child: Builder(
+                                builder: (context) {
+                                  final order =
+                                      provider.orderData!.order!;
+                                  final shippingInfo =
+                                      provider.orderData!.shippingInfo;
+                                  final shippingCharge =
+                                      shippingInfo?.shippingCharge ??
+                                          order.shippingCharge;
+                                  final shippingCgst =
+                                      shippingInfo?.shippingCgst ??
+                                          order.shippingCgst;
+                                  final shippingSgst =
+                                      shippingInfo?.shippingSgst ??
+                                          order.shippingSgst;
+                                  final isPickUp =
+                                      provider.selectedDeliveryOption ==
+                                          'Pick Up Store';
+                                  final displayTotal = isPickUp
+                                      ? order.grandTotal -
+                                          shippingCharge -
+                                          shippingCgst -
+                                          shippingSgst
+                                      : order.grandTotal;
+
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.center,
+                                    children: [
+                                      CommonTextWidget(
+                                        title:
+                                            '₹${displayTotal.toInt()}',
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      CommonTextWidget(
+                                        title: isPickUp
+                                            ? 'Total (Free Pickup)'
+                                            : 'Total Amount',
+                                        fontSize: 11,
+                                        color: Colors.grey,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                    ],
+                                  );
+                                },
                               ),
                             ),
                           ),
@@ -389,9 +421,6 @@ class OrderItemCard extends StatelessWidget {
     log("image :${item.image}");
     log("productId :${item.productId}");
 
-    // Calculate total GST for this item
-    final totalGst = item.cgstAmount + item.sgstAmount;
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       child: Row(
@@ -401,7 +430,10 @@ class OrderItemCard extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: NetworkImageWidget(
-              imageUrl: "${BaseUrl.baseUrlForImages}${item.image}",
+              // Image may already be a full URL; only prepend base if it's a relative path
+              imageUrl: item.image.startsWith('http')
+                  ? item.image
+                  : '${BaseUrl.baseUrlForImages}${item.image}',
               width: 60,
               height: 60,
               fit: BoxFit.cover,
@@ -474,23 +506,14 @@ class OrderItemCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '₹${item.total.toStringAsFixed(2)}',
+                // Show selling_price (GST-inclusive)
+                '₹${item.sellingPrice.toStringAsFixed(2)}',
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
               ),
-              // Show GST amount if applicable
-              if (totalGst > 0)
-                Text(
-                  '+GST ₹${totalGst.toStringAsFixed(2)}',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: cButtonGreen,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
             ],
           ),
         ],

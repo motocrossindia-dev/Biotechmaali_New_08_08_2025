@@ -54,6 +54,7 @@ class OrderHistoryOrder {
   final String mobile;
   final String? paymentMethod;
   final double totalPrice;
+  final double taxableValue;
   final double totalDiscount;
   final double grandTotal;
   final String? trackingId;
@@ -94,6 +95,9 @@ class OrderHistoryOrder {
   final double discountValue;
   final String? discountType;
 
+  // GST summary map from backend e.g. {"18%": 305.33}
+  final Map<String, double> gstSummary;
+
   OrderHistoryOrder({
     required this.id,
     required this.orderId,
@@ -103,6 +107,7 @@ class OrderHistoryOrder {
     required this.mobile,
     this.paymentMethod,
     required this.totalPrice,
+    required this.taxableValue,
     required this.totalDiscount,
     required this.grandTotal,
     this.trackingId,
@@ -130,6 +135,7 @@ class OrderHistoryOrder {
     this.gstAmount18 = 0.0,
     this.discountValue = 0.0,
     this.discountType,
+    this.gstSummary = const {},
   });
 
   factory OrderHistoryOrder.fromJson(Map<String, dynamic> json) {
@@ -142,6 +148,7 @@ class OrderHistoryOrder {
       mobile: json['mobile'] ?? '',
       paymentMethod: json['payment_method'],
       totalPrice: _parseDouble(json['total_price']) ?? 0.0,
+      taxableValue: _parseDouble(json['taxable_value']) ?? 0.0,
       totalDiscount: _parseDouble(json['total_discount']) ?? 0.0,
       grandTotal: _parseDouble(json['grand_total']) ?? 0.0,
       trackingId: json['tracking_id'],
@@ -169,8 +176,34 @@ class OrderHistoryOrder {
       gstAmount18: _parseDouble(json['gst_amount_18']) ?? 0.0,
       discountValue: _parseDouble(json['discount_value']) ?? 0.0,
       discountType: json['discount_type'],
+      gstSummary: _parseGstSummary(json['gst_breakdown'] ?? json['gst_summary']),
     );
   }
+}
+
+// Parse gst_breakdown map from backend: {"gst_18": {"total": 305.33}} or {"18%": 305.33} -> {"18%": 305.33}
+Map<String, double> _parseGstSummary(dynamic value) {
+  if (value == null || value is! Map) return {};
+
+  // Handle new nested 'summary' format
+  if (value.containsKey('summary') && value['summary'] is Map) {
+    value = value['summary'];
+  }
+
+  final result = <String, double>{};
+  value.forEach((key, val) {
+    if (val is Map) {
+      final total = _parseDouble(val['total']) ?? 0.0;
+      if (total > 0) {
+        final formattedKey = key.toString().replaceFirst('gst_', '') + '%';
+        result[formattedKey] = total;
+      }
+    } else {
+      final parsed = _parseDouble(val);
+      if (parsed != null && parsed > 0) result[key.toString()] = parsed;
+    }
+  });
+  return result;
 }
 
 // Delivery address from order history detail

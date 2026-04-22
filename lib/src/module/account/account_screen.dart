@@ -2,7 +2,6 @@ import 'package:biotech_maali/src/module/account/account_provider.dart';
 import 'package:biotech_maali/src/module/account/coin/coin_screen.dart';
 import 'package:biotech_maali/src/module/account/refer_friend/refer_friend_provider.dart';
 import 'package:biotech_maali/src/module/account/refer_friend/refer_friend_screen.dart';
-import 'package:biotech_maali/src/module/account/track_order/track_order_screen.dart';
 import 'package:biotech_maali/src/module/account/wallet/wallet_provider.dart';
 import 'package:biotech_maali/import.dart';
 import 'package:biotech_maali/src/module/account/wallet/wallet_screen.dart';
@@ -13,6 +12,7 @@ import 'package:biotech_maali/src/other_modules/franchise_enquiry/franchise_enqu
 import 'package:biotech_maali/src/other_modules/our_store/our_store_screen.dart';
 import 'package:biotech_maali/src/payment_and_order/order_history/order_history_screen.dart';
 import 'package:biotech_maali/core/services/analytics_service.dart';
+import 'package:biotech_maali/src/widgets/gd_coin_widget.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
@@ -228,43 +228,43 @@ class _AccountScreenState extends State<AccountScreen> {
                                 ),
                               ),
                               sizedBoxHeight10,
-                              InkWell(
-                                onTap: () {
-                                  AnalyticsService().logAccountMenuTap(
-                                      menuItem: 'Track Order');
-                                  AnalyticsService().logTrackOrderOpened();
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const TrackOrderScreen(),
-                                    ),
-                                  );
-                                },
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Row(
-                                      children: [
-                                        sizedBoxWidth25,
-                                        sizedBoxWidth20,
-                                        CommonTextWidget(
-                                          title: 'Track Order',
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ],
-                                    ),
-                                    Icon(
-                                      Icons.chevron_right,
-                                      size: 30,
-                                      color: cAccountText,
-                                    )
-                                  ],
-                                ),
-                              ),
-                              sizedBoxHeight10,
+                              // InkWell(
+                              //   onTap: () {
+                              //     AnalyticsService().logAccountMenuTap(
+                              //         menuItem: 'Track Order');
+                              //     AnalyticsService().logTrackOrderOpened();
+                              //     Navigator.push(
+                              //       context,
+                              //       MaterialPageRoute(
+                              //         builder: (context) =>
+                              //             const TrackOrderScreen(),
+                              //       ),
+                              //     );
+                              //   },
+                              //   child: Row(
+                              //     mainAxisAlignment:
+                              //         MainAxisAlignment.spaceBetween,
+                              //     children: [
+                              //       const Row(
+                              //         children: [
+                              //           sizedBoxWidth25,
+                              //           sizedBoxWidth20,
+                              //           CommonTextWidget(
+                              //             title: 'Track Order',
+                              //             fontSize: 14,
+                              //             fontWeight: FontWeight.w500,
+                              //           ),
+                              //         ],
+                              //       ),
+                              //       Icon(
+                              //         Icons.chevron_right,
+                              //         size: 30,
+                              //         color: cAccountText,
+                              //       )
+                              //     ],
+                              //   ),
+                              // ),
+                              // sizedBoxHeight10,
                               InkWell(
                                 onTap: () {
                                   AnalyticsService().logAccountMenuTap(
@@ -291,6 +291,42 @@ class _AccountScreenState extends State<AccountScreen> {
                                         sizedBoxWidth20,
                                         CommonTextWidget(
                                           title: 'Add Address',
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ],
+                                    ),
+                                    Icon(
+                                      Icons.chevron_right,
+                                      size: 30,
+                                      color: cAccountText,
+                                    )
+                                  ],
+                                ),
+                              ),
+                              sizedBoxHeight10,
+                              InkWell(
+                                onTap: () {
+                                  AnalyticsService().logAccountMenuTap(
+                                      menuItem: 'Change Addresses');
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const ChangeAddressScreen(),
+                                    ),
+                                  );
+                                },
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Row(
+                                      children: [
+                                        sizedBoxWidth25,
+                                        sizedBoxWidth20,
+                                        CommonTextWidget(
+                                          title: 'Change Address',
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,
                                         ),
@@ -371,6 +407,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                 ),
                               ),
                               sizedBoxHeight20,
+
                               InkWell(
                                 onTap: () {
                                   AnalyticsService()
@@ -797,119 +834,11 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   Widget buildBTCoinIcon({double size = 28}) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: const RadialGradient(
-          center: Alignment(-0.3, -0.3),
-          colors: [
-            Color(0xFFFFD700), // Gold color
-            Color(0xFFFFA500), // Orange gold
-            Color(0xFFFF8C00), // Dark orange
-            Color(0xFFB8860B), // Dark goldenrod
-          ],
-          stops: [0.0, 0.3, 0.7, 1.0],
-        ),
-        border: Border.all(
-          color: const Color(0xFFB8860B),
-          width: size * 0.05,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFFFFD700).withOpacity(0.4),
-            blurRadius: size * 0.3,
-            offset: Offset(0, size * 0.1),
-            spreadRadius: size * 0.05,
-          ),
-          BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: size * 0.2,
-            offset: Offset(size * 0.05, size * 0.1),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          // Inner circle for coin depth effect
-          Positioned.fill(
-            child: Container(
-              margin: EdgeInsets.all(size * 0.1),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    const Color(0xFFFFF8DC).withOpacity(0.3),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
-          ),
-          // Shimmer effect overlay
-          Positioned.fill(
-            child: TweenAnimationBuilder<double>(
-              duration: const Duration(seconds: 2),
-              tween: Tween(begin: 0.0, end: 1.0),
-              builder: (context, value, child) {
-                return Transform.rotate(
-                  angle: value * 6.28, // 2π for full rotation
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: SweepGradient(
-                        startAngle: 0,
-                        endAngle: 1.0,
-                        colors: [
-                          Colors.transparent,
-                          const Color(0xFFFFFFFF).withOpacity(0.4),
-                          Colors.transparent,
-                          Colors.transparent,
-                        ],
-                        stops: const [0.0, 0.1, 0.2, 1.0],
-                      ),
-                    ),
-                  ),
-                );
-              },
-              onEnd: () {
-                // Animation end callback (no-op here)
-              },
-            ),
-          ),
-          // BT Text
-          Center(
-            child: Text(
-              'BT',
-              style: TextStyle(
-                color: const Color(0xFF8B4513), // Brown color for contrast
-                fontSize: size * 0.35,
-                fontWeight: FontWeight.w900,
-                letterSpacing: size * 0.02,
-                shadows: [
-                  Shadow(
-                    color: const Color(0xFFFFD700).withOpacity(0.8),
-                    offset: Offset(size * 0.02, size * 0.02),
-                    blurRadius: size * 0.05,
-                  ),
-                  Shadow(
-                    color: Colors.black.withOpacity(0.3),
-                    offset: Offset(size * 0.01, size * 0.01),
-                    blurRadius: size * 0.02,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+    return GdCoinWidget(size: size);
   }
 }
 
-// Replace the existing onPressed handler with this:
+  // Replace the existing onPressed handler with this:
 void bottmomSheetLogout(BuildContext context) {
   // Capture the parent/screen context BEFORE opening the bottom sheet
   final parentContext = context;

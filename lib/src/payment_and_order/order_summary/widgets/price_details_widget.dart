@@ -11,9 +11,6 @@ class PriceDetailsWidget extends StatefulWidget {
 }
 
 class _PriceDetailsWidgetState extends State<PriceDetailsWidget> {
-  bool _isProductGstExpanded = false;
-  bool _isShippingGstExpanded = false;
-
   @override
   Widget build(BuildContext context) {
     // Check if order data exists
@@ -39,15 +36,10 @@ class _PriceDetailsWidgetState extends State<PriceDetailsWidget> {
             provider.selectedDeliveryOption == "Pick Up Store";
         final isFreeDelivery = isPickUpStore || isFreeShippingFromApi;
         final displayShippingCharge = isFreeDelivery ? 0.0 : shippingCharge;
-        final displayShippingCgst = isFreeDelivery ? 0.0 : shippingCgst;
-        final displayShippingSgst = isFreeDelivery ? 0.0 : shippingSgst;
-        final displayShippingGst = displayShippingCgst + displayShippingSgst;
 
-        // Calculate total product GST
+        // Calculate total product GST (used as fallback if gst_summary absent)
         final totalProductGst = order.gstAmount5 + order.gstAmount18;
 
-        final hasProductGst = totalProductGst > 0;
-        final hasShippingGst = displayShippingGst > 0;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,10 +66,10 @@ class _PriceDetailsWidgetState extends State<PriceDetailsWidget> {
             ),
             const SizedBox(height: 16),
 
-            // Price row
+            // Price row — show taxable_value from backend
             _buildPriceRow(
               'Price (${widget.orderData.orderItems.length} item${widget.orderData.orderItems.length > 1 ? 's' : ''})',
-              '₹${order.totalPrice.toStringAsFixed(2)}',
+              '₹${order.taxableValue.toStringAsFixed(2)}',
             ),
 
             // Discount row
@@ -104,82 +96,18 @@ class _PriceDetailsWidgetState extends State<PriceDetailsWidget> {
               ),
             ],
 
-            // Product GST (expandable)
-            if (hasProductGst) ...[
-              _buildExpandableGstRow(
-                label: 'Product GST',
-                totalAmount: totalProductGst,
-                isExpanded: _isProductGstExpanded,
-                onTap: () {
-                  setState(() {
-                    _isProductGstExpanded = !_isProductGstExpanded;
-                  });
-                },
-                children: [
-                  // GST @ 5% breakdown
-                  if (order.gstAmount5 > 0) ...[
-                    _buildGstBreakdownRow(
-                        'GST @ 5%', '₹${order.gstAmount5.toStringAsFixed(2)}'),
-                    _buildGstBreakdownRow('  CGST 2.5%',
-                        '₹${order.cgstAmount5.toStringAsFixed(2)}',
-                        isSubItem: true),
-                    _buildGstBreakdownRow('  SGST 2.5%',
-                        '₹${order.sgstAmount5.toStringAsFixed(2)}',
-                        isSubItem: true),
-                  ],
-                  // GST @ 18% breakdown
-                  if (order.gstAmount18 > 0) ...[
-                    _buildGstBreakdownRow('GST @ 18%',
-                        '₹${order.gstAmount18.toStringAsFixed(2)}'),
-                    _buildGstBreakdownRow('  CGST 9%',
-                        '₹${order.cgstAmount18.toStringAsFixed(2)}',
-                        isSubItem: true),
-                    _buildGstBreakdownRow('  SGST 9%',
-                        '₹${order.sgstAmount18.toStringAsFixed(2)}',
-                        isSubItem: true),
-                  ],
-                ],
-              ),
-            ],
-
-            // Subtotal (sum of item subtotals from API - before shipping)
+            // GST Summary from backend — one simple row per slab e.g. "GST (18%)  ₹305.33"
+            // GST Summary from backend — single row sum
             Builder(builder: (context) {
-              // Calculate subtotal from order items
-              final itemsSubtotal = widget.orderData.orderItems.fold<double>(
-                0.0,
-                (sum, item) =>
-                    sum +
-                    (item.subtotal > 0
-                        ? item.subtotal
-                        : item.total + item.gstAmount),
-              );
-              return _buildPriceRow(
-                'Subtotal',
-                '₹${itemsSubtotal.toStringAsFixed(2)}',
-              );
+              final totalGst = order.gstSummary.values.fold<double>(0.0, (a, b) => a + b);
+              if (totalGst > 0) {
+                return _buildPriceRow('GST', '₹${totalGst.toStringAsFixed(2)}');
+              } else if (totalProductGst > 0) {
+                // Fallback to computed GST sum if backend summary not provided
+                return _buildPriceRow('GST', '₹${totalProductGst.toStringAsFixed(2)}');
+              }
+              return const SizedBox.shrink();
             }),
-
-            // Shipping GST (expandable)
-            if (hasShippingGst && displayShippingCharge > 0) ...[
-              _buildExpandableGstRow(
-                label: 'Shipping GST',
-                totalAmount: displayShippingGst,
-                isExpanded: _isShippingGstExpanded,
-                onTap: () {
-                  setState(() {
-                    _isShippingGstExpanded = !_isShippingGstExpanded;
-                  });
-                },
-                children: [
-                  _buildGstBreakdownRow(
-                      'CGST 9%', '₹${displayShippingCgst.toStringAsFixed(2)}',
-                      isSubItem: true),
-                  _buildGstBreakdownRow(
-                      'SGST 9%', '₹${displayShippingSgst.toStringAsFixed(2)}',
-                      isSubItem: true),
-                ],
-              ),
-            ],
 
             const Divider(thickness: 1, height: 24),
 
@@ -269,100 +197,6 @@ class _PriceDetailsWidgetState extends State<PriceDetailsWidget> {
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: cButtonGreen,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildExpandableGstRow({
-    required String label,
-    required double totalAmount,
-    required bool isExpanded,
-    required VoidCallback onTap,
-    required List<Widget> children,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      label,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text(
-                      '₹${totalAmount.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Icon(
-                      isExpanded ? Icons.expand_less : Icons.expand_more,
-                      size: 18,
-                      color: Colors.black54,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-        // Expanded content
-        if (isExpanded)
-          Container(
-            margin: const EdgeInsets.only(left: 8, bottom: 8),
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade50,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: children,
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildGstBreakdownRow(String label, String value,
-      {bool isSubItem = false}) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 2, horizontal: isSubItem ? 8 : 0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: isSubItem ? Colors.black54 : Colors.black87,
-              fontWeight: isSubItem ? FontWeight.normal : FontWeight.w500,
-            ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 12,
-              color: isSubItem ? Colors.black54 : Colors.black87,
             ),
           ),
         ],

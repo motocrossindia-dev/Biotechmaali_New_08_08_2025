@@ -217,8 +217,7 @@ class OrderHistoryCard extends StatelessWidget {
                           return ClipRRect(
                             borderRadius: BorderRadius.circular(6),
                             child: NetworkImageWidget(
-                              imageUrl:
-                                  '${BaseUrl.baseUrlForImages}${images[0]}',
+                              imageUrl: images[0].startsWith('http') ? images[0] : '${BaseUrl.baseUrlForImages}${images[0]}',
                               fit: BoxFit.cover,
                               width: 120,
                               height: 120,
@@ -250,8 +249,7 @@ class OrderHistoryCard extends StatelessWidget {
                                     bottomLeft: Radius.circular(6),
                                   ),
                                   child: NetworkImageWidget(
-                                    imageUrl:
-                                        '${BaseUrl.baseUrlForImages}${images[0]}',
+                                    imageUrl: images[0].startsWith('http') ? images[0] : '${BaseUrl.baseUrlForImages}${images[0]}',
                                     fit: BoxFit.cover,
                                     height: 120,
                                     placeholder: (context, url) =>
@@ -281,8 +279,7 @@ class OrderHistoryCard extends StatelessWidget {
                                     bottomRight: Radius.circular(6),
                                   ),
                                   child: NetworkImageWidget(
-                                    imageUrl:
-                                        '${BaseUrl.baseUrlForImages}${images[1]}',
+                                    imageUrl: images[1].startsWith('http') ? images[1] : '${BaseUrl.baseUrlForImages}${images[1]}',
                                     fit: BoxFit.cover,
                                     height: 120,
                                     placeholder: (context, url) =>
@@ -318,8 +315,7 @@ class OrderHistoryCard extends StatelessWidget {
                                     bottomLeft: Radius.circular(6),
                                   ),
                                   child: NetworkImageWidget(
-                                    imageUrl:
-                                        '${BaseUrl.baseUrlForImages}${images[0]}',
+                                    imageUrl: images[0].startsWith('http') ? images[0] : '${BaseUrl.baseUrlForImages}${images[0]}',
                                     fit: BoxFit.cover,
                                     height: 120,
                                     placeholder: (context, url) =>
@@ -352,8 +348,7 @@ class OrderHistoryCard extends StatelessWidget {
                                           topRight: Radius.circular(6),
                                         ),
                                         child: NetworkImageWidget(
-                                          imageUrl:
-                                              '${BaseUrl.baseUrlForImages}${images[1]}',
+                                          imageUrl: images[1].startsWith('http') ? images[1] : '${BaseUrl.baseUrlForImages}${images[1]}',
                                           fit: BoxFit.cover,
                                           width: double.infinity,
                                           placeholder: (context, url) =>
@@ -383,8 +378,7 @@ class OrderHistoryCard extends StatelessWidget {
                                           bottomRight: Radius.circular(6),
                                         ),
                                         child: NetworkImageWidget(
-                                          imageUrl:
-                                              '${BaseUrl.baseUrlForImages}${images[2]}',
+                                          imageUrl: images[2].startsWith('http') ? images[2] : '${BaseUrl.baseUrlForImages}${images[2]}',
                                           fit: BoxFit.cover,
                                           width: double.infinity,
                                           placeholder: (context, url) =>
@@ -436,8 +430,7 @@ class OrderHistoryCard extends StatelessWidget {
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(6),
                                         child: NetworkImageWidget(
-                                          imageUrl:
-                                              '${BaseUrl.baseUrlForImages}$imgUrl',
+                                          imageUrl: imgUrl.startsWith('http') ? imgUrl : '${BaseUrl.baseUrlForImages}$imgUrl',
                                           fit: BoxFit.cover,
                                           placeholder: (context, url) =>
                                               Shimmer.fromColors(

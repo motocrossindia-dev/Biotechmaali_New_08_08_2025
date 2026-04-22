@@ -2,9 +2,10 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:pdfx/pdfx.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path_provider/path_provider.dart';
 import '../../../core/config/pallet.dart';
 
 /// Google Play Compliant PDF Viewer
@@ -68,10 +69,19 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
         return;
       }
 
-      // Download PDF with progress tracking
+      // Get auth token
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('accessToken') ?? prefs.getString('access_token');
+
+      // Download PDF with progress tracking and auth headers
       await _dio.download(
         widget.pdfUrl,
         filePath,
+        options: Options(
+          headers: {
+            if (token != null) 'Authorization': 'Bearer $token',
+          },
+        ),
         onReceiveProgress: (received, total) {
           if (total != -1) {
             setState(() {

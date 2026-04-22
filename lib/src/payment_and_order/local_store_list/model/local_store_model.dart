@@ -18,9 +18,11 @@ class LocalStoreModel {
   });
 
   String? getFullImageUrl() {
-    if (image == null) return null;
-    const baseUrl = 'https://www.https://backend.gidan.store';
-    return '$baseUrl$image';
+    if (image == null || image!.isEmpty) return null;
+    // If already a full URL, return as-is
+    if (image!.startsWith('http')) return image;
+    // Otherwise prepend the backend base URL
+    return 'https://backend.gidan.store$image';
   }
 
   factory LocalStoreModel.fromJson(Map<String, dynamic> json) {

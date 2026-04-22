@@ -45,6 +45,7 @@ class OrderSummaryDetails {
   final String orderId;
   final String customerName;
   final double totalPrice;
+  final double taxableValue;
   final double totalDiscount;
   double grandTotal;
   final String email;
@@ -60,11 +61,18 @@ class OrderSummaryDetails {
   final double shippingSgst;
   final double shippingGst;
 
+  // GST summary map from backend e.g. {"18%": 305.33}
+  final Map<String, double> gstSummary;
+
+  // GD Coin from backend
+  final int gdCoin;
+
   OrderSummaryDetails({
     required this.id,
     required this.orderId,
     required this.customerName,
     required this.totalPrice,
+    required this.taxableValue,
     required this.totalDiscount,
     required this.grandTotal,
     required this.email,
@@ -78,6 +86,8 @@ class OrderSummaryDetails {
     this.shippingCgst = 0.0,
     this.shippingSgst = 0.0,
     this.shippingGst = 0.0,
+    this.gstSummary = const {},
+    this.gdCoin = 0,
   });
 
   factory OrderSummaryDetails.fromJson(Map<String, dynamic> json) {
@@ -86,6 +96,7 @@ class OrderSummaryDetails {
       orderId: json['order_id'] ?? '',
       customerName: json['customer_name'] ?? '',
       totalPrice: _parseDouble(json['total_price']) ?? 0.0,
+      taxableValue: _parseDouble(json['taxable_value']) ?? 0.0,
       totalDiscount: _parseDouble(json['total_discount']) ?? 0.0,
       grandTotal: _parseDouble(json['grand_total']) ?? 0.0,
       email: json['email'] ?? '',
@@ -99,6 +110,8 @@ class OrderSummaryDetails {
       shippingCgst: _parseDouble(json['shipping_cgst']) ?? 0.0,
       shippingSgst: _parseDouble(json['shipping_sgst']) ?? 0.0,
       shippingGst: _parseDouble(json['shipping_gst']) ?? 0.0,
+      gstSummary: _parseGstSummary(json['gst_breakdown'] ?? json['gst_summary']),
+      gdCoin: (json['gd_coin'] as num?)?.toInt() ?? 0,
     );
   }
 }
@@ -216,18 +229,33 @@ class ShippingInfo {
 // Utility function to safely parse double values
 double? _parseDouble(dynamic value) {
   if (value == null) return null;
-
-  // If it's already a double, return it
   if (value is double) return value;
-
-  // If it's an int, convert to double
   if (value is int) return value.toDouble();
+  if (value is String) return double.tryParse(value);
+  return null;
+}
 
-  // If it's a string, parse it
-  if (value is String) {
-    return double.tryParse(value);
+// Parse gst_breakdown map from backend: {"gst_18": {"total": 305.33}} or {"18%": 305.33} -> {"18%": 305.33}
+Map<String, double> _parseGstSummary(dynamic value) {
+  if (value == null || value is! Map) return {};
+
+  // Handle new nested 'summary' format
+  if (value.containsKey('summary') && value['summary'] is Map) {
+    value = value['summary'];
   }
 
-  // If we can't parse it, return null
-  return null;
+  final result = <String, double>{};
+  value.forEach((key, val) {
+    if (val is Map) {
+      final total = _parseDouble(val['total']) ?? 0.0;
+      if (total > 0) {
+        final formattedKey = key.toString().replaceFirst('gst_', '') + '%';
+        result[formattedKey] = total;
+      }
+    } else {
+      final parsed = _parseDouble(val);
+      if (parsed != null && parsed > 0) result[key.toString()] = parsed;
+    }
+  });
+  return result;
 }

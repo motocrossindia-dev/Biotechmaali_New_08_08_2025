@@ -18,8 +18,6 @@ class PaymentScreen extends StatefulWidget {
 
 class _PaymentScreenState extends State<PaymentScreen> {
   bool _showCODMessage = false;
-  bool _isProductGstExpanded = false;
-  bool _isShippingGstExpanded = false;
 
   @override
   void initState() {
@@ -111,49 +109,36 @@ class _PaymentScreenState extends State<PaymentScreen> {
                               isFreeDelivery ? 0.0 : actualShippingCharge;
 
                           // GST values - fallback to order values when shippingInfo is null
-                          final shippingCgst = isFreeDelivery
-                              ? 0.0
-                              : (shippingInfo?.shippingCgst ??
-                                  order?.shippingCgst ??
-                                  0.0);
-                          final shippingSgst = isFreeDelivery
-                              ? 0.0
-                              : (shippingInfo?.shippingSgst ??
-                                  order?.shippingSgst ??
-                                  0.0);
-                          final shippingGst = shippingCgst + shippingSgst;
 
                           final productGst5 = order?.gstAmount5 ?? 0.0;
                           final productGst18 = order?.gstAmount18 ?? 0.0;
-                          final productCgst5 = order?.cgstAmount5 ?? 0.0;
-                          final productSgst5 = order?.sgstAmount5 ?? 0.0;
-                          final productCgst18 = order?.cgstAmount18 ?? 0.0;
-                          final productSgst18 = order?.sgstAmount18 ?? 0.0;
                           final totalProductGst = productGst5 + productGst18;
 
-                          final hasProductGst = totalProductGst > 0;
-                          final hasShippingGst = shippingGst > 0;
 
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Price Details
+                              // Price (items)
                               _buildPriceRow(
-                                  'Price (${orderDetails.data.orderItems.length} items)',
-                                  '₹${orderDetails.data.order.totalPrice.toStringAsFixed(2)}'),
-                              _buildPriceRow('Discount',
-                                  '-₹${orderDetails.data.order.totalDiscount.toStringAsFixed(2)}',
-                                  isGreen:
-                                      orderDetails.data.order.totalDiscount >
-                                          0),
+                                'Price (${orderDetails.data.orderItems.length} items)',
+                                '₹${orderDetails.data.order.taxableValue.toStringAsFixed(2)}',
+                              ),
 
-                              // Coupon Discount (only show if > 0)
+                              // Discount
+                              _buildPriceRow(
+                                'Discount',
+                                '-₹${orderDetails.data.order.totalDiscount.toStringAsFixed(2)}',
+                                isGreen: orderDetails.data.order.totalDiscount > 0,
+                              ),
+
+                              // Coupon Discount
                               if (orderDetails.data.order.couponDiscount > 0)
                                 _buildCouponRow(
                                   orderData?.couponCode ?? 'Coupon Applied',
                                   '-₹${orderDetails.data.order.couponDiscount.toStringAsFixed(2)}',
                                 ),
 
+                              // Delivery Charges
                               _buildPriceRow(
                                 'Delivery Charges',
                                 finalDisplayShippingCharge > 0
@@ -162,109 +147,28 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                 isGreen: finalDisplayShippingCharge == 0,
                               ),
 
-                              // Product GST (expandable)
-                              if (hasProductGst)
-                                _buildExpandableGstSection(
-                                  label: 'Product GST',
-                                  totalAmount: totalProductGst,
-                                  isExpanded: _isProductGstExpanded,
-                                  onTap: () {
-                                    setState(() {
-                                      _isProductGstExpanded =
-                                          !_isProductGstExpanded;
-                                    });
-                                  },
-                                  children: [
-                                    if (productGst5 > 0) ...[
-                                      _buildGstSubRow('GST @ 5%',
-                                          '₹${productGst5.toStringAsFixed(2)}'),
-                                      _buildGstSubRow('  CGST 2.5%',
-                                          '₹${productCgst5.toStringAsFixed(2)}',
-                                          isSubItem: true),
-                                      _buildGstSubRow('  SGST 2.5%',
-                                          '₹${productSgst5.toStringAsFixed(2)}',
-                                          isSubItem: true),
-                                    ],
-                                    if (productGst18 > 0) ...[
-                                      _buildGstSubRow('GST @ 18%',
-                                          '₹${productGst18.toStringAsFixed(2)}'),
-                                      _buildGstSubRow('  CGST 9%',
-                                          '₹${productCgst18.toStringAsFixed(2)}',
-                                          isSubItem: true),
-                                      _buildGstSubRow('  SGST 9%',
-                                          '₹${productSgst18.toStringAsFixed(2)}',
-                                          isSubItem: true),
-                                    ],
-                                  ],
-                                ),
-
-                              // Subtotal (sum of item subtotals from API - before shipping)
+                              // GST Summary from backend — single row sum
                               Builder(builder: (context) {
-                                // Calculate subtotal from order items
-                                final itemsSubtotal =
-                                    orderDetails.data.orderItems.fold<double>(
-                                  0.0,
-                                  (sum, item) =>
-                                      sum +
-                                      (item.subtotal > 0
-                                          ? item.subtotal
-                                          : item.total + item.gstAmount),
-                                );
-                                return _buildPriceRow(
-                                  'Subtotal',
-                                  '₹${itemsSubtotal.toStringAsFixed(2)}',
-                                );
+                                final totalGst = orderDetails.data.order.gstSummary.values.fold<double>(0.0, (a, b) => a + b);
+                                if (totalGst > 0) {
+                                  return _buildPriceRow('GST', '₹${totalGst.toStringAsFixed(2)}');
+                                } else if (totalProductGst > 0) {
+                                  return _buildPriceRow('GST', '₹${totalProductGst.toStringAsFixed(2)}');
+                                }
+                                return const SizedBox.shrink();
                               }),
-
-                              // Shipping GST (expandable)
-                              if (hasShippingGst)
-                                _buildExpandableGstSection(
-                                  label: 'Shipping GST',
-                                  totalAmount: shippingGst,
-                                  isExpanded: _isShippingGstExpanded,
-                                  onTap: () {
-                                    setState(() {
-                                      _isShippingGstExpanded =
-                                          !_isShippingGstExpanded;
-                                    });
-                                  },
-                                  children: [
-                                    _buildGstSubRow('CGST 9%',
-                                        '₹${shippingCgst.toStringAsFixed(2)}',
-                                        isSubItem: true),
-                                    _buildGstSubRow('SGST 9%',
-                                        '₹${shippingSgst.toStringAsFixed(2)}',
-                                        isSubItem: true),
-                                  ],
-                                ),
 
                               const Divider(height: 32),
 
-                              // Total - Recalculate based on delivery option
-                              // API grandTotal includes shipping, so subtract it when Pick Up Store is selected
+                              // Total Amount — subtract only shippingCharge for pickup
                               Builder(builder: (context) {
-                                // Get actual shipping values (not display values which are 0 for pickup)
                                 final shippingInGrandTotal =
                                     shippingInfo?.shippingCharge ??
                                         order?.shippingCharge ??
                                         0.0;
-                                final shippingCgstInGrandTotal =
-                                    shippingInfo?.shippingCgst ??
-                                        order?.shippingCgst ??
-                                        0.0;
-                                final shippingSgstInGrandTotal =
-                                    shippingInfo?.shippingSgst ??
-                                        order?.shippingSgst ??
-                                        0.0;
-                                final shippingGstInGrandTotal =
-                                    shippingCgstInGrandTotal +
-                                        shippingSgstInGrandTotal;
-
-                                // If Pick Up Store, subtract shipping and shipping GST from grandTotal
                                 final calculatedTotal = isPickUpStore
                                     ? orderDetails.data.order.grandTotal -
-                                        shippingInGrandTotal -
-                                        shippingGstInGrandTotal
+                                        shippingInGrandTotal
                                     : orderDetails.data.order.grandTotal;
 
                                 return _buildPriceRow(
@@ -588,92 +492,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
             style: TextStyle(
               fontWeight: FontWeight.w500,
               color: cButtonGreen,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildExpandableGstSection({
-    required String label,
-    required double totalAmount,
-    required List<Widget> children,
-    required bool isExpanded,
-    required VoidCallback onTap,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                  ),
-                ),
-                Row(
-                  children: [
-                    Text(
-                      '₹${totalAmount.toStringAsFixed(2)}',
-                      style: TextStyle(
-                        color: Colors.grey[800],
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Icon(
-                      isExpanded ? Icons.expand_less : Icons.expand_more,
-                      size: 18,
-                      color: Colors.grey[600],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-        if (isExpanded)
-          Container(
-            margin: const EdgeInsets.only(left: 8, bottom: 8),
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade50,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: children,
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildGstSubRow(String label, String value, {bool isSubItem = false}) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 2, horizontal: isSubItem ? 8 : 0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: isSubItem ? Colors.black54 : Colors.black87,
-              fontWeight: isSubItem ? FontWeight.normal : FontWeight.w500,
-            ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 12,
-              color: isSubItem ? Colors.black54 : Colors.black87,
             ),
           ),
         ],

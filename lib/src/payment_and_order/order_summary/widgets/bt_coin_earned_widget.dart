@@ -1,5 +1,6 @@
 import 'package:biotech_maali/src/payment_and_order/order_summary/model/order_response_model.dart';
 import '../../../../import.dart';
+import 'package:biotech_maali/src/widgets/gd_coin_widget.dart';
 
 class BtCoinEarnedWidget extends StatefulWidget {
   final OrderData orderData;
@@ -22,7 +23,6 @@ class _BtCoinEarnedWidgetState extends State<BtCoinEarnedWidget>
 
   late Animation<double> _scaleAnimation;
   late Animation<Offset> _slideAnimation;
-  late Animation<double> _coinRotateAnimation;
   late Animation<double> _shimmerAnimation;
 
   int _displayedCoins = 0;
@@ -32,14 +32,9 @@ class _BtCoinEarnedWidgetState extends State<BtCoinEarnedWidget>
   void initState() {
     super.initState();
 
-    // Calculate BT Coins (10% of order value)
+    // Use GD Coin directly from backend response
     final order = widget.orderData.order;
-    if (order != null) {
-      final orderValue = order.totalPrice - order.totalDiscount;
-      _totalCoins = (orderValue * 0.10).round();
-    } else {
-      _totalCoins = 0;
-    }
+    _totalCoins = order?.gdCoin ?? 0;
 
     // Scale animation for the container
     _scaleController = AnimationController(
@@ -69,13 +64,6 @@ class _BtCoinEarnedWidgetState extends State<BtCoinEarnedWidget>
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
-    _coinRotateAnimation = Tween<double>(
-      begin: 0,
-      end: 2,
-    ).animate(CurvedAnimation(
-      parent: _coinRotateController,
-      curve: Curves.easeInOut,
-    ));
 
     // Shimmer effect animation
     _shimmerController = AnimationController(
@@ -195,50 +183,7 @@ class _BtCoinEarnedWidgetState extends State<BtCoinEarnedWidget>
                 child: Row(
                   children: [
                     // Animated coin icon
-                    AnimatedBuilder(
-                      animation: _coinRotateAnimation,
-                      builder: (context, child) {
-                        return Transform(
-                          alignment: Alignment.center,
-                          transform: Matrix4.identity()
-                            ..setEntry(3, 2, 0.001)
-                            ..rotateY(_coinRotateAnimation.value * 3.14159),
-                          child: Container(
-                            width: 50,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: const LinearGradient(
-                                colors: [
-                                  Color(0xFFFFD700),
-                                  Color(0xFFFFA500),
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color:
-                                      const Color(0xFFFFD700).withOpacity(0.5),
-                                  blurRadius: 10,
-                                  spreadRadius: 2,
-                                ),
-                              ],
-                            ),
-                            child: const Center(
-                              child: Text(
-                                '₿',
-                                style: TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                    const GdCoinWidget(size: 50),
 
                     const SizedBox(width: 16),
 
@@ -247,7 +192,8 @@ class _BtCoinEarnedWidgetState extends State<BtCoinEarnedWidget>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
+                          Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
                               const Text(
                                 '🎉 You Earned ',
@@ -279,7 +225,7 @@ class _BtCoinEarnedWidgetState extends State<BtCoinEarnedWidget>
                                 },
                               ),
                               const Text(
-                                ' BT Coins',
+                                ' GD Coins',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -290,7 +236,7 @@ class _BtCoinEarnedWidgetState extends State<BtCoinEarnedWidget>
                           ),
                           const SizedBox(height: 4),
                           const Text(
-                            '10% of your order value earned as BT Coins! 💰',
+                            'GD Coins earned on this order! 💰',
                             style: TextStyle(
                               fontSize: 12,
                               color: Color(0xFF666666),
@@ -302,19 +248,7 @@ class _BtCoinEarnedWidgetState extends State<BtCoinEarnedWidget>
                     ),
 
                     // Sparkle icon
-                    AnimatedBuilder(
-                      animation: _coinRotateController,
-                      builder: (context, child) {
-                        return Transform.rotate(
-                          angle: _coinRotateController.value * 6.28,
-                          child: Icon(
-                            Icons.auto_awesome,
-                            color: const Color(0xFFFFD700).withOpacity(0.8),
-                            size: 24,
-                          ),
-                        );
-                      },
-                    ),
+                    const GdCoinWidget(size: 60),
                   ],
                 ),
               ),

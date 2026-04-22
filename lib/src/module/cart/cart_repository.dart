@@ -233,13 +233,31 @@ class CartRepository {
         } else if (responseData['address_status'] == false) {
           throw AddressNotUpdatedException();
         }
-        throw Exception(responseData['message']);
+        // Minimum order value error from backend
+        if (responseData['minimum_order_value'] != null ||
+            (responseData['message'] != null &&
+                responseData['message']
+                    .toString()
+                    .toLowerCase()
+                    .contains('minimum order'))) {
+          throw MinOrderValueException(
+            message: responseData['message']?.toString() ??
+                'Minimum order value not met.',
+            minimumOrderValue:
+                (responseData['minimum_order_value'] as num?)?.toDouble() ?? 0,
+            currentOrderValue:
+                (responseData['current_order_value'] as num?)?.toDouble() ?? 0,
+          );
+        }
+        throw Exception(responseData['message'] ?? 'Failed to place order');
       }
 
       throw Exception('Unexpected error occurred');
     } catch (e) {
       log("Place order error: ${e.toString()}");
-      if (e is ProfileNotUpdatedException || e is AddressNotUpdatedException) {
+      if (e is ProfileNotUpdatedException ||
+          e is AddressNotUpdatedException ||
+          e is MinOrderValueException) {
         rethrow;
       }
       throw Exception('Failed to place order: $e');

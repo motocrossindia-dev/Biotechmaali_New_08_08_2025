@@ -5,6 +5,7 @@ import 'package:biotech_maali/src/module/cart/model/cart_item_model.dart';
 import 'package:biotech_maali/src/module/product_detail/product_details/product_details_repository.dart';
 import 'package:biotech_maali/src/widgets/add_to_cart.dart';
 import 'package:biotech_maali/src/widgets/delivery_unavailable_dialog.dart';
+import 'package:biotech_maali/src/widgets/min_order_value_dialog.dart';
 import 'package:biotech_maali/core/services/analytics_service.dart';
 import 'package:biotech_maali/core/services/in_app_messaging_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -320,6 +321,13 @@ class CartProvider extends ChangeNotifier {
       Fluttertoast.showToast(
         msg: "Please add delivery address",
         backgroundColor: Colors.red,
+      );
+    } on MinOrderValueException catch (e) {
+      MinOrderValueDialog.show(
+        context,
+        message: e.message,
+        minimumOrderValue: e.minimumOrderValue,
+        currentOrderValue: e.currentOrderValue,
       );
     } catch (e) {
       log("Error placing order: ${e.toString()}");

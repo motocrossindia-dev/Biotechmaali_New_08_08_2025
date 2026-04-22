@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:biotech_maali/src/payment_and_order/order_history/order_history_provider.dart';
 import 'package:biotech_maali/core/network/app_end_url.dart';
 import 'package:biotech_maali/src/permission_handle/pdf_viewer/pdf_viewer.dart';
-import 'order_return_dialog.dart';
 
 class OrderActionsSheet {
   static const Color themeColor = Color(0xFF749F09);
@@ -50,12 +47,7 @@ class OrderActionsSheet {
     required String orderStatus,
     String? deliveryDate,
   }) {
-    final canReturn = canReturnOrder(deliveryDate);
     final isDelivered = orderStatus.toUpperCase() == 'DELIVERED';
-    final canCancel = orderStatus.toLowerCase() != 'cancelled' &&
-        orderStatus.toLowerCase() != 'delivered' &&
-        orderStatus.toLowerCase() != 'ready_for_pickup' &&
-        orderStatus.toLowerCase() != 'on_the_way';
 
     showModalBottomSheet(
       context: context,
@@ -161,131 +153,6 @@ class OrderActionsSheet {
                       },
                     ),
 
-                  // Return Order - Only within 3 days of delivery
-                  if (isDelivered && canReturn)
-                    _buildActionTile(
-                      icon: Icons.assignment_return_outlined,
-                      title: 'Return Order',
-                      subtitle: 'Request a return for this order',
-                      iconColor: Colors.orange,
-                      onTap: () async {
-                        Navigator.pop(context);
-                        final result = await showDialog<bool>(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (dialogContext) => OrderReturnDialog(
-                            orderId: orderId,
-                            orderNumber: orderNumber,
-                          ),
-                        );
-
-                        if (result == true && context.mounted) {
-                          Navigator.pop(context);
-                        }
-                      },
-                    ),
-
-                  // Return Not Available Message
-                  if (isDelivered && !canReturn)
-                    Container(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.orange.shade50,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Colors.orange.shade200,
-                          width: 1,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.info_outline,
-                            color: Colors.orange.shade700,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              'Return window closed. Returns are only available within 3 days of delivery.',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.orange.shade900,
-                                height: 1.4,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                  // Cancel Order - Only for pending/processing orders
-                  if (canCancel)
-                    _buildActionTile(
-                      icon: Icons.cancel_outlined,
-                      title: 'Cancel Order',
-                      subtitle: 'Cancel this order',
-                      iconColor: Colors.red,
-                      onTap: () async {
-                        Navigator.pop(context);
-                        final confirm = await showDialog<bool>(
-                          context: context,
-                          builder: (dialogContext) => AlertDialog(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            title: const Text('Cancel Order'),
-                            content: const Text(
-                              'Are you sure you want to cancel this order?',
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () =>
-                                    Navigator.pop(dialogContext, false),
-                                child: const Text('No'),
-                              ),
-                              TextButton(
-                                onPressed: () =>
-                                    Navigator.pop(dialogContext, true),
-                                style: TextButton.styleFrom(
-                                  foregroundColor: Colors.red,
-                                ),
-                                child: const Text('Yes, Cancel'),
-                              ),
-                            ],
-                          ),
-                        );
-
-                        if (confirm == true && context.mounted) {
-                          final success = await context
-                              .read<OrderHistoryProvider>()
-                              .cancelOrder(orderId.toString());
-
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  success
-                                      ? 'Order cancelled successfully'
-                                      : 'Failed to cancel order',
-                                ),
-                                backgroundColor:
-                                    success ? Colors.green : Colors.red,
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-
-                            if (success) {
-                              Navigator.pop(context);
-                            }
-                          }
-                        }
-                      },
-                    ),
                 ],
               ),
             ),

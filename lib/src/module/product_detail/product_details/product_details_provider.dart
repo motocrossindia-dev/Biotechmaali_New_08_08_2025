@@ -8,6 +8,7 @@ import 'package:biotech_maali/src/module/wishlist/whishlist_provider.dart';
 import 'package:biotech_maali/src/widgets/add_to_cart.dart';
 import 'package:biotech_maali/src/widgets/add_to_wishlist.dart';
 import 'package:biotech_maali/src/widgets/delivery_unavailable_dialog.dart';
+import 'package:biotech_maali/src/widgets/min_order_value_dialog.dart';
 import 'package:biotech_maali/src/module/product_detail/product_details/model/product_details_model.dart';
 import 'package:biotech_maali/src/module/product_detail/product_details/product_details_repository.dart';
 import 'package:biotech_maali/core/services/analytics_service.dart';
@@ -565,6 +566,14 @@ class ProductDetailsProvider extends ChangeNotifier {
             isAddAddress: true,
           ),
         ),
+      );
+    } on MinOrderValueException catch (e) {
+      _error = e.message;
+      MinOrderValueDialog.show(
+        context,
+        message: e.message,
+        minimumOrderValue: e.minimumOrderValue,
+        currentOrderValue: e.currentOrderValue,
       );
     } catch (e) {
       _error = e.toString();
