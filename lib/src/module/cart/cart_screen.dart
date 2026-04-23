@@ -550,7 +550,7 @@ class _CartScreenState extends State<CartScreen> {
                 ),
               ),
               GestureDetector(
-                onTap: () => provider.addToCart(item.id, 1, context),
+                onTap: () => provider.addRecommendationToCart(item.prodId, context),
                 child: Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(

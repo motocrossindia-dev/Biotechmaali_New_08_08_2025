@@ -114,10 +114,10 @@ class CategoryWidget extends StatelessWidget {
                               width: 70,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
+                                color: cButtonGreen.withOpacity(0.05),
                                 border: Border.all(
-                                  color: const Color(
-                                      0xFF0D2164), // You can change this color
-                                  width: 1.0, // You can adjust border width
+                                  color: cButtonGreen.withOpacity(0.1),
+                                  width: 1.0,
                                 ),
                               ),
                               child: Padding(

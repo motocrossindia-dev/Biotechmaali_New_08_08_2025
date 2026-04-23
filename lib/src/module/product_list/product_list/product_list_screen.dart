@@ -43,6 +43,12 @@ class _ProductListScreenState extends State<ProductListScreen> {
   final ScrollController _scrollController = ScrollController();
   bool _isFiltered = false;
 
+  /// Guarantees shimmer on the very first frame — set before postFrameCallback
+  /// fires, cleared only when the provider finishes loading.
+  /// This prevents the 1-frame stale-data blink caused by the provider
+  /// emitting a notifyListeners() during initState vs first-build race.
+  bool _showShimmer = true;
+
   final List<String> _sortOptions = [
     'Default',
     'Price High To Low',
@@ -132,37 +138,81 @@ class _ProductListScreenState extends State<ProductListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          elevation: 4,
-          shadowColor: Colors.black,
-          backgroundColor: Colors.white,
-          surfaceTintColor: Colors.transparent,
-          title: CommonTextWidget(
-            title: widget.title,
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-          ),
-          actions: [
-            InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ProductSearchView(),
-                  ),
-                );
-              },
-              child: const Padding(
-                padding: EdgeInsets.only(right: 40.0),
-                child: Icon(Icons.search, size: 30),
-              ),
-            ),
-          ],
-        ),
         body: Consumer<ProductListProdvider>(
           builder: (context, provider, child) {
-            if (provider.isLoading) {
-              return const ProductListShimmer();
+            // _showShimmer starts true and is cleared (via setState) only after
+            // the provider finishes its first load. This prevents the one-frame
+            // stale-data blink on the new screen.
+            if (!provider.isLoading && _showShimmer) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) setState(() => _showShimmer = false);
+              });
+            }
+
+            final showShimmer = provider.isLoading || _showShimmer;
+
+            if (showShimmer) {
+              bool hasBanner = widget.subcategoryDetails != null;
+              return CustomScrollView(
+                slivers: [
+                  SliverAppBar(
+                    floating: false,
+                    pinned: true,
+                    elevation: hasBanner ? 0 : 4,
+                    backgroundColor:
+                        hasBanner ? cButtonGreen : Colors.white,
+                    surfaceTintColor: Colors.transparent,
+                    toolbarHeight: 56,
+                    leading: IconButton(
+                      icon: Icon(
+                        Icons.arrow_back,
+                        color: hasBanner ? Colors.white : Colors.black,
+                      ),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    title: CommonTextWidget(
+                      title: widget.title,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: hasBanner ? Colors.white : Colors.black,
+                    ),
+                    actions: [
+                      IconButton(
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ProductSearchView(),
+                          ),
+                        ),
+                        icon: Icon(
+                          Icons.search,
+                          size: 28,
+                          color: hasBanner ? Colors.white : Colors.black,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                  ),
+                  // Shimmer grid as a proper sliver — no shrinkWrap, no intrinsic
+                  // dimension errors.
+                  SliverPadding(
+                    padding: const EdgeInsets.all(8),
+                    sliver: SliverGrid(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 15,
+                        mainAxisSpacing: 15,
+                        childAspectRatio: 0.62,
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (_, __) => const ProductListShimmer(),
+                        childCount: 6,
+                      ),
+                    ),
+                  ),
+                ],
+              );
             }
 
             List<Product> products = provider.allProducts;
@@ -185,10 +235,51 @@ class _ProductListScreenState extends State<ProductListScreen> {
               );
             }
 
+            bool hasBanner = widget.subcategoryDetails != null;
+
             return CustomScrollView(
               controller: _scrollController,
               slivers: [
-                if (widget.subcategoryDetails != null)
+                SliverAppBar(
+                  floating: false,
+                  pinned: true,
+                  elevation: hasBanner ? 0 : 4,
+                  backgroundColor: hasBanner ? cButtonGreen : Colors.white,
+                  surfaceTintColor: Colors.transparent,
+                  toolbarHeight: 56,
+                  leading: IconButton(
+                    icon: Icon(
+                      Icons.arrow_back,
+                      color: hasBanner ? Colors.white : Colors.black,
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  title: CommonTextWidget(
+                    title: widget.title,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: hasBanner ? Colors.white : Colors.black,
+                  ),
+                  actions: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ProductSearchView(),
+                          ),
+                        );
+                      },
+                      icon: Icon(
+                        Icons.search,
+                        size: 28,
+                        color: hasBanner ? Colors.white : Colors.black,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                ),
+                if (hasBanner)
                   SliverToBoxAdapter(
                     child: SubcategoryInfoBanner(
                       subcategory: widget.subcategoryDetails!,

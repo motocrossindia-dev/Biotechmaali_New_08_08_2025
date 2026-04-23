@@ -194,6 +194,50 @@ class CartRepository {
     }
   }
 
+  /// Add a "Complete Your Garden" recommendation to cart.
+  /// Sends `order_source: "product"` with `products: [{"prod_id": prodId, "quantity": quantity}]`
+  /// as required by https://backend.gidan.store/order/cart/
+  Future<bool> addRecommendationToCart(int prodId, int quantity) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("access_token");
+
+    if (token == null || token.isEmpty) {
+      throw Exception('Authentication token is missing');
+    }
+
+    try {
+      final response = await dio.post(
+        EndUrl.addToCartUrl,
+        data: {
+          'order_source': 'product',
+          'products': [
+            {'prod_id': prodId, 'quantity': quantity},
+          ],
+        },
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          validateStatus: (status) {
+            return status! < 500;
+          },
+        ),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        log("Recommendation added to cart (prod_id=$prodId): ${response.data}");
+        return true;
+      } else {
+        log("Add recommendation to cart failed (prod_id=$prodId): ${response.data}");
+        return false;
+      }
+    } catch (e) {
+      log("Add recommendation to cart error: ${e.toString()}");
+      return false;
+    }
+  }
+
   Future<OrderResponseModel> placeOrderFromCart() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("access_token");

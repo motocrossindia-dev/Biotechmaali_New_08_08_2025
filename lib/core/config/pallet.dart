@@ -36,6 +36,11 @@ Color cLightGreyHomeWork = const Color(0xFFEEEEEE);
 Color timeLineColor = const Color(0xFF0043CE);
 Color orderSummaryBackground = const Color(0xFFF4F4F4);
 
+// Premium Design Colors
+Color cItalicGreen = const Color(0xFF9DCD37);
+Color cBannerDarkGreen = const Color(0xFF1B3012);
+Color cBannerPatternColor = const Color(0xFFFFFFFF).withOpacity(0.05);
+
 LinearGradient lgBanner =
     const LinearGradient(colors: [Color(0xFFFFFFFF), Color(0xFFD6D0D0)]);
 

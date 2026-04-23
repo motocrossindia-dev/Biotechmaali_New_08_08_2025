@@ -106,10 +106,18 @@ class CarouselWidget extends StatelessWidget {
                     imageBuilder: (context, imageProvider) => Container(
                       width: MediaQuery.of(context).size.width,
                       decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
                         image: DecorationImage(
                           image: imageProvider,
-                          fit: BoxFit.fill,
+                          fit: BoxFit.cover,
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
                     ),
                     placeholder: (context, url) => Container(

@@ -28,7 +28,9 @@ class ProductListProdvider extends ChangeNotifier {
 
   /// Call this synchronously in initState (before the post-frame callback)
   /// so the very first build sees isLoading=true and empty lists.
-  /// Does NOT call notifyListeners() — safe to use during build phase.
+  /// Safe to call during initState — does NOT call notifyListeners().
+  /// The API methods (getCategoryProductList etc.) call notifyListeners()
+  /// from their own postFrameCallback, which is the correct place.
   void resetForNewLoad() {
     _loadGeneration++;
     _isLoading = true;
@@ -36,8 +38,8 @@ class ProductListProdvider extends ChangeNotifier {
     _allProducts = [];
     _originalProducts = [];
     _currentSortOption = 'Default';
-    // No notifyListeners() here — called synchronously in initState,
-    // the first build() will read these values directly.
+    // intentionally no notifyListeners() — calling it during initState
+    // triggers "setState during build" errors in Flutter.
   }
 
   Future<void> setFilteredProducts(List<Product> products) async {

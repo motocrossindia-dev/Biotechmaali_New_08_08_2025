@@ -47,7 +47,7 @@ class MobileNumberScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 60),
                     Text(
-                      'Welcome to\nBiotech Maali',
+                      'Welcome to\nGidan',
                       style: GoogleFonts.playfairDisplay(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,

@@ -45,9 +45,12 @@ class PromotionalBanner extends StatelessWidget {
         if (!hasValidData) {
           // Fallback to original static banner
           return Container(
-            padding: const EdgeInsets.all(10),
-            decoration: const BoxDecoration(
-              color: Colors.transparent,
+            margin: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: cButtonGreen.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: cButtonGreen.withOpacity(0.1)),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,

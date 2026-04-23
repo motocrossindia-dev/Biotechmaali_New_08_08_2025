@@ -295,6 +295,55 @@ class CartProvider extends ChangeNotifier {
     }
   }
 
+  /// Add a "Complete Your Garden" recommendation to cart using the correct
+  /// payload: `order_source: "product"` + `products: [{"prod_id": prodId, "quantity": 1}]`
+  Future<bool> addRecommendationToCart(
+      int prodId, BuildContext context) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      final success = await _repository.addRecommendationToCart(prodId, 1);
+
+      if (success) {
+        // Refresh cart silently — failure here should not show an error.
+        try {
+          await fetchCartItems();
+        } catch (_) {}
+
+        // Use Fluttertoast (no BuildContext needed) so a stale context
+        // after the awaits can never cause an exception here.
+        Fluttertoast.showToast(
+          msg: "Cart updated successfully!",
+          backgroundColor: const Color(0xFF3B5226),
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_SHORT,
+        );
+      } else {
+        Fluttertoast.showToast(
+          msg: "Item already in cart",
+          backgroundColor: Colors.orange,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_SHORT,
+        );
+      }
+
+      return success;
+    } catch (e) {
+      // Only reached if the actual API call itself throws.
+      _error = "Something went wrong while adding to cart";
+      Fluttertoast.showToast(
+        msg: "Failed to add item. Please try again.",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> placeOrder(BuildContext context) async {
     if (_cartItems.isEmpty) {
       Fluttertoast.showToast(

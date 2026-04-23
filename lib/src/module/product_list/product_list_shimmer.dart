@@ -1,53 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
+/// A single shimmer product-tile placeholder.
+/// The [SliverGrid] in ProductListScreen builds 6 of these as children,
+/// so this widget only needs to render one card.
 class ProductListShimmer extends StatelessWidget {
   const ProductListShimmer({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white, // Add white background
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Banner shimmer
-            Shimmer.fromColors(
-              baseColor: Colors.grey[300]!,
-              highlightColor: Colors.grey[100]!,
-              child: Container(
-                width: double.infinity,
-                height: 180,
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-            // Grid shimmer
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: 6,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 15.0,
-                  mainAxisSpacing: 15.0,
-                  childAspectRatio: 0.48,
-                ),
-                itemBuilder: (context, index) {
-                  return _buildProductTileShimmer(context);
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    return _buildProductTileShimmer(context);
   }
+
 
   Widget _buildProductTileShimmer(BuildContext context) {
     return Shimmer.fromColors(
@@ -62,42 +26,41 @@ class ProductListShimmer extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Product image container with wishlist icon
+            // Product image area with wishlist icon
             Stack(
               children: [
                 Container(
-                  height: 180,
+                  height: 140, // reduced from 180 to fit in cell
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                // Wishlist icon position
                 Positioned(
-                  top: 8,
-                  right: 8,
+                  top: 6,
+                  right: 6,
                   child: Container(
-                    width: 32,
-                    height: 32,
+                    width: 28,
+                    height: 28,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(14),
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
 
-            // Product name shimmer (2 lines)
+            // Product name (2 lines)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    height: 16,
+                    height: 14,
                     width: double.infinity,
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -106,8 +69,8 @@ class ProductListShimmer extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Container(
-                    height: 16,
-                    width: MediaQuery.of(context).size.width * 0.25,
+                    height: 14,
+                    width: MediaQuery.of(context).size.width * 0.22,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(4),
@@ -116,45 +79,43 @@ class ProductListShimmer extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
 
-            // Price section shimmer
+            // Price row
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Row(
                 children: [
-                  // Discount price
+                  Container(
+                    height: 18,
+                    width: 70,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Container(
+                    height: 14,
+                    width: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 6),
+
+            // Rating row
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                children: [
                   Container(
                     height: 20,
-                    width: 80,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  // Original price (crossed out)
-                  Container(
-                    height: 16,
-                    width: 60,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-
-            // Rating section shimmer
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Row(
-                children: [
-                  Container(
-                    height: 24,
-                    width: 45,
+                    width: 40,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(4),
@@ -162,8 +123,8 @@ class ProductListShimmer extends StatelessWidget {
                   ),
                   const SizedBox(width: 4),
                   Container(
-                    height: 24,
-                    width: 24,
+                    height: 20,
+                    width: 20,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(4),
@@ -172,13 +133,13 @@ class ProductListShimmer extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
 
-            // Add to cart button shimmer
+            // Add to cart button
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Container(
-                height: 40,
+                height: 36,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -186,32 +147,7 @@ class ProductListShimmer extends StatelessWidget {
                 ),
               ),
             ),
-
-            // Delivery info shimmer
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Container(
-                    height: 16,
-                    width: 16,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Container(
-                    height: 14,
-                    width: 100,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            const SizedBox(height: 6),
           ],
         ),
       ),

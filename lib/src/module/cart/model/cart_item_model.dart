@@ -126,6 +126,8 @@ class CartItemModel {
 
 class CartRecommendationModel {
   final int id;
+  /// The main product id used for adding to cart (maps to `prod_id` in the API response).
+  final int prodId;
   final String name;
   final String slug;
   final double sellingPrice;
@@ -135,6 +137,7 @@ class CartRecommendationModel {
 
   CartRecommendationModel({
     required this.id,
+    required this.prodId,
     required this.name,
     required this.slug,
     required this.sellingPrice,
@@ -146,6 +149,10 @@ class CartRecommendationModel {
   factory CartRecommendationModel.fromJson(Map<String, dynamic> json) {
     return CartRecommendationModel(
       id: CartItemModel._parseInt(json['id']) ?? 0,
+      // `prod_id` is the correct id to use when adding to cart.
+      prodId: CartItemModel._parseInt(json['prod_id']) ??
+          CartItemModel._parseInt(json['product_id']) ??
+          CartItemModel._parseInt(json['id']) ?? 0,
       name: json['name']?.toString() ?? '',
       slug: json['slug']?.toString() ?? '',
       sellingPrice: CartItemModel._parseDouble(json['selling_price']) ?? 0.0,
