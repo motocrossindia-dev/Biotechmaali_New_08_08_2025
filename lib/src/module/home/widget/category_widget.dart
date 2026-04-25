@@ -114,7 +114,7 @@ class CategoryWidget extends StatelessWidget {
                               width: 70,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: cButtonGreen.withOpacity(0.05),
+                                color: Colors.white,
                                 border: Border.all(
                                   color: cButtonGreen.withOpacity(0.1),
                                   width: 1.0,
