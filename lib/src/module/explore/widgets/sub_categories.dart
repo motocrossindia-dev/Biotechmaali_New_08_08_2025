@@ -2,6 +2,7 @@ import 'package:biotech_maali/src/module/product_list/product_list/product_list_
 import 'package:biotech_maali/src/module/explore/model/subcategory_model.dart';
 import 'package:biotech_maali/src/widgets/error_message_widget.dart';
 import 'package:biotech_maali/core/services/analytics_service.dart';
+import 'package:lottie/lottie.dart';
 
 import '../../../../import.dart';
 
@@ -10,7 +11,6 @@ class SubCategories extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String imageBaseUrl = BaseUrl.baseUrlForImages;
     return Consumer<ExploreProvider>(
       builder: (context, provider, child) {
         if (provider.isLoading) {
@@ -34,7 +34,8 @@ class SubCategories extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () {
                     provider.fetchMainCategories();
-                    provider.fetchSubcategory(provider.selectedCategorySlug ?? '',
+                    provider.fetchSubcategory(
+                        provider.selectedCategorySlug ?? '',
                         context: context);
                   },
                   child: const Text('Retry'),
@@ -47,9 +48,37 @@ class SubCategories extends StatelessWidget {
         List<Subcategory> subcategories = provider.subcategories;
 
         if (subcategories.isEmpty) {
-          return const Expanded(
+          return Expanded(
             child: Center(
-              child: Text('No subcategories available'),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Lottie.asset(
+                    'assets/animations/nodata.json',
+                    width: 200,
+                    height: 200,
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No subcategories found',
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'We are updating soon!',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
           );
         }
@@ -96,8 +125,11 @@ class SubCategories extends StatelessWidget {
                             categoryId: subcategory.category.toString(),
                             isCategory: false,
                             title: subcategory.name,
-                            categoryName: provider.maincategories.isNotEmpty 
-                                ? provider.maincategories[provider.selectedCategoryIndex].slug 
+                            categoryName: provider.maincategories.isNotEmpty
+                                ? provider
+                                    .maincategories[
+                                        provider.selectedCategoryIndex]
+                                    .slug
                                 : '',
                             subcategoryDetails: subcategory,
                           ),
@@ -128,7 +160,7 @@ class SubCategories extends StatelessWidget {
                                   bottom: Radius.circular(8),
                                 ),
                                 child: NetworkImageWidget(
-                                  imageUrl: imageBaseUrl + subcategory.image,
+                                  imageUrl: subcategory.image,
                                   fit: BoxFit.cover,
                                   width: double.infinity,
                                   height: double.infinity,

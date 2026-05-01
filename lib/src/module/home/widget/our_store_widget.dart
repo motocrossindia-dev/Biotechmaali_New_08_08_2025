@@ -127,7 +127,7 @@ class _StoreCard extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Image.network(
-                  '${BaseUrl.baseUrlForImages}${store.image}',
+                  store.image,
                   width: double.infinity,
                   height: 180,
                   fit: BoxFit.cover,
@@ -265,7 +265,7 @@ class _StoreCard extends StatelessWidget {
               ),
               child: store.image.isNotEmpty
                   ? Image.network(
-                      '${BaseUrl.baseUrlForImages}${store.image}',
+                      store.image,
                       width: double.infinity,
                       height: 140,
                       fit: BoxFit.cover,

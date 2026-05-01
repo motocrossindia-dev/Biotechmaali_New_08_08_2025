@@ -22,7 +22,8 @@ class HomeRepository {
       if (response.statusCode == 200 && response.data != null) {
         final List<dynamic> flagsData = response.data['flags'];
         return flagsData
-            .map((flag) => PublicFlagModel.fromJson(flag as Map<String, dynamic>))
+            .map((flag) =>
+                PublicFlagModel.fromJson(flag as Map<String, dynamic>))
             .toList();
       } else {
         throw Exception('Failed to load public flags: ${response.statusCode}');
@@ -38,7 +39,8 @@ class HomeRepository {
     String? token = prefs.getString("access_token");
     try {
       Response response;
-      final url = "${BaseUrl.baseUrl}filters/main_productsFilter/?mobile_app=true&flag=$flagId";
+      final url =
+          "${BaseUrl.baseUrl}filters/main_productsFilter/?mobile_app=true&flag=$flagId";
       if (token != null) {
         response = await dio.get(
           url,
@@ -68,6 +70,8 @@ class HomeRepository {
         log('Banner URL: $bannerUrl');
         log('Product URL: $productUrl');
         final Map<String, dynamic> responseData = response.data;
+
+        log("Banner Data ============== ${responseData['data']['banners'].toString()}");
 
         // Check if the response has the expected structure
         if (responseData['data'] == null ||

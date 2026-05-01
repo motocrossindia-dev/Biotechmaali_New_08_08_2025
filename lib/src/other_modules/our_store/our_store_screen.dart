@@ -128,7 +128,7 @@ class StoreCard extends StatelessWidget {
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
                 child: store.image.isNotEmpty
                     ? Image.network(
-                        '${BaseUrl.baseUrlForImages}${store.image}',
+                        store.image,
                         width: double.infinity,
                         height: 220,
                         fit: BoxFit.cover,

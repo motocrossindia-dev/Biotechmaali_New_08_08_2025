@@ -108,8 +108,7 @@ class PromotionalBanner extends StatelessWidget {
 
         // Display banner with image from API
         // Image URL (commented out as the image widget is commented)
-        // final String imageUrl =
-        //     '${BaseUrl.baseUrlForImages}${bannerData.mobileBanner}';
+        // final String imageUrl = bannerData.mobileBanner;
         final String title = bannerData.title.isNotEmpty
             ? bannerData.title
             : 'Vibrant and Thriving Plants Online';

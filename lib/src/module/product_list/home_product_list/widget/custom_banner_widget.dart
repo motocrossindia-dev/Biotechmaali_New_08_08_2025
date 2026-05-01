@@ -69,8 +69,7 @@ class CustomBannerWidget extends StatelessWidget {
         }
 
         // Display banner with data from API
-        final String imageUrl =
-            '${BaseUrl.baseUrlForImages}${bannerData.mobileBanner}';
+        final String imageUrl = bannerData.mobileBanner;
         final String title = bannerData.title.isNotEmpty
             ? bannerData.title
             : 'Vibrant and Thriving Plants Online';

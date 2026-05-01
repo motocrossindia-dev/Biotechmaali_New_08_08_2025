@@ -145,13 +145,12 @@ class HomeProvider extends ChangeNotifier {
       .toList();
 
   List<Map<String, String>> get visibleHomeBanners {
-    const baseUrl = BaseUrl.baseUrlForImages; // Add your base URL here
     return _banners
         .where((banner) =>
             banner.isVisible &&
             (banner.type == 'Home' || banner.type == 'Hero'))
         .map((banner) => {
-              'image': '$baseUrl${banner.mobileBanner}',
+              'image': banner.mobileBanner,
               'productId': banner.productId?.toString() ?? '0',
               'bannerId': banner.id.toString(), // Add banner ID
             })
