@@ -29,7 +29,7 @@ class HomeProvider extends ChangeNotifier {
   String? _error;
   List<MainCategoryModel> _mainCategories = [];
   List<PublicFlagModel> _publicFlags = [];
-  Map<int, ProductListModel> _flagProductsList = {};
+  final Map<int, ProductListModel> _flagProductsList = {};
 
   // Getters
   bool get isLoading => _isLoading;
@@ -37,7 +37,7 @@ class HomeProvider extends ChangeNotifier {
   bool get isCartLoading => _isCartLoading;
   String? get error => _error;
   List<MainCategoryModel> get maincategories => _mainCategories;
-  
+
   List<PublicFlagModel> get publicFlags => _publicFlags;
   Map<int, ProductListModel> get flagProductsList => _flagProductsList;
 
@@ -332,8 +332,7 @@ class HomeProvider extends ChangeNotifier {
 
       // Concurrently fetch products for all flags to populate the home grids.
       await Future.wait(
-        _publicFlags.map((flag) => fetchProductsForFlag(flag.id))
-      );
+          _publicFlags.map((flag) => fetchProductsForFlag(flag.id)));
 
       _isLoading = false;
       notifyListeners();

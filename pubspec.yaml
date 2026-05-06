@@ -78,8 +78,9 @@ dev_dependencies:
 
 flutter_launcher_icons:
   android: "launcher_icon"
-  ios: true
-  image_path: "assets/png/images/Gidan Logo.png"  # Update this path to your actual logo file
+  ios: "AppIcon"
+  image_path: "assets/png/Gidan Logo.png"
+  remove_alpha_ios: true
   min_sdk_android: 21
 
 flutter:

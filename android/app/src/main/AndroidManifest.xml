@@ -23,7 +23,7 @@
     <application
         android:label="Gidan"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher_round"
+        android:icon="@mipmap/launcher_icon"
         android:usesCleartextTraffic="true">
         
         <activity
